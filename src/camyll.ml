@@ -12,4 +12,4 @@ let default_cmd =
 
 let cmds = [build_cmd]
 
-let () = Term.(exit @@ eval_choice default_cmd cmds)
+let main () = Term.(exit @@ eval_choice default_cmd cmds)

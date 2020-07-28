@@ -1,5 +1,4 @@
-(executable
+(library
   (name camyll)
-  (public_name camyll)
   (libraries
     calendar cmdliner ezjsonm lambdasoup markup mustache omd pcre re unix yaml))

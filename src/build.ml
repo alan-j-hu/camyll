@@ -9,7 +9,7 @@ type t = {
     config : Config.t;
     languages : (string, Highlight.tm_grammar) Hashtbl.t;
     templates : (string, Mustache.t) Hashtbl.t;
-    includes : (string * Yaml.value) list;
+    includes : (string, Mustache.t) Hashtbl.t;
   }
 
 let (let+) res f = Result.map f res
@@ -210,8 +210,8 @@ let list_page_metadata t pages =
   |> List.sort (fun (d1, _, _) (d2, _, _) -> CalendarLib.Date.compare d2 d1)
   |> List.map (fun (_, url, obj) -> `O (("url", `String url) :: obj))
 
-let render template yaml content =
-  Mustache.render template (`O (("content", `String content) :: yaml))
+let render ~partials template yaml content =
+  Mustache.render ~partials template (`O (("content", `String content) :: yaml))
 
 let get_template t frontmatter =
   match frontmatter with
@@ -228,11 +228,12 @@ let compile_doc t depth pages { name; subdir; frontmatter; content } =
   let path = Filename.concat subdir name in
   let output_path = Filename.concat t.config.Config.output_dir path in
   let yaml = match frontmatter with
-    | Some yaml -> ["pages", `A pages; "include", `O t.includes; "page", yaml]
-    | None -> ["pages", `A pages; "include", `O t.includes]
+    | Some yaml -> ["pages", `A pages; "page", yaml]
+    | None -> ["pages", `A pages]
   in
   let content = match get_template t frontmatter with
-    | Some template -> render template yaml content
+    | Some template ->
+       render ~partials:(Hashtbl.find_opt t.includes) template yaml content
     | None -> content
   in
   let output = Soup.parse content in
@@ -312,39 +313,43 @@ let build () =
         | Invalid_argument s ->
            failwith ("Invalid_argument " ^ s ^ ": " ^ name)
     ) config.Config.template_dir;
-  let includes =
-    Filesystem.fold (fun acc name ->
-        if Sys.is_directory (Config.include_ config name) then
-          acc
-        else
-          let s = Filesystem.read (Config.include_ config name) in
-          let name = Filename.chop_suffix name ".html" in
-          (name, `String s) :: acc) [] config.Config.include_dir
-  in
+  let includes = Hashtbl.create 11 in
+  Filesystem.iter (fun name ->
+      if Sys.is_directory (Config.include_ config name) then
+        ()
+      else
+        let s = Filesystem.read (Config.include_ config name) in
+        let name = Filename.chop_suffix name ".html" in
+        Hashtbl.add includes name (Mustache.of_string s)
+    ) config.Config.include_dir;
   let t =
     { config
     ; languages = Hashtbl.create 10
     ; templates
     ; includes }
   in
-  Filesystem.iter (fun name ->
-      if Sys.is_directory (Config.highlighting t.config name) then
-        ()
-      else
-        try
-          Filesystem.with_in (fun chan ->
-              let lang =
-                Markup.channel chan
-                |> Highlight.plist_of_xml
-                |> Highlight.of_plist
-              in
-              Hashtbl.add t.languages
-                (String.lowercase_ascii lang.Highlight.name) lang
-            ) (Config.highlighting t.config name)
-        with
-        | Highlight.Parse_error s ->
-           failwith ("Parse_error " ^ s ^ ": " ^ name)
-    ) t.config.Config.highlighting_dir;
+  begin
+    try
+      Filesystem.iter (fun name ->
+          if Sys.is_directory (Config.highlighting t.config name) then
+            ()
+          else
+            try
+              Filesystem.with_in (fun chan ->
+                  let lang =
+                    Markup.channel chan
+                    |> Highlight.plist_of_xml
+                    |> Highlight.of_plist
+                  in
+                  Hashtbl.add t.languages
+                    (String.lowercase_ascii lang.Highlight.name) lang
+                ) (Config.highlighting t.config name)
+            with
+            | Highlight.Parse_error s ->
+               failwith ("Parse_error " ^ s ^ ": " ^ name)
+        ) t.config.Config.highlighting_dir
+    with Unix.Unix_error(Unix.ENOENT, "opendir", "highlighting") -> ()
+  end;
   Filesystem.remove_dir t.config.Config.output_dir;
   preprocess_agda (Config.agda_dest config) (Config.src config "");
   ignore (compile_dir t 0 "")
