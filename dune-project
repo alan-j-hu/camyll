@@ -1,0 +1,25 @@
+(lang dune 2.5)
+(name camyll)
+(generate_opam_files true)
+
+(license MIT)
+(authors "Alan" "hu.ala@northeastern.edu")
+(maintainers "Alan" "hu.ala@northeastern.edu")
+(homepage "https://dosaylazy.github.io/camyll")
+(bug_reports "https://github.com/dosaylazy/camyll/issues")
+
+(package
+  (name camyll)
+  (synopsis "A static site generator for my personal site")
+  (description "A static site generator for my personal site")
+  (depends
+    (calendar (and (>= 2.0) (< 3.0)))
+    (dune (and (>= 2.5) (< 3.0)))
+    (ezjsonm (and (>= 1.1) (< 2.0)))
+    (lambdasoup (and (>= 0.7) (< 0.8)))
+    (markup (and (>= 0.8) (< 1.0)))
+    (mustache (and (>= 3.1) (< 4.0)))
+    (omd :dev)
+    (pcre (and (>= 7.4) (< 8.0)))
+    (re (and (>= 1.9) (< 2.0)))
+    (yaml (and (>= 2.1) (< 3.0)))))

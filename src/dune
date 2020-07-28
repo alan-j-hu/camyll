@@ -1,0 +1,4 @@
+(executable
+  (name camyll)
+  (public_name camyll)
+  (libraries calendar ezjsonm lambdasoup markup mustache omd pcre re unix yaml))
