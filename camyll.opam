@@ -9,6 +9,7 @@ homepage: "https://dosaylazy.github.io/camyll"
 bug-reports: "https://github.com/dosaylazy/camyll/issues"
 depends: [
   "calendar" {>= "2.0" & < "3.0"}
+  "cmdliner" {>= "1.0" & < "2.0"}
   "dune" {>= "2.5" & < "3.0"}
   "ezjsonm" {>= "1.1" & < "2.0"}
   "lambdasoup" {>= "0.7" & < "0.8"}
