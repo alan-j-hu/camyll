@@ -210,13 +210,13 @@ let list_page_metadata t pages =
   |> List.sort (fun (d1, _, _) (d2, _, _) -> CalendarLib.Date.compare d2 d1)
   |> List.map (fun (_, url, obj) -> `O (("url", `String url) :: obj))
 
-let render ~partials template yaml content =
+let render partials template yaml content =
   Mustache.render ~partials template (`O (("content", `String content) :: yaml))
 
-let get_template t frontmatter =
+let get_layout t frontmatter =
   match frontmatter with
   | Some (`O attrs) ->
-     begin match List.assoc_opt "template" attrs with
+     begin match List.assoc_opt "layout" attrs with
      | None -> None
      | Some (`String name) -> Some (Hashtbl.find t.templates name)
      | Some _ -> failwith "Template name not a string"
@@ -231,9 +231,8 @@ let compile_doc t depth pages { name; subdir; frontmatter; content } =
     | Some yaml -> ["pages", `A pages; "page", yaml]
     | None -> ["pages", `A pages]
   in
-  let content = match get_template t frontmatter with
-    | Some template ->
-       render ~partials:(Hashtbl.find_opt t.includes) template yaml content
+  let content = match get_layout t frontmatter with
+    | Some template -> render (Hashtbl.find_opt t.includes) template yaml content
     | None -> content
   in
   let output = Soup.parse content in
