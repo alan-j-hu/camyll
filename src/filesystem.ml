@@ -63,8 +63,14 @@ let fold f start dirname =
         match Unix.readdir iterator with
         | exception End_of_file -> acc
         | exception r -> raise r
-        | "." | ".." -> loop acc
-        | name -> loop (f acc name)
+        | name ->
+           if
+             name = Filename.current_dir_name
+             || name = Filename.parent_dir_name
+           then
+             loop acc
+           else
+             loop (f acc name)
       in loop start
     ) ~finally:(fun () -> Unix.closedir iterator)
 

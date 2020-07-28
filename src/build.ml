@@ -295,9 +295,8 @@ let preprocess_agda html_dir dir =
          | _, Unix.WSTOPPED _ ->
             failwith "Stopped by signal")
 
-let build () =
-  let config = Config.default in
-  Filesystem.mkdir config.output_dir;
+let build config =
+  Filesystem.mkdir config.Config.output_dir;
   let templates = Hashtbl.create 11 in
   Filesystem.iter (fun filename ->
       if Sys.is_directory (Config.template config filename) then
@@ -311,7 +310,7 @@ let build () =
         with
         | Invalid_argument s ->
            failwith ("Invalid_argument " ^ s ^ ": " ^ name)
-    ) config.Config.template_dir;
+    ) config.Config.layout_dir;
   let includes = Hashtbl.create 11 in
   Filesystem.iter (fun name ->
       if Sys.is_directory (Config.include_ config name) then
@@ -334,15 +333,15 @@ let build () =
             ()
           else
             try
-              Filesystem.with_in (fun chan ->
-                  let lang =
+              let lang =
+                Filesystem.with_in (fun chan ->
                     Markup.channel chan
                     |> Highlight.plist_of_xml
                     |> Highlight.of_plist
-                  in
-                  Hashtbl.add t.languages
-                    (String.lowercase_ascii lang.Highlight.name) lang
-                ) (Config.highlighting t.config name)
+                  ) (Config.highlighting t.config name)
+              in
+              Hashtbl.add t.languages
+                (String.lowercase_ascii lang.Highlight.name) lang
             with
             | Highlight.Parse_error s ->
                failwith ("Parse_error " ^ s ^ ": " ^ name)

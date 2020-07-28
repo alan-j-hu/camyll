@@ -1,8 +1,19 @@
 open Cmdliner
 
+let build () =
+  let config =
+    try
+      Filesystem.read_bin "config.yml"
+      |> Yaml.of_string_exn
+      |> Config.of_json
+    with
+    | Not_found -> Config.default
+  in
+  Build.build config
+
 let build_cmd =
   let doc = "build the site" in
-  Term.(const Build.build $ const ()),
+  Term.(const build $ const ()),
   Term.info "build" ~doc
 
 let default_cmd =
