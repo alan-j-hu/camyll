@@ -291,14 +291,14 @@ let preprocess_agda html_dir dir =
          | _, Unix.WSTOPPED _ ->
             failwith "Stopped by signal")
 
-let rec iterate_fixpoint f x =
+let rec iterate_fixed_point f x =
   let y = f x in
   if x = y then
     x
   else
-    iterate_fixpoint f y
+    iterate_fixed_point f y
 
-let remove_longest_ext = iterate_fixpoint Filename.remove_extension
+let remove_longest_ext = iterate_fixed_point Filename.remove_extension
 
 let build config =
   Filesystem.mkdir config.Config.dest_dir;

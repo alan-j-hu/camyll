@@ -7,7 +7,7 @@ let build () =
       |> Yaml.of_string_exn
       |> Config.of_json
     with
-    | Not_found -> Config.default
+    | Sys_error _ -> Config.default
   in
   Build.build config
 
