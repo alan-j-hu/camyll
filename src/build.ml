@@ -291,6 +291,15 @@ let preprocess_agda html_dir dir =
          | _, Unix.WSTOPPED _ ->
             failwith "Stopped by signal")
 
+let rec iterate_fixpoint f x =
+  let y = f x in
+  if x = y then
+    x
+  else
+    iterate_fixpoint f y
+
+let remove_longest_ext = iterate_fixpoint Filename.remove_extension
+
 let build config =
   Filesystem.mkdir config.Config.dest_dir;
   let layouts = Hashtbl.create 11 in
@@ -299,7 +308,7 @@ let build config =
       if Sys.is_directory path then
         ()
       else
-        let name = Filename.chop_suffix name ".html" in
+        let name = remove_longest_ext name in
         try
           Filesystem.read path
           |> Mustache.of_string
@@ -315,7 +324,7 @@ let build config =
         ()
       else
         let s = Filesystem.read path in
-        let name = Filename.chop_suffix name ".html" in
+        let name = remove_longest_ext name in
         Hashtbl.add partials name (Mustache.of_string s)
     ) config.Config.partial_dir;
   let t =
