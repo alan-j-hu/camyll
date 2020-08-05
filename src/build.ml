@@ -343,14 +343,15 @@ let build config =
               let lang =
                 Filesystem.with_in (fun chan ->
                     Markup.channel chan
-                    |> Highlight.plist_of_xml
-                    |> Highlight.of_plist
+                    |> Plist_xml.parse_exn
+                    |> Highlight.json_of_plist
+                    |> Highlight.of_json
                   ) (Config.highlight t.config name)
               in
               Hashtbl.add t.languages
                 (String.lowercase_ascii lang.Highlight.name) lang
             with
-            | Highlight.Parse_error s ->
+            | Plist_xml.Parse_error s ->
                failwith ("Parse_error " ^ s ^ ": " ^ name)
         ) t.config.Config.highlight_dir
     with Unix.Unix_error(Unix.ENOENT, "opendir", "highlighting") -> ()

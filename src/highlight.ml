@@ -36,110 +36,16 @@ type tm_grammar = {
     repository : (string, pattern list) Hashtbl.t;
   }
 
-exception Parse_error of string
+type common = [ `Bool of bool | `Float of float | `String of string ]
 
-let end_of_doc () = raise (Parse_error "End of document")
-
-let rec skip_comments stream =
-  match Markup.next stream with
-  | Some (`Comment _) -> skip_comments stream
-  | x -> x
-
-let rec skip_comments_and_text stream =
-  match Markup.next stream with
-  | Some (`Comment _ | `Text _) -> skip_comments_and_text stream
-  | x -> x
-
-let rec peek_comments_and_text stream =
-  match Markup.peek stream with
-  | Some (`Comment _ | `Text _) ->
-     ignore (Markup.next stream);
-     peek_comments_and_text stream
-  | x -> x
-
-let rec plist_of_stream' stream =
-  let rec parse_dict acc stream =
-    match skip_comments_and_text stream with
-    | Some `End_element -> List.rev acc
-    | Some (`Start_element((_, "key"), _)) ->
-       begin match skip_comments stream with
-       | Some (`Text [key]) ->
-          begin match skip_comments stream with
-          | Some `End_element ->
-             let value = plist_of_stream' stream in
-             parse_dict ((key, value) :: acc) stream
-          | Some _ -> raise (Parse_error "Expected </key>")
-          | None -> end_of_doc ()
-          end
-       | Some _ -> raise (Parse_error "Expected text inside key")
-       | None -> end_of_doc ()
-       end
-    | Some (`Start_element((_, s), _)) ->
-       raise (Parse_error ("Expected key, got " ^ s))
-    | Some _ -> raise (Parse_error "Dict error")
-    | None -> end_of_doc ()
-  in
-  let rec parse_array acc stream =
-    match peek_comments_and_text stream with
-    | Some `End_element ->
-       (* Munch end element *)
-       ignore (skip_comments_and_text stream);
-       List.rev acc
-    | _ -> parse_array (plist_of_stream' stream :: acc) stream
-  in
-  match skip_comments_and_text stream with
-  | Some (`Start_element((_, "array"), _)) -> `A (parse_array [] stream)
-  | Some (`Start_element((_, "dict"), _)) -> `O (parse_dict [] stream)
-  | Some (`Start_element((_, "string"), _)) ->
-     begin match skip_comments stream with
-     | Some (`Text [str]) ->
-        begin match skip_comments stream with
-        | Some `End_element -> `String str
-        | _ -> raise (Parse_error "Expected </string>")
-        end
-     (* Empty string *)
-     | Some `End_element -> `String ""
-     | Some _ -> raise (Parse_error "Expected text inside string")
-     | None -> end_of_doc ()
-     end
-  | Some (`Start_element((_, start), _)) ->
-     raise
-       (Parse_error ("Expected dict, string, or array, got element " ^ start))
-  | Some (`Comment _) -> raise (Parse_error "Unreachable: comment")
-  | Some (`Doctype _) -> raise (Parse_error "Got doctype")
-  | Some `End_element -> raise (Parse_error "Got end element")
-  | Some (`PI _) -> raise (Parse_error "Cannot handle PI")
-  | Some (`Text _) -> raise (Parse_error "Unreachable: text")
-  | Some (`Xml _) ->
-     raise (Parse_error "Expected dict, string, or array, got XML element")
-  | None -> end_of_doc ()
-
-let plist_of_stream stream =
-  let rec repeat_until_doctype stream =
-    match Markup.next stream with
-    | Some (`Doctype d) -> d
-    | _ -> repeat_until_doctype stream
-  in
-  match Markup.next stream with
-  | Some (`Xml _) ->
-     let _ = repeat_until_doctype stream in
-     begin match skip_comments_and_text stream with
-     | Some (`Start_element((_, "plist"), _)) ->
-        let ret = plist_of_stream' stream in
-        begin match skip_comments_and_text stream with
-        | Some `End_element -> ret
-        | Some _ -> raise (Parse_error "Expected closing plist")
-        | None -> end_of_doc ()
-        end
-     | Some _ -> raise (Parse_error "Expected opening plist")
-     | None -> end_of_doc ()
-     end
-  | _ -> raise (Parse_error "Missing XML declaration")
-
-let plist_of_xml s =
-  Markup.parse_xml s
-  |> Markup.signals
-  |> plist_of_stream
+let rec json_of_plist = function
+  | `Array a -> `A (List.map json_of_plist a)
+  | `Data _ -> failwith "Invalid JSON"
+  | `Date _ -> failwith "Invalid JSON"
+  | `Dict attrs ->
+     `O (List.map (fun (fst, snd) -> (fst, json_of_plist snd)) attrs)
+  | `Int i -> `Float (Float.of_int i)
+  | #common as x -> x
 
 let rec find key = function
   | [] -> None
@@ -154,7 +60,7 @@ let find_exn key obj =
   | Some v -> v
   | None -> failwith (key ^ " not found")
 
-let of_plist plist =
+let of_json json =
   let iflags = Pcre.cflags [`ANCHORED; `DOLLAR_ENDONLY] in
   let rec get_captures acc = function
     | [] -> acc
@@ -229,7 +135,7 @@ let of_plist plist =
          | None, None, None -> failwith "Missing match or begin and end keys"
     in { pattern_kind = kind; }
   in
-  let obj = Ezjsonm.get_dict plist in
+  let obj = Ezjsonm.get_dict json in
   { name = Ezjsonm.get_string (find_exn "name" obj)
   ; patterns = get_patterns obj
   ; repository =
