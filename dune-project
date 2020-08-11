@@ -22,6 +22,6 @@
     (mustache (and (>= 3.1) (< 4.0)))
     (omd :dev)
     (pcre (and (>= 7.4) (< 8.0)))
-    (plist-xml (< 0.2))
+    (plist-xml (< 0.3))
     (re (and (>= 1.9) (< 2.0)))
     (yaml (and (>= 2.1) (< 3.0)))))
