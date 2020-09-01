@@ -7,7 +7,7 @@ type 'a doc = {
 
 type t = {
     config : Config.t;
-    languages : (string, Highlight.tm_grammar) Hashtbl.t;
+    langs : TmLanguage.t;
     layouts : (string, Mustache.t) Hashtbl.t;
     partials : (string, Mustache.t) Hashtbl.t;
   }
@@ -50,14 +50,15 @@ let highlight t =
            | "" -> Omd.Code_block("", code)
            | lang ->
               match
-                Hashtbl.find_opt t.languages (String.lowercase_ascii lang)
+                TmLanguage.find_by_name t.langs lang
               with
               | None ->
                  prerr_endline ("Warning: unknown language " ^ lang);
                  Omd.Code_block(lang, code)
               | Some grammar ->
                  Omd.Html_block
-                   (Soup.pretty_print (Highlight.tokenize_block grammar code))
+                   (Soup.pretty_print
+                      (Highlight.highlight_block t.langs grammar code))
            end
         | x -> x
       in
@@ -201,7 +202,7 @@ let list_page_metadata t pages =
                 |> Ezjsonm.get_string
                 |> CalendarLib.Printer.Date.from_fstring t.config.date_rformat
               in (date, page.name, obj))
-            (Highlight.find "published" obj))
+            (List.assoc_opt "published" obj))
     ) pages
   |> List.sort (fun (d1, _, _) (d2, _, _) -> CalendarLib.Date.compare d2 d1)
   |> List.map (fun (_, url, obj) -> `O (("url", `String url) :: obj))
@@ -329,7 +330,7 @@ let build config =
     ) config.Config.partial_dir;
   let t =
     { config
-    ; languages = Hashtbl.create 10
+    ; langs = TmLanguage.create ()
     ; layouts
     ; partials }
   in
@@ -344,12 +345,10 @@ let build config =
                 Filesystem.with_in (fun chan ->
                     Markup.channel chan
                     |> Plist_xml.parse_exn
-                    |> Highlight.json_of_plist
-                    |> Highlight.of_json
+                    |> TmLanguage.of_plist_exn
                   ) (Config.highlight t.config name)
               in
-              Hashtbl.add t.languages
-                (String.lowercase_ascii lang.Highlight.name) lang
+              TmLanguage.add_grammar t.langs lang
             with
             | Plist_xml.Parse_error s ->
                failwith ("Parse_error " ^ s ^ ": " ^ name)
