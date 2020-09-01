@@ -10,14 +10,11 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: true  # Fetch Hugo themes (true OR recursive)
-          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
 
       - name: Set up OCaml
         uses: avsm/setup-ocaml@v1
         with:
-          ocaml-version: 4.10.0
+          ocaml-version: 4.11.1
 
       - name: Build
         run: |
