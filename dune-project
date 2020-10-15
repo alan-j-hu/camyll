@@ -11,8 +11,12 @@
 
 (package
   (name camyll)
-  (synopsis "A static site generator for my personal site")
-  (description "A static site generator for my personal site")
+  (synopsis "A static site generator")
+  (description "Camyll is a static site generator.
+
+- Supports syntax highlighting of arbitrary languages via grammar files
+  included in the site directory
+- Aware of Literate Agda")
   (depends
     (calendar (and (>= 2.0) (< 3.0)))
     (cmdliner (and (>= 1.0) (< 2.0)))
