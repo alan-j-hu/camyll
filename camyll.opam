@@ -6,8 +6,8 @@ description: "A static site generator for my personal site"
 maintainer: ["Alan" "hu.ala@northeastern.edu"]
 authors: ["Alan" "hu.ala@northeastern.edu"]
 license: "MIT"
-homepage: "https://dosaylazy.github.io/camyll"
-bug-reports: "https://github.com/dosaylazy/camyll/issues"
+homepage: "https://alan-j-hu.github.io/camyll"
+bug-reports: "https://github.com/alan-j-hu/camyll/issues"
 depends: [
   "dune" {>= "2.7"}
   "calendar" {>= "2.0" & < "3.0"}

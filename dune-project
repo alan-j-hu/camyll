@@ -6,8 +6,8 @@
 (license MIT)
 (authors "Alan" "hu.ala@northeastern.edu")
 (maintainers "Alan" "hu.ala@northeastern.edu")
-(homepage "https://dosaylazy.github.io/camyll")
-(bug_reports "https://github.com/dosaylazy/camyll/issues")
+(homepage "https://alan-j-hu.github.io/camyll")
+(bug_reports "https://github.com/alan-j-hu/camyll/issues")
 
 (package
   (name camyll)
