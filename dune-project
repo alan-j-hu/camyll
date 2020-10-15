@@ -1,5 +1,6 @@
-(lang dune 2.5)
+(lang dune 2.7)
 (name camyll)
+(version 0.1.0)
 (generate_opam_files true)
 
 (license MIT)
@@ -15,7 +16,6 @@
   (depends
     (calendar (and (>= 2.0) (< 3.0)))
     (cmdliner (and (>= 1.0) (< 2.0)))
-    (dune (and (>= 2.5) (< 3.0)))
     (ezjsonm (and (>= 1.1) (< 2.0)))
     (lambdasoup (and (>= 0.7) (< 0.8)))
     (markup (and (>= 0.8) (< 1.0)))

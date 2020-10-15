@@ -19,7 +19,6 @@ jobs:
       - name: Build
         run: |
           eval $(opam env)
-          opam pin https://github.com/ocaml/omd.git
           opam install ./camyll.opam
           cd docs
           camyll build
