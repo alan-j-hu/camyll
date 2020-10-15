@@ -3,8 +3,8 @@ opam-version: "2.0"
 version: "0.1.0"
 synopsis: "A static site generator for my personal site"
 description: "A static site generator for my personal site"
-maintainer: ["Alan" "hu.ala@northeastern.edu"]
-authors: ["Alan" "hu.ala@northeastern.edu"]
+maintainer: ["Alan <alanh@ccs.neu.edu>"]
+authors: ["Alan <alanh@ccs.neu.edu"]
 license: "MIT"
 homepage: "https://alan-j-hu.github.io/camyll"
 bug-reports: "https://github.com/alan-j-hu/camyll/issues"
@@ -37,3 +37,4 @@ build: [
     "@doc" {with-doc}
   ]
 ]
+dev-repo: "git+https://github.com/alan-j-hu/camyll.git"

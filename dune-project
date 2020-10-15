@@ -4,10 +4,10 @@
 (generate_opam_files true)
 
 (license MIT)
-(authors "Alan" "hu.ala@northeastern.edu")
-(maintainers "Alan" "hu.ala@northeastern.edu")
+(authors "Alan <alanh@ccs.neu.edu")
+(maintainers "Alan <alanh@ccs.neu.edu>")
 (homepage "https://alan-j-hu.github.io/camyll")
-(bug_reports "https://github.com/alan-j-hu/camyll/issues")
+(source (github alan-j-hu/camyll))
 
 (package
   (name camyll)
