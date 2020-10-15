@@ -43,26 +43,23 @@ let parse_frontmatter chan =
 (** Highlight the code blocks *)
 let highlight t =
   List.map (fun block ->
-      let bl_desc =
-        match block.Omd.bl_desc with
-        | Omd.Code_block(lang, code) ->
-           begin match lang with
-           | "" -> Omd.Code_block("", code)
-           | lang ->
-              match
-                TmLanguage.find_by_name t.langs lang
-              with
-              | None ->
-                 prerr_endline ("Warning: unknown language " ^ lang);
-                 Omd.Code_block(lang, code)
-              | Some grammar ->
-                 Omd.Html_block
-                   (Soup.pretty_print
-                      (Highlight.highlight_block t.langs grammar code))
-           end
-        | x -> x
-      in
-      Omd.{ bl_desc; bl_attributes = [] })
+      match block with
+      | Omd.Code_block(lang, code) ->
+         begin match lang with
+         | "" -> Omd.Code_block("", code)
+         | lang ->
+            match
+              TmLanguage.find_by_name t.langs lang
+            with
+            | None ->
+               prerr_endline ("Warning: unknown language " ^ lang);
+               Omd.Code_block(lang, code)
+            | Some grammar ->
+               Omd.Raw
+                 (Soup.pretty_print
+                    (Highlight.highlight_block t.langs grammar code))
+         end
+      | x -> x)
 
 type doctype =
   | Bin
@@ -73,6 +70,9 @@ let copy_file output_path in_chan =
   Filesystem.with_out_bin (fun out_chan ->
       output_string out_chan (Filesystem.read_bytes in_chan)
     ) output_path
+
+let process_md t chan =
+  Omd.to_html (highlight t (Omd.of_string (Filesystem.read_lines chan)))
 
 let dispatch t subdir name =
   match Filename.chop_suffix_opt ~suffix:".lagda.md" name with
@@ -91,7 +91,7 @@ let dispatch t subdir name =
          Doc { name = name ^ ".html"
              ; subdir
              ; frontmatter
-             ; content = Omd.to_html (highlight t (Omd.of_channel chan)) }
+             ; content = process_md t chan }
        ) (Filename.concat (Config.agda_dest t.config) path ^ ".md")
   | None ->
      let path = Filename.concat subdir name in
@@ -112,7 +112,7 @@ let dispatch t subdir name =
                Doc { name = name ^ ".html"
                    ; subdir
                    ; frontmatter
-                   ; content = Omd.to_html (highlight t (Omd.of_channel chan)) }
+                   ; content = process_md t chan }
              ) (Config.src t.config path)
         | None ->
            Filesystem.with_in_bin (fun chan ->
