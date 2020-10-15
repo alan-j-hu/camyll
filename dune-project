@@ -20,7 +20,7 @@
     (lambdasoup (and (>= 0.7) (< 0.8)))
     (markup (and (>= 0.8) (< 1.0)))
     (mustache (and (>= 3.1) (< 4.0)))
-    (omd (>= 2.0))
+    (omd (and (>= 1.3.1) (< 2.0)))
     (textmate-language (< 0.2))
     (plist-xml (< 0.3))
     (re (and (>= 1.9) (< 2.0)))
