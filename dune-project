@@ -4,7 +4,7 @@
 (generate_opam_files true)
 
 (license MIT)
-(authors "Alan <alanh@ccs.neu.edu")
+(authors "Alan <alanh@ccs.neu.edu>")
 (maintainers "Alan <alanh@ccs.neu.edu>")
 (homepage "https://alan-j-hu.github.io/camyll")
 (source (github alan-j-hu/camyll))

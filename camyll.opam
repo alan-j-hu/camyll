@@ -9,7 +9,7 @@ Camyll is a static site generator.
   included in the site directory
 - Aware of Literate Agda"""
 maintainer: ["Alan <alanh@ccs.neu.edu>"]
-authors: ["Alan <alanh@ccs.neu.edu"]
+authors: ["Alan <alanh@ccs.neu.edu>"]
 license: "MIT"
 homepage: "https://alan-j-hu.github.io/camyll"
 bug-reports: "https://github.com/alan-j-hu/camyll/issues"
