@@ -27,6 +27,6 @@
     (ocaml (>= 4.08))
     (omd (and (>= 1.3.1) (< 2.0)))
     (textmate-language (< 0.2))
-    (plist-xml (< 0.3))
+    (plist-xml (< 0.4))
     (re (and (>= 1.9) (< 2.0)))
     (yaml (and (>= 2.1) (< 3.0)))))
