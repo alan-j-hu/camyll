@@ -18,6 +18,7 @@ jobs:
 
       - name: Build
         run: |
+          sudo apt-get install oniguruma-dev
           eval $(opam env)
           opam install ./camyll.opam
           cd docs
