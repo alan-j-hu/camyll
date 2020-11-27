@@ -1,9 +1,9 @@
 <!doctype html>
 <html>
   <head>
-    {{>head}}
+    {% include "head.jingoo" %}
   </head>
   <body>
-    {{{content}}}
+    {{ content }}
   </body>
 </html>

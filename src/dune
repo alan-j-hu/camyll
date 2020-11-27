@@ -1,5 +1,5 @@
 (library
-  (name camyll)
-  (libraries
-    calendar cmdliner ezjsonm lambdasoup markup mustache omd plist-xml
-    re textmate-language unix yaml))
+ (name camyll)
+ (libraries
+  calendar cmdliner ezjsonm jingoo lambdasoup omd plist-xml
+  re textmate-language unix yaml))

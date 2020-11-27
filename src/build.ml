@@ -1,16 +1,16 @@
+open Jingoo
+
 type 'a doc = {
-    name : string;
-    subdir : string;
-    frontmatter : Yaml.value option;
-    content : 'a;
-  }
+  name : string;
+  subdir : string;
+  frontmatter : Yaml.value;
+  content : 'a;
+}
 
 type t = {
-    config : Config.t;
-    langs : TmLanguage.t;
-    layouts : (string, Mustache.t) Hashtbl.t;
-    partials : (string, Mustache.t) Hashtbl.t;
-  }
+  config : Config.t;
+  langs : TmLanguage.t;
+}
 
 let parse_frontmatter chan =
   try
@@ -29,36 +29,34 @@ let parse_frontmatter chan =
       in
       loop ();
       match Yaml.of_string (Buffer.contents buf) with
-      | Ok yaml -> Some yaml
+      | Ok yaml -> yaml
       | Error (`Msg e) -> failwith e
     else (
       seek_in chan 0;
-      None
+      `Null
     )
   with
   | End_of_file ->
-     seek_in chan 0;
-     None
+    seek_in chan 0;
+    `Null
 
 (** Highlight the code blocks *)
 let highlight t =
   List.map (fun block ->
       match block with
       | Omd.Code_block(lang, code) ->
-         begin match lang with
-         | "" -> Omd.Code_block("", code)
-         | lang ->
-            match
-              TmLanguage.find_by_name t.langs lang
-            with
+        begin match lang with
+          | "" -> Omd.Code_block("", code)
+          | lang ->
+            match TmLanguage.find_by_name t.langs lang with
             | None ->
-               prerr_endline ("Warning: unknown language " ^ lang);
-               Omd.Code_block(lang, code)
+              prerr_endline ("Warning: unknown language " ^ lang);
+              Omd.Code_block(lang, code)
             | Some grammar ->
-               Omd.Raw
-                 (Soup.pretty_print
-                    (Highlight.highlight_block t.langs grammar code))
-         end
+              Omd.Raw
+                (Soup.pretty_print
+                   (Highlight.highlight_block t.langs grammar code))
+        end
       | x -> x)
 
 type doctype =
@@ -77,49 +75,49 @@ let process_md t chan =
 let dispatch t subdir name =
   match Filename.chop_suffix_opt ~suffix:".lagda.md" name with
   | Some name ->
-     let path =
-       if subdir = "" then
-         t.config.Config.src_dir ^ "." ^ name
-       else
-         t.config.Config.src_dir ^ "."
-         ^ (String.split_on_char '/' subdir
-            |> String.concat (String.make 1 '.'))
-         ^ "." ^ name
-     in
-     Filesystem.with_in_bin (fun chan ->
-         let frontmatter = parse_frontmatter chan in
-         Doc { name = name ^ ".html"
-             ; subdir
-             ; frontmatter
-             ; content = process_md t chan }
-       ) (Filename.concat (Config.agda_dest t.config) path ^ ".md")
+    let path =
+      if subdir = "" then
+        t.config.Config.src_dir ^ "." ^ name
+      else
+        t.config.Config.src_dir ^ "."
+        ^ (String.split_on_char '/' subdir
+           |> String.concat (String.make 1 '.'))
+        ^ "." ^ name
+    in
+    Filesystem.with_in_bin (fun chan ->
+        let frontmatter = parse_frontmatter chan in
+        Doc { name = name ^ ".html"
+            ; subdir
+            ; frontmatter
+            ; content = process_md t chan }
+      ) (Filename.concat (Config.agda_dest t.config) path ^ ".md")
   | None ->
-     let path = Filename.concat subdir name in
-     match Filename.chop_suffix_opt ~suffix:".html" name with
-     | Some _ ->
+    let path = Filename.concat subdir name in
+    match Filename.chop_suffix_opt ~suffix:".html" name with
+    | Some _ ->
+      Filesystem.with_in_bin (fun chan ->
+          let frontmatter = parse_frontmatter chan in
+          Doc { name
+              ; subdir
+              ; frontmatter
+              ; content = Filesystem.read_lines chan }
+        ) (Config.src t.config path)
+    | None ->
+      match Filename.chop_suffix_opt ~suffix:".md" name with
+      | Some name ->
         Filesystem.with_in_bin (fun chan ->
             let frontmatter = parse_frontmatter chan in
-            Doc { name
+            Doc { name = name ^ ".html"
                 ; subdir
                 ; frontmatter
-                ; content = Filesystem.read_lines chan }
+                ; content = process_md t chan }
           ) (Config.src t.config path)
-     | None ->
-        match Filename.chop_suffix_opt ~suffix:".md" name with
-        | Some name ->
-           Filesystem.with_in_bin (fun chan ->
-               let frontmatter = parse_frontmatter chan in
-               Doc { name = name ^ ".html"
-                   ; subdir
-                   ; frontmatter
-                   ; content = process_md t chan }
-             ) (Config.src t.config path)
-        | None ->
-           Filesystem.with_in_bin (fun chan ->
-               let output_path = Config.dest t.config path in
-               copy_file output_path chan
-             ) (Config.src t.config path);
-           Bin
+      | None ->
+        Filesystem.with_in_bin (fun chan ->
+            let output_path = Config.dest t.config path in
+            copy_file output_path chan
+          ) (Config.src t.config path);
+        Bin
 
 let concat_urls left right =
   let left_len =
@@ -152,24 +150,24 @@ let correct_agda_urls t node =
       match Soup.attribute "href" node with
       | None -> failwith "Unreachable: href"
       | Some link ->
-         let root_mod = t.config.Config.src_dir in
-         let root_len = String.length t.config.Config.src_dir in
-         let link_len = String.length link in
-         if link_len >= root_len && String.sub link 0 root_len = root_mod then
-           (* The link is to an internal module *)
-           match String.split_on_char '.' link with
-           | [] -> failwith "unreachable"
-           | _ :: parts ->
-              let rec loop acc = function
-                | [] -> failwith "unreachable"
-                | [ext] -> acc ^ "." ^ ext
-                | x :: xs -> loop (acc ^ "/" ^ x) xs
-              in
-              Soup.set_attribute "href" (loop "" parts) node
-         else
-           (* The link is to an external module *)
-           let link = "/" ^ (concat_urls t.config.Config.agda_dir link) in
-           Soup.set_attribute "href" link node
+        let root_mod = t.config.Config.src_dir in
+        let root_len = String.length t.config.Config.src_dir in
+        let link_len = String.length link in
+        if link_len >= root_len && String.sub link 0 root_len = root_mod then
+          (* The link is to an internal module *)
+          match String.split_on_char '.' link with
+          | [] -> failwith "unreachable"
+          | _ :: parts ->
+            let rec loop acc = function
+              | [] -> failwith "unreachable"
+              | [ext] -> acc ^ "." ^ ext
+              | x :: xs -> loop (acc ^ "/" ^ x) xs
+            in
+            Soup.set_attribute "href" (loop "" parts) node
+        else
+          (* The link is to an external module *)
+          let link = "/" ^ (concat_urls t.config.Config.agda_dir link) in
+          Soup.set_attribute "href" link node
     ) (node $$ "pre[class=\"Agda\"] > a[href]")
 
 let relativize_urls depth node =
@@ -179,14 +177,14 @@ let relativize_urls depth node =
         match Soup.attribute attr node with
         | None -> failwith ("Unreachable: " ^ attr)
         | Some link ->
-           if String.get link 0 = '/' then
-             let sub = String.sub link 1 (String.length link - 1) in
-             let buf = Buffer.create 5 in
-             for _ = 1 to depth do
-               Buffer.add_string buf "../"
-             done;
-             Buffer.add_string buf sub;
-             Soup.set_attribute attr (Buffer.contents buf) node
+          if String.get link 0 = '/' then
+            let sub = String.sub link 1 (String.length link - 1) in
+            let buf = Buffer.create 5 in
+            for _ = 1 to depth do
+              Buffer.add_string buf "../"
+            done;
+            Buffer.add_string buf sub;
+            Soup.set_attribute attr (Buffer.contents buf) node
       ) (node $$ ("[" ^ attr ^ "]"))
   in
   replace "href";
@@ -194,45 +192,52 @@ let relativize_urls depth node =
 
 let list_page_metadata t pages =
   List.filter_map (fun page ->
-      Option.bind page.frontmatter (fun yaml ->
-          let obj = Ezjsonm.get_dict yaml in
-          Option.map (fun published ->
-              let date =
-                published
-                |> Ezjsonm.get_string
-                |> CalendarLib.Printer.Date.from_fstring t.config.date_rformat
-              in (date, page.name, obj))
-            (List.assoc_opt "published" obj))
+      let obj = Ezjsonm.get_dict page.frontmatter in
+      Option.map (fun published ->
+          let date =
+            published
+            |> Ezjsonm.get_string
+            |> CalendarLib.Printer.Date.from_fstring t.config.date_rformat
+          in (date, page.name, obj))
+        (List.assoc_opt "published" obj)
     ) pages
   |> List.sort (fun (d1, _, _) (d2, _, _) -> CalendarLib.Date.compare d2 d1)
   |> List.map (fun (_, url, obj) -> `O (("url", `String url) :: obj))
 
-let render partials template yaml content =
-  Mustache.render ~partials template (`O (("content", `String content) :: yaml))
+let rec jingoo_of_json = function
+  | `Null -> Jg_types.Tnull
+  | `Bool b -> Jg_types.Tbool b
+  | `Float f -> Jg_types.Tfloat f
+  | `String str -> Jg_types.Tstr str
+  | `A elems -> Jg_types.Tlist (List.map jingoo_of_json elems)
+  | `O attrs ->
+    Jg_types.Tobj (List.map (fun (k, v) -> (k, jingoo_of_json v)) attrs)
 
-let get_layout t frontmatter =
-  match frontmatter with
-  | Some (`O attrs) ->
-     begin match List.assoc_opt "layout" attrs with
-     | None -> None
-     | Some (`String name) -> Some (Hashtbl.find t.layouts name)
-     | Some _ -> failwith "Template name not a string"
-     end
-  | Some _ -> failwith "Frontmatter not an object"
+let get_layout _t frontmatter =
+  match List.assoc_opt "layout" (Ezjsonm.get_dict frontmatter) with
   | None -> None
+  | Some (`String name) -> Some name
+  | Some _ -> failwith "Template name not a string"
 
-let compile_doc t depth pages { name; subdir; frontmatter; content } =
+let render t frontmatter content =
+  match get_layout t frontmatter with
+  | None -> content
+  | Some path ->
+    let env =
+      { Jg_types.std_env with
+        autoescape = false
+      ; strict_mode = true
+      ; template_dirs = ["includes"] } in
+    let models =
+      [ "content", Jg_types.Tstr content
+      ; "page", jingoo_of_json frontmatter ]
+    in
+    Jg_template.from_file ~env ~models (Filename.concat "templates" path)
+
+let compile_doc t depth _pages { name; subdir; frontmatter; content } =
   let path = Filename.concat subdir name in
   let output_path = Filename.concat t.config.Config.dest_dir path in
-  let yaml = match frontmatter with
-    | Some yaml -> ["pages", `A pages; "page", yaml]
-    | None -> ["pages", `A pages]
-  in
-  let content = match get_layout t frontmatter with
-    | Some template ->
-       render (Hashtbl.find_opt t.partials) template yaml content
-    | None -> content
-  in
+  let content = render t frontmatter content in
   let output = Soup.parse content in
   correct_agda_urls t output;
   relativize_urls depth output;
@@ -250,13 +255,14 @@ let rec compile_dir t depth subdir =
         if Sys.is_directory (Config.src t.config path) then (
           compile_dir t (depth + 1) path;
           pages
-        ) else
-          if List.exists (Fun.flip Re.execp path) t.config.Config.exclude then
-            pages
-          else
-            match dispatch t subdir name with
-            | Bin -> pages
-            | Doc doc -> doc :: pages
+        ) else if
+          List.exists (Fun.flip Re.execp path) t.config.Config.exclude
+        then
+          pages
+        else
+          match dispatch t subdir name with
+          | Bin -> pages
+          | Doc doc -> doc :: pages
       ) [] src
   in
   let metadata = list_page_metadata t pages in
@@ -273,67 +279,28 @@ let preprocess_agda html_dir dir =
           match Filename.chop_suffix_opt ~suffix:".lagda.md" name with
           | None -> pids
           | Some _ ->
-             let pid =
-               Unix.create_process "agda"
-                 [| "agda"; path; "--html"; "--html-highlight=auto"
-                  ; "--html-dir=" ^ html_dir |]
-                 Unix.stdin Unix.stdout Unix.stderr
-             in pid :: pids
+            let pid =
+              Unix.create_process "agda"
+                [| "agda"; path; "--html"; "--html-highlight=auto"
+                 ; "--html-dir=" ^ html_dir |]
+                Unix.stdin Unix.stdout Unix.stderr
+            in pid :: pids
       ) pids dir
   in
   spawn_processes [] dir
   |> List.map (Unix.waitpid [])
   |> List.iter (function
-         | _, Unix.WEXITED 0 -> ()
-         | _, Unix.WEXITED n ->
-            failwith ("Exit code: " ^ Int.to_string n)
-         | _, Unix.WSIGNALED _ ->
-            failwith "Killed by signal"
-         | _, Unix.WSTOPPED _ ->
-            failwith "Stopped by signal")
-
-let rec iterate_fixed_point f x =
-  let y = f x in
-  if x = y then
-    x
-  else
-    iterate_fixed_point f y
-
-let remove_longest_ext = iterate_fixed_point Filename.remove_extension
+      | _, Unix.WEXITED 0 -> ()
+      | _, Unix.WEXITED n ->
+        failwith ("Exit code: " ^ Int.to_string n)
+      | _, Unix.WSIGNALED _ ->
+        failwith "Killed by signal"
+      | _, Unix.WSTOPPED _ ->
+        failwith "Stopped by signal")
 
 let build config =
   Filesystem.mkdir config.Config.dest_dir;
-  let layouts = Hashtbl.create 11 in
-  Filesystem.iter (fun name ->
-      let path = Config.layout config name in
-      if Sys.is_directory path then
-        ()
-      else
-        let name = remove_longest_ext name in
-        try
-          Filesystem.read path
-          |> Mustache.of_string
-          |> Hashtbl.add layouts name
-        with
-        | Invalid_argument s ->
-           failwith ("Invalid_argument " ^ s ^ ": " ^ name)
-    ) config.Config.layout_dir;
-  let partials = Hashtbl.create 11 in
-  Filesystem.iter (fun name ->
-      let path = Config.partial config name in
-      if Sys.is_directory path then
-        ()
-      else
-        let s = Filesystem.read path in
-        let name = remove_longest_ext name in
-        Hashtbl.add partials name (Mustache.of_string s)
-    ) config.Config.partial_dir;
-  let t =
-    { config
-    ; langs = TmLanguage.create ()
-    ; layouts
-    ; partials }
-  in
+  let t = { config; langs = TmLanguage.create () } in
   begin
     try
       Filesystem.iter (fun name ->
@@ -351,7 +318,7 @@ let build config =
               TmLanguage.add_grammar t.langs lang
             with
             | Plist_xml.Parse_error s ->
-               failwith ("Parse_error " ^ s ^ ": " ^ name)
+              failwith ("Parse_error " ^ s ^ ": " ^ name)
         ) t.config.Config.highlight_dir
     with Unix.Unix_error(Unix.ENOENT, "opendir", "highlighting") -> ()
   end;

@@ -1,6 +1,6 @@
 ---
 title: Camyll
-layout: main
+layout: main.jingoo
 ---
 # Camyll
 
