@@ -12,6 +12,9 @@ type t = {
   langs : TmLanguage.t;
 }
 
+(* Try to parse YAML frontmatter from the channel. If there is no frontmatter,
+   reset the cursor to the beginning of the file and return the null YAML
+   document. *)
 let parse_frontmatter chan =
   try
     let line = input_line chan in
@@ -40,7 +43,7 @@ let parse_frontmatter chan =
     seek_in chan 0;
     `Null
 
-(** Highlight the code blocks *)
+(* Highlight the code blocks. *)
 let highlight t =
   List.map (fun block ->
       match block with
@@ -63,8 +66,8 @@ type doctype =
   | Bin
   | Doc of string doc
 
+(* Copy the file exactly. *)
 let copy_file output_path in_chan =
-  (* Copy file exactly *)
   Filesystem.with_out_bin (fun out_chan ->
       output_string out_chan (Filesystem.read_bytes in_chan)
     ) output_path
@@ -119,6 +122,8 @@ let dispatch t subdir name =
           ) (Config.src t.config path);
         Bin
 
+(* Concatenate two URLs, handling trailing slashes on the left URL and
+   leading slashes on the right URL. *)
 let concat_urls left right =
   let left_len =
     let len = String.length left in
@@ -129,19 +134,19 @@ let concat_urls left right =
     else
       len
   in
-  let right_len =
+  let right_start, right_len =
     let len = String.length right in
     if len = 0 then
-      0
+      (0, 0)
     else if String.get right 0 = '/' then
-      len - 1
+      (1, len - 1)
     else
-      len
+      (0, len)
   in
   let bytes = Bytes.create (left_len + right_len + 1) in
   Bytes.blit_string left 0 bytes 0 left_len;
   Bytes.set bytes left_len '/';
-  Bytes.blit_string right 0 bytes (left_len + 1) right_len;
+  Bytes.blit_string right right_start bytes (left_len + 1) right_len;
   Bytes.unsafe_to_string bytes
 
 let correct_agda_urls t node =
@@ -227,12 +232,13 @@ let render t frontmatter content =
       { Jg_types.std_env with
         autoescape = false
       ; strict_mode = true
-      ; template_dirs = ["includes"] } in
+      ; template_dirs = [t.config.partial_dir] } in
     let models =
       [ "content", Jg_types.Tstr content
       ; "page", jingoo_of_json frontmatter ]
     in
-    Jg_template.from_file ~env ~models (Filename.concat "templates" path)
+    Jg_template.from_file ~env ~models
+      (Filename.concat t.config.layout_dir path)
 
 let compile_doc t depth _pages { name; subdir; frontmatter; content } =
   let path = Filename.concat subdir name in
