@@ -64,13 +64,11 @@ let fold f start dirname =
         | exception End_of_file -> acc
         | exception r -> raise r
         | name ->
-           if
-             name = Filename.current_dir_name
-             || name = Filename.parent_dir_name
-           then
-             loop acc
-           else
-             loop (f acc name)
+          if name = Filename.current_dir_name
+          || name = Filename.parent_dir_name then
+            loop acc
+          else
+            loop (f acc name)
       in loop start
     ) ~finally:(fun () -> Unix.closedir iterator)
 

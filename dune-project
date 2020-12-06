@@ -19,7 +19,6 @@
 - Aware of Literate Agda")
  (tags (blog))
  (depends
-  (calendar (and (>= 2.0) (< 3.0)))
   (cmdliner (and (>= 1.0) (< 2.0)))
   (ezjsonm (and (>= 1.1) (< 2.0)))
   (jingoo (and (>= 1.4) (< 2.0)))

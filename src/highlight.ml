@@ -13,12 +13,12 @@ type rules_tree = Rule of string * string option * rules_tree list
 let rec eval_rules idx str = function
   | [] -> None
   | (Rule(name, klass, children)) :: rules ->
-     if contains_at idx str name then
-       match eval_rules (idx + String.length name) str children with
-       | Some a -> Some a
-       | None -> klass
-     else
-       eval_rules idx str rules
+    if contains_at idx str name then
+      match eval_rules (idx + String.length name) str children with
+      | Some a -> Some a
+      | None -> klass
+    else
+      eval_rules idx str rules
 
 let get_class str =
   let rules =
@@ -34,7 +34,7 @@ let get_class str =
                   [ Rule(".function", Some "fu", [])
                   ; Rule(".type", Some "dt", []) ])
            ]
-        )
+          )
     ; Rule("variable", Some "va", [])
     ]
   in
@@ -56,9 +56,9 @@ let create_node scopes i j line =
 let rec highlight_tokens i acc line = function
   | [] -> List.rev acc
   | tok :: toks ->
-     let j = TmLanguage.ending tok in
-     let span = create_node (TmLanguage.scopes tok) i j line in
-     highlight_tokens j (span :: acc) line toks
+    let j = TmLanguage.ending tok in
+    let span = create_node (TmLanguage.scopes tok) i j line in
+    highlight_tokens j (span :: acc) line toks
 
 
 (** Maps over the list while keeping track of some state.
@@ -66,8 +66,8 @@ let rec highlight_tokens i acc line = function
 let rec map_fold f acc = function
   | [] -> []
   | x :: xs ->
-     let y, acc = f acc x in
-     y :: map_fold f acc xs
+    let y, acc = f acc x in
+    y :: map_fold f acc xs
 
 let highlight_block langs grammar code =
   let lines = String.split_on_char '\n' code in

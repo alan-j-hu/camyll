@@ -195,24 +195,18 @@ let relativize_urls depth node =
   replace "href";
   replace "src"
 
-let list_page_metadata t pages =
-  List.filter_map (fun page ->
+let list_page_metadata pages =
+  pages
+  |> List.filter (fun page -> page.name <> "index.html")
+  |> List.map (fun page ->
       let obj = Ezjsonm.get_dict page.frontmatter in
-      Option.map (fun published ->
-          let date =
-            published
-            |> Ezjsonm.get_string
-            |> CalendarLib.Printer.Date.from_fstring t.config.date_rformat
-          in (date, page.name, obj))
-        (List.assoc_opt "published" obj)
-    ) pages
-  |> List.sort (fun (d1, _, _) (d2, _, _) -> CalendarLib.Date.compare d2 d1)
-  |> List.map (fun (_, url, obj) -> `O (("url", `String url) :: obj))
+      (page.name, obj))
+  |> List.map (fun (url, obj) -> `O (("url", `String url) :: obj))
 
 let rec jingoo_of_json = function
   | `Null -> Jg_types.Tnull
   | `Bool b -> Jg_types.Tbool b
-  | `Float f -> Jg_types.Tfloat f
+  | `Float f -> Jg_types.Tint (int_of_float f)
   | `String str -> Jg_types.Tstr str
   | `A elems -> Jg_types.Tlist (List.map jingoo_of_json elems)
   | `O attrs ->
@@ -224,7 +218,12 @@ let get_layout _t frontmatter =
   | Some (`String name) -> Some name
   | Some _ -> failwith "Template name not a string"
 
-let render t frontmatter content =
+let unpack_date date =
+  ( Jg_types.unbox_int (Jg_runtime.jg_attr (Jg_types.Tstr "day") date)
+  , Jg_types.unbox_int (Jg_runtime.jg_attr (Jg_types.Tstr "month") date)
+  , Jg_types.unbox_int (Jg_runtime.jg_attr (Jg_types.Tstr "year") date) )
+
+let render t pages frontmatter content =
   match get_layout t frontmatter with
   | None -> content
   | Some path ->
@@ -232,18 +231,24 @@ let render t frontmatter content =
       { Jg_types.std_env with
         autoescape = false
       ; strict_mode = true
-      ; template_dirs = [t.config.partial_dir] } in
+      ; template_dirs = [t.config.partial_dir]
+      ; filters =
+          [ "compare_dates"
+          , Jg_types.func_arg2_no_kw (fun lhs rhs ->
+              Jg_types.Tint (compare (unpack_date lhs) (unpack_date rhs)))
+          ] } in
     let models =
       [ "content", Jg_types.Tstr content
+      ; "posts", Jg_types.Tlist (List.map jingoo_of_json pages)
       ; "page", jingoo_of_json frontmatter ]
     in
     Jg_template.from_file ~env ~models
       (Filename.concat t.config.layout_dir path)
 
-let compile_doc t depth _pages { name; subdir; frontmatter; content } =
+let compile_doc t depth pages { name; subdir; frontmatter; content } =
   let path = Filename.concat subdir name in
   let output_path = Filename.concat t.config.Config.dest_dir path in
-  let content = render t frontmatter content in
+  let content = render t pages frontmatter content in
   let output = Soup.parse content in
   correct_agda_urls t output;
   relativize_urls depth output;
@@ -271,7 +276,7 @@ let rec compile_dir t depth subdir =
           | Doc doc -> doc :: pages
       ) [] src
   in
-  let metadata = list_page_metadata t pages in
+  let metadata = list_page_metadata pages in
   List.iter (compile_doc t depth metadata) pages
 
 (** Highlight Literate Agda files *)
