@@ -5,7 +5,8 @@
   </head>
   <body>
     {% include "nav.jingoo" %}
-    Published: {{ page.date.year }}-{{ page.date.month }}-{{ page.date.day }}
+    {%- set date = read_date("%F", page.date) -%}    
+    Published: {{ date.format("%B %_d, %Y") }}
     {{ content }}
   </body>
 </html>

@@ -224,18 +224,7 @@ let rec jingoo_of_yaml = function
         | None ->
           match float_of_string_opt s with
           | Some f -> Jg_types.Tfloat f
-          | None ->
-            try
-              let time = ISO8601.Permissive.datetime ~reqtime:false s in
-              let tm = Unix.gmtime time in
-              Jg_types.Tpat (function
-                  | "year" -> Jg_types.Tint (tm.Unix.tm_year + 1900)
-                  | "month" -> Jg_types.Tint (tm.Unix.tm_mon + 1)
-                  | "day" -> Jg_types.Tint tm.Unix.tm_mday
-                  | "unixtime" -> Jg_types.Tfloat time
-                  | _ -> Jg_types.Tnull)
-            with
-            | _ -> Jg_types.Tstr s
+          | None -> Jg_types.Tstr s
     end
   | `A elems -> Jg_types.Tlist (List.map jingoo_of_yaml elems)
   | `O attrs ->
@@ -256,9 +245,6 @@ let get_layout _t frontmatter =
   | Some (Jg_types.Tstr name) -> Some name
   | Some _ -> failwith "Template name not a string"
 
-let unixtime date =
-  Jg_types.unbox_float (Jg_runtime.jg_attr (Jg_types.Tstr "unixtime") date)
-
 let render t pages frontmatter content =
   let frontmatter = jingoo_of_yaml frontmatter in
   match get_layout t frontmatter with
@@ -270,9 +256,32 @@ let render t pages frontmatter content =
       ; strict_mode = true
       ; template_dirs = [t.config.partial_dir]
       ; filters =
-          [ "compare_dates"
-          , Jg_types.func_arg2_no_kw (fun lhs rhs ->
-                Jg_types.Tint (compare (unixtime lhs) (unixtime rhs)))
+          [ "read_date"
+          , Jg_types.func_arg2_no_kw (fun format string ->
+                let open CalendarLib in
+                let date =
+                  Printer.Date.from_fstring
+                    (Jg_types.unbox_string format)
+                    (Jg_types.unbox_string string)
+                in
+                Jg_types.Tpat (function
+                    | "year" ->
+                      Jg_types.Tint (Date.year date)
+                    | "month" ->
+                      Jg_types.Tint
+                        (Date.int_of_month (Date.month date))
+                    | "day" ->
+                      Jg_types.Tint (Date.day_of_month date)
+                    | "unix" ->
+                      Jg_types.Tfloat (Date.to_unixfloat date)
+                    | "format" ->
+                      Jg_types.func_arg1_no_kw (fun format ->
+                          Jg_types.Tstr
+                            (Printer.Date.sprint
+                               (Jg_types.unbox_string format) date)
+                        )
+                    | _ -> Jg_types.Tnull)
+              )
           ] } in
     let models =
       [ "content", Jg_types.Tstr content
