@@ -230,7 +230,7 @@ let rec jingoo_of_yaml = function
   | `O attrs ->
     Jg_types.Tobj
       (List.map (fun (k, v) -> (k.Yaml.value, jingoo_of_yaml v)) attrs)
-  | `Alias _ -> failwith "YAML aliases not supported!"
+  | `Alias _ -> failwith "YAML aliases not supported"
 
 let list_page_metadata pages =
   pages
@@ -288,8 +288,9 @@ let render t pages frontmatter content =
       ; "posts", Jg_types.Tlist pages
       ; "page", frontmatter ]
     in
-    Jg_template.from_file ~env ~models
-      (Filename.concat t.config.layout_dir path)
+    let path = Filename.concat t.config.layout_dir path in
+    try Jg_template.from_file ~env ~models path with
+    | Jingoo.Jg_types.SyntaxError e -> failwith (path ^ ": " ^ e)
 
 let compile_doc t depth pages { name; subdir; frontmatter; content } =
   let path = Filename.concat subdir name in
@@ -349,13 +350,13 @@ let preprocess_agda html_dir dir =
   |> List.iter (function
       | _, Unix.WEXITED 0 -> ()
       | _, Unix.WEXITED n ->
-        failwith ("Exit code: " ^ Int.to_string n)
+        failwith ("Agda process exited with code " ^ Int.to_string n)
       | _, Unix.WSIGNALED _ ->
-        failwith "Killed by signal"
+        failwith "Agda process killed by signal"
       | _, Unix.WSTOPPED _ ->
-        failwith "Stopped by signal")
+        failwith "Agda process stopped by signal")
 
-let build config =
+let build_with_config config =
   Filesystem.mkdir config.Config.dest_dir;
   let t = { config; langs = TmLanguage.create () } in
   begin
@@ -383,3 +384,18 @@ let build config =
   Filesystem.remove_dir t.config.Config.dest_dir;
   preprocess_agda (Config.agda_dest config) (Config.src config "");
   ignore (compile_dir t 0 "")
+
+let build () =
+  try
+    let config =
+      match Filesystem.read_bin "config.yml" with
+      | exception Sys_error _ -> Config.default
+      | data ->
+        match Yaml.yaml_of_string data with
+        | Error (`Msg msg) -> failwith msg
+        | Ok yaml -> Config.of_yaml yaml
+    in
+    build_with_config config;
+    `Ok ()
+  with
+  | Failure e -> `Error (false, e)

@@ -1,1 +1,1 @@
-val build : Config.t -> unit
+val build : unit -> unit Cmdliner.Term.ret

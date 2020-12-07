@@ -1,19 +1,8 @@
 open Cmdliner
 
-let build () =
-  let config =
-    match Filesystem.read_bin "config.yml" with
-    | exception Sys_error _ -> Config.default
-    | data ->
-      match Yaml.yaml_of_string data with
-      | Error (`Msg msg) -> failwith msg
-      | Ok yaml -> Config.of_yaml yaml
-  in
-  Build.build config
-
 let build_cmd =
   let doc = "build the site" in
-  Term.(const build $ const ()),
+  Term.(ret (const Build.build $ const ())),
   Term.info "build" ~doc
 
 let default_cmd =
