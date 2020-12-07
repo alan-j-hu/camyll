@@ -8,9 +8,8 @@
     <h1>{{ page.title }}</h1>
     {{ content }}
     <ul>
-      {%- for post in posts
-          | sort(compare=compare_dates, reverse=true, attribute="date") -%}
-      <li><a href='{{ post.url }}'>{{ post.title }}</a></li>
+      {%- for post in posts | sort(compare=compare_dates, reverse=true, attribute="frontmatter.date") -%}
+      <li><a href='{{ post.url }}'>{{ post.frontmatter.title }}</a></li>
       {% endfor -%}
     </ul>
   </body>

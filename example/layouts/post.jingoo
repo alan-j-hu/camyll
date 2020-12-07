@@ -1,0 +1,11 @@
+<!doctype html>
+<html>
+  <head>
+    {% include "head.jingoo" %}
+  </head>
+  <body>
+    {% include "nav.jingoo" %}
+    Published: {{ page.date.year }}-{{ page.date.month }}-{{ page.date.day }}
+    {{ content }}
+  </body>
+</html>

@@ -1,10 +1,7 @@
 ---
 title: Second Post
-layout: main.jingoo
-date:
-  day: 29
-  month: 2
-  year: 2020
+layout: post.jingoo
+date: 2020-02-29
 ---
 
 This is the second post!

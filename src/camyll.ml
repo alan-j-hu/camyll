@@ -2,12 +2,12 @@ open Cmdliner
 
 let build () =
   let config =
-    try
-      Filesystem.read_bin "config.yml"
-      |> Yaml.of_string_exn
-      |> Config.of_json
-    with
-    | Sys_error _ -> Config.default
+    match Filesystem.read_bin "config.yml" with
+    | exception Sys_error _ -> Config.default
+    | data ->
+      match Yaml.yaml_of_string data with
+      | Error (`Msg msg) -> failwith msg
+      | Ok yaml -> Config.of_yaml yaml
   in
   Build.build config
 

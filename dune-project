@@ -21,6 +21,7 @@
  (depends
   (cmdliner (and (>= 1.0) (< 2.0)))
   (ezjsonm (and (>= 1.1) (< 2.0)))
+  (ISO8601 (and (>= 0.2.6) (< 0.3)))
   (jingoo (and (>= 1.4) (< 2.0)))
   (lambdasoup (and (>= 0.7) (< 0.8)))
   (markup (and (>= 0.8) (< 2.0)))

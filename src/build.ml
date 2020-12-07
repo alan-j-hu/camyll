@@ -3,7 +3,7 @@ open Jingoo
 type 'a doc = {
   name : string;
   subdir : string;
-  frontmatter : Yaml.value;
+  frontmatter : Yaml.yaml;
   content : 'a;
 }
 
@@ -11,6 +11,16 @@ type t = {
   config : Config.t;
   langs : TmLanguage.t;
 }
+
+(* The null YAML document. *)
+let null_yaml = `Scalar Yaml.{
+    anchor = None;
+    tag = None;
+    value = "null";
+    plain_implicit = true;
+    quoted_implicit = true;
+    style = `Literal
+  }
 
 (* Try to parse YAML frontmatter from the channel. If there is no frontmatter,
    reset the cursor to the beginning of the file and return the null YAML
@@ -31,17 +41,17 @@ let parse_frontmatter chan =
         )
       in
       loop ();
-      match Yaml.of_string (Buffer.contents buf) with
+      match Yaml.yaml_of_string (Buffer.contents buf) with
       | Ok yaml -> yaml
       | Error (`Msg e) -> failwith e
     else (
       seek_in chan 0;
-      `Null
+      null_yaml
     )
   with
   | End_of_file ->
     seek_in chan 0;
-    `Null
+    null_yaml
 
 (* Highlight the code blocks. *)
 let highlight t =
@@ -195,35 +205,62 @@ let relativize_urls depth node =
   replace "href";
   replace "src"
 
+let rec jingoo_of_yaml = function
+  | `Scalar scalar ->
+    begin match scalar.Yaml.value with
+      | "" | "~" | "null" | "Null" | "NULL" -> Jg_types.Tnull
+      | "y" | "Y" | "yes" | "Yes" | "YES"
+      | "true" | "True" | "TRUE"
+      | "on" | "On" | "ON" -> Jg_types.Tbool true
+      | "n" | "N" | "no" | "No" | "NO"
+      | "false" | "False" | "FALSE"
+      | "off" | "Off" | "OFF" -> Jg_types.Tbool false
+      | "nan" | "NaN" | "NAN" -> Jg_types.Tfloat Float.nan
+      | "-.inf" -> Jg_types.Tfloat Float.neg_infinity
+      | ".inf" -> Jg_types.Tfloat Float.infinity
+      | s ->
+        match int_of_string_opt s with
+        | Some i -> Jg_types.Tint i
+        | None ->
+          match float_of_string_opt s with
+          | Some f -> Jg_types.Tfloat f
+          | None ->
+            try
+              let time = ISO8601.Permissive.datetime ~reqtime:false s in
+              let tm = Unix.gmtime time in
+              Jg_types.Tpat (function
+                  | "year" -> Jg_types.Tint (tm.Unix.tm_year + 1900)
+                  | "month" -> Jg_types.Tint (tm.Unix.tm_mon + 1)
+                  | "day" -> Jg_types.Tint tm.Unix.tm_mday
+                  | "unixtime" -> Jg_types.Tfloat time
+                  | _ -> Jg_types.Tnull)
+            with
+            | _ -> Jg_types.Tstr s
+    end
+  | `A elems -> Jg_types.Tlist (List.map jingoo_of_yaml elems)
+  | `O attrs ->
+    Jg_types.Tobj
+      (List.map (fun (k, v) -> (k.Yaml.value, jingoo_of_yaml v)) attrs)
+  | `Alias _ -> failwith "YAML aliases not supported!"
+
 let list_page_metadata pages =
   pages
   |> List.filter (fun page -> page.name <> "index.html")
   |> List.map (fun page ->
-      let obj = Ezjsonm.get_dict page.frontmatter in
-      (page.name, obj))
-  |> List.map (fun (url, obj) -> `O (("url", `String url) :: obj))
-
-let rec jingoo_of_json = function
-  | `Null -> Jg_types.Tnull
-  | `Bool b -> Jg_types.Tbool b
-  | `Float f -> Jg_types.Tint (int_of_float f)
-  | `String str -> Jg_types.Tstr str
-  | `A elems -> Jg_types.Tlist (List.map jingoo_of_json elems)
-  | `O attrs ->
-    Jg_types.Tobj (List.map (fun (k, v) -> (k, jingoo_of_json v)) attrs)
+      Jg_types.Tobj [ ("url", Jg_types.Tstr page.name)
+                    ; ("frontmatter", jingoo_of_yaml page.frontmatter) ])
 
 let get_layout _t frontmatter =
-  match List.assoc_opt "layout" (Ezjsonm.get_dict frontmatter) with
+  match List.assoc_opt "layout" (Jg_types.unbox_obj frontmatter) with
   | None -> None
-  | Some (`String name) -> Some name
+  | Some (Jg_types.Tstr name) -> Some name
   | Some _ -> failwith "Template name not a string"
 
-let unpack_date date =
-  ( Jg_types.unbox_int (Jg_runtime.jg_attr (Jg_types.Tstr "day") date)
-  , Jg_types.unbox_int (Jg_runtime.jg_attr (Jg_types.Tstr "month") date)
-  , Jg_types.unbox_int (Jg_runtime.jg_attr (Jg_types.Tstr "year") date) )
+let unixtime date =
+  Jg_types.unbox_float (Jg_runtime.jg_attr (Jg_types.Tstr "unixtime") date)
 
 let render t pages frontmatter content =
+  let frontmatter = jingoo_of_yaml frontmatter in
   match get_layout t frontmatter with
   | None -> content
   | Some path ->
@@ -235,12 +272,12 @@ let render t pages frontmatter content =
       ; filters =
           [ "compare_dates"
           , Jg_types.func_arg2_no_kw (fun lhs rhs ->
-              Jg_types.Tint (compare (unpack_date lhs) (unpack_date rhs)))
+                Jg_types.Tint (compare (unixtime lhs) (unixtime rhs)))
           ] } in
     let models =
       [ "content", Jg_types.Tstr content
-      ; "posts", Jg_types.Tlist (List.map jingoo_of_json pages)
-      ; "page", jingoo_of_json frontmatter ]
+      ; "posts", Jg_types.Tlist pages
+      ; "page", frontmatter ]
     in
     Jg_template.from_file ~env ~models
       (Filename.concat t.config.layout_dir path)
@@ -315,7 +352,7 @@ let build config =
   begin
     try
       Filesystem.iter (fun name ->
-          if Sys.is_directory (Config.highlight t.config name) then
+          if Sys.is_directory (Config.grammar t.config name) then
             ()
           else
             try
@@ -324,14 +361,15 @@ let build config =
                     Markup.channel chan
                     |> Plist_xml.parse_exn
                     |> TmLanguage.of_plist_exn
-                  ) (Config.highlight t.config name)
+                  ) (Config.grammar t.config name)
               in
               TmLanguage.add_grammar t.langs lang
             with
             | Plist_xml.Parse_error s ->
               failwith ("Parse_error " ^ s ^ ": " ^ name)
-        ) t.config.Config.highlight_dir
-    with Unix.Unix_error(Unix.ENOENT, "opendir", "highlighting") -> ()
+        ) t.config.Config.grammar_dir
+    with Unix.Unix_error(Unix.ENOENT, "opendir", dir)
+      when dir = t.config.Config.grammar_dir -> ()
   end;
   Filesystem.remove_dir t.config.Config.dest_dir;
   preprocess_agda (Config.agda_dest config) (Config.src config "");
