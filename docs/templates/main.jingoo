@@ -4,6 +4,7 @@
     {% include "head.jingoo" %}
   </head>
   <body>
+    {% include "header.jingoo" %}
     {{ content }}
   </body>
 </html>
