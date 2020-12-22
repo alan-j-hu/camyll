@@ -52,9 +52,21 @@ let read name = with_in read_lines name
 
 let read_bin name = with_in_bin read_bytes name
 
+(* If the directory already exists, does nothing. *)
 let mkdir name =
   if not (Sys.file_exists name) then
     Unix.mkdir name 0o777
+
+let split_re = Re.compile (Re.str Filename.dir_sep)
+
+(* Creates all directories in the current path. *)
+let create_dirs path =
+  let split = Re.split split_re path in
+  ignore(List.fold_left (fun path name ->
+      let path = Filename.concat path name in
+      mkdir path;
+      path
+    ) "" split)
 
 let fold f start dirname =
   let iterator = Unix.opendir dirname in
