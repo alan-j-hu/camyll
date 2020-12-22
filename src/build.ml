@@ -380,16 +380,12 @@ let build_with_config config =
   ignore (compile_dir t 0 "")
 
 let build () =
-  try
-    let config =
-      match Filesystem.read_bin "config.yml" with
-      | exception Sys_error _ -> Config.default
-      | data ->
-        match Yaml.yaml_of_string data with
-        | Error (`Msg msg) -> failwith msg
-        | Ok yaml -> Config.of_yaml yaml
-    in
-    build_with_config config;
-    `Ok ()
-  with
-  | Failure e -> `Error (false, e)
+  let config =
+    match Filesystem.read_bin "config.yml" with
+    | exception Sys_error _ -> Config.default
+    | data ->
+      match Yaml.yaml_of_string data with
+      | Error (`Msg msg) -> failwith msg
+      | Ok yaml -> Config.of_yaml yaml
+  in
+  build_with_config config

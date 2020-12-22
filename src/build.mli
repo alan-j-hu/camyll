@@ -1,1 +1,1 @@
-val build : unit -> unit Cmdliner.Term.ret
+val build : unit -> unit
