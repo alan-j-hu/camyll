@@ -1,7 +1,8 @@
 ## Unreleased
 
 - Upgrade `textmate-language` to 0.2.0.
-- Use `jingoo` templating language instead of `mustache`.
+- Switch from Mustache to Jingoo.
+- Switch from YAML to TOML.
 - Require frontmatter.
 - Add the `new` command for initializing a site.
 
