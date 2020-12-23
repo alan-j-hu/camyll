@@ -29,4 +29,4 @@
   (textmate-language (and (>= 0.2) (< 0.3)))
   (plist-xml (< 0.4))
   (re (and (>= 1.9) (< 2.0)))
-  (yaml (and (>= 2.1) (< 3.0)))))
+  (toml (and (>= 6) (< 7)))))

@@ -53,7 +53,7 @@ let read name = with_in read_lines name
 let read_bin name = with_in_bin read_bytes name
 
 (* If the directory already exists, does nothing. *)
-let mkdir name =
+let touch_dir name =
   if not (Sys.file_exists name) then
     Unix.mkdir name 0o777
 
@@ -64,7 +64,7 @@ let create_dirs path =
   let split = Re.split split_re path in
   ignore(List.fold_left (fun path name ->
       let path = Filename.concat path name in
-      mkdir path;
+      touch_dir path;
       path
     ) "" split)
 

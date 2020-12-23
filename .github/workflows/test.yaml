@@ -22,5 +22,7 @@ jobs:
           eval $(opam env)
           sudo apt-get install libonig-dev
           opam install .
-          cd docs
+          cd example
+          camyll build
+          cd ../docs
           camyll build

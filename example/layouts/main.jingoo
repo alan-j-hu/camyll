@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    {% include "head.jingoo" %
+    {% include "head.jingoo" %}
   </head>
   <body>
     {% include "nav.jingoo" %}

@@ -1,6 +1,6 @@
 let new_ path =
   Filesystem.create_dirs path;
-  Filesystem.mkdir (Filename.concat path "site");
-  Filesystem.mkdir (Filename.concat path "grammars");
-  Filesystem.mkdir (Filename.concat path "layouts");
-  Filesystem.mkdir (Filename.concat path "partials")
+  Filesystem.touch_dir (Filename.concat path "site");
+  Filesystem.touch_dir (Filename.concat path "grammars");
+  Filesystem.touch_dir (Filename.concat path "layouts");
+  Filesystem.touch_dir (Filename.concat path "partials")

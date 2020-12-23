@@ -1,6 +1,8 @@
----
-title: Documentation
-layout: main.jingoo
----
++++
+title = "Documentation"
+layout = "main.jingoo"
++++
 
 # Documentation
+
+## Configuration

@@ -1,4 +1,4 @@
----
-title: Posts
-layout: posts.jingoo
----
++++
+title = "Posts"
+layout = "posts.jingoo"
++++

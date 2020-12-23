@@ -3,7 +3,7 @@ open Jingoo
 type 'a doc = {
   name : string;
   subdir : string;
-  frontmatter : Yaml.yaml;
+  frontmatter : Toml.Types.table;
   content : 'a;
 }
 
@@ -16,11 +16,11 @@ type t = {
 let parse_frontmatter chan =
   try
     let line = input_line chan in
-    if line = "---" then
+    if line = "+++" then
       let buf = Buffer.create 100 in
       let rec loop () =
         let line = input_line chan in
-        if line = "---" then
+        if line = "+++" then
           ()
         else (
           Buffer.add_string buf line;
@@ -29,9 +29,9 @@ let parse_frontmatter chan =
         )
       in
       loop ();
-      match Yaml.yaml_of_string (Buffer.contents buf) with
-      | Ok yaml -> yaml
-      | Error (`Msg e) -> failwith e
+      match Toml.Parser.from_string (Buffer.contents buf) with
+      | `Ok toml -> toml
+      | `Error(e, _) -> failwith e
     else (
       seek_in chan 0;
       failwith "Missing frontmatter"
@@ -198,39 +198,38 @@ let relativize_urls depth node =
   replace "href";
   replace "src"
 
-let rec jingoo_of_yaml = function
-  | `Scalar scalar ->
-    begin match scalar.Yaml.value with
-      | "" | "~" | "null" | "Null" | "NULL" -> Jg_types.Tnull
-      | "y" | "Y" | "yes" | "Yes" | "YES"
-      | "true" | "True" | "TRUE"
-      | "on" | "On" | "ON" -> Jg_types.Tbool true
-      | "n" | "N" | "no" | "No" | "NO"
-      | "false" | "False" | "FALSE"
-      | "off" | "Off" | "OFF" -> Jg_types.Tbool false
-      | "nan" | "NaN" | "NAN" -> Jg_types.Tfloat Float.nan
-      | "-.inf" -> Jg_types.Tfloat Float.neg_infinity
-      | ".inf" -> Jg_types.Tfloat Float.infinity
-      | s ->
-        match int_of_string_opt s with
-        | Some i -> Jg_types.Tint i
-        | None ->
-          match float_of_string_opt s with
-          | Some f -> Jg_types.Tfloat f
-          | None -> Jg_types.Tstr s
-    end
-  | `A elems -> Jg_types.Tlist (List.map jingoo_of_yaml elems)
-  | `O attrs ->
-    Jg_types.Tobj
-      (List.map (fun (k, v) -> (k.Yaml.value, jingoo_of_yaml v)) attrs)
-  | `Alias _ -> failwith "YAML aliases not supported"
+let rec jingoo_of_tomlvalue = function
+  | Toml.Types.TBool b -> Jg_types.Tbool b
+  | Toml.Types.TInt i -> Jg_types.Tint i
+  | Toml.Types.TFloat f -> Jg_types.Tfloat f
+  | Toml.Types.TString s -> Jg_types.Tstr s
+  | Toml.Types.TDate d -> Jg_types.Tfloat d
+  | Toml.Types.TArray a -> jingoo_of_tomlarray a
+  | Toml.Types.TTable t -> jingoo_of_tomltable t
+
+and jingoo_of_tomlarray = function
+  | Toml.Types.NodeEmpty -> Jg_types.Tlist []
+  | Toml.Types.NodeBool bs -> Jg_types.Tlist (List.map Jg_types.box_bool bs)
+  | Toml.Types.NodeInt is -> Jg_types.Tlist (List.map Jg_types.box_int is)
+  | Toml.Types.NodeFloat fs -> Jg_types.Tlist (List.map Jg_types.box_float fs)
+  | Toml.Types.NodeString ss -> Jg_types.Tlist (List.map Jg_types.box_string ss)
+  | Toml.Types.NodeDate ds -> Jg_types.Tlist (List.map Jg_types.box_float ds)
+  | Toml.Types.NodeArray ars ->
+    Jg_types.Tlist (List.map jingoo_of_tomlarray ars)
+  | Toml.Types.NodeTable tbls ->
+    Jg_types.Tlist (List.map jingoo_of_tomltable tbls)
+
+and jingoo_of_tomltable table =
+  Jg_types.Tobj (Toml.Types.Table.fold (fun k v acc ->
+      (Toml.Types.Table.Key.to_string k, jingoo_of_tomlvalue v) :: acc
+    ) table [])
 
 let list_page_metadata pages =
   pages
   |> List.filter (fun page -> page.name <> "index.html")
   |> List.map (fun page ->
       Jg_types.Tobj [ ("url", Jg_types.Tstr page.name)
-                    ; ("frontmatter", jingoo_of_yaml page.frontmatter) ])
+                    ; ("frontmatter", jingoo_of_tomltable page.frontmatter) ])
 
 let get_layout frontmatter =
   match Jg_runtime.jg_obj_lookup frontmatter "layout" with
@@ -239,7 +238,7 @@ let get_layout frontmatter =
   | _ -> failwith "Template name not a string"
 
 let render t pages frontmatter content =
-  let frontmatter = jingoo_of_yaml frontmatter in
+  let frontmatter = jingoo_of_tomltable frontmatter in
   match get_layout frontmatter with
   | None -> content
   | Some path ->
@@ -300,7 +299,7 @@ let compile_doc t depth pages { name; subdir; frontmatter; content } =
 let rec compile_dir t depth subdir =
   let src = Config.src t.config subdir in
   let dest = Config.dest t.config subdir in
-  Filesystem.mkdir dest;
+  Filesystem.touch_dir dest;
   let pages =
     Filesystem.fold (fun pages name ->
         let path = Filename.concat subdir name in
@@ -351,7 +350,7 @@ let preprocess_agda html_dir dir =
         failwith "Agda process stopped by signal")
 
 let build_with_config config =
-  Filesystem.mkdir config.Config.dest_dir;
+  Filesystem.touch_dir config.Config.dest_dir;
   let t = { config; langs = TmLanguage.create () } in
   begin
     try
@@ -381,11 +380,11 @@ let build_with_config config =
 
 let build () =
   let config =
-    match Filesystem.read_bin "config.yml" with
-    | exception Sys_error _ -> Config.default
-    | data ->
-      match Yaml.yaml_of_string data with
-      | Error (`Msg msg) -> failwith msg
-      | Ok yaml -> Config.of_yaml yaml
+    match Toml.Parser.from_filename "config.toml" with
+    | `Error(e, _) -> failwith e
+    | `Ok toml ->
+      match Config.of_toml toml with
+      | Some config -> config
+      | None -> failwith "Could not read config.toml"
   in
   build_with_config config

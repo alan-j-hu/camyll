@@ -1,7 +1,7 @@
----
-title: Camyll
-layout: main.jingoo
----
++++
+title = "Camyll"
+layout = "main.jingoo"
++++
 # Camyll
 
 Camyll is a static site generator.

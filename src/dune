@@ -2,4 +2,4 @@
  (name camyll)
  (libraries
   calendar cmdliner jingoo lambdasoup omd plist-xml
-  re textmate-language unix yaml))
+  re textmate-language unix toml))
