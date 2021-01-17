@@ -5,3 +5,4 @@ layout_dir = "layouts"
 partial_dir = "partials"
 agda_dir = "lagda"
 exclude = ["*.agdai"]
+taxonomies = ["categories", "tags"]

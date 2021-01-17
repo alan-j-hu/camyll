@@ -5,3 +5,4 @@ layout_dir = "templates"
 partial_dir = "includes"
 agda_dir = "lagda"
 exclude = ["*.agdai"]
+taxonomies = []

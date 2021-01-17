@@ -7,10 +7,36 @@ type 'a doc = {
   content : 'a;
 }
 
+type taxonomy = {
+  items : (string, Toml.Types.table) Hashtbl.t;
+}
+
 type t = {
   config : Config.t;
   langs : TmLanguage.t;
+  taxonomies : (string, taxonomy) Hashtbl.t;
 }
+
+let add_taxonomy t taxonomy name elem =
+  match Hashtbl.find_opt t.taxonomies taxonomy with
+  | None -> failwith ("Taxonomy " ^ taxonomy ^ " not defined")
+  | Some taxonomy ->
+    Hashtbl.add taxonomy.items name elem
+
+let add_taxonomies t frontmatter =
+  let open Toml.Lenses in
+  let open Toml.Types in
+  match get frontmatter (key "taxonomies" |-- table) with
+  | None -> ()
+  | Some taxonomies ->
+    Table.iter (fun k v ->
+        match get v (array |-- strings) with
+        | None -> failwith "Expected an array of strings"
+        | Some tags ->
+          List.iter (fun tag ->
+              add_taxonomy t (Table.Key.to_string k) tag frontmatter
+            ) tags
+      ) taxonomies
 
 (* Try to parse YAML frontmatter from the channel. *)
 let parse_frontmatter chan =
@@ -238,6 +264,7 @@ let get_layout frontmatter =
   | _ -> failwith "Template name not a string"
 
 let render t pages frontmatter content =
+  add_taxonomies t frontmatter;
   let frontmatter = jingoo_of_tomltable frontmatter in
   match get_layout frontmatter with
   | None -> content
@@ -351,7 +378,11 @@ let preprocess_agda html_dir dir =
 
 let build_with_config config =
   Filesystem.touch_dir config.Config.dest_dir;
-  let t = { config; langs = TmLanguage.create () } in
+  let t =
+    { config
+    ; langs = TmLanguage.create ()
+    ; taxonomies = Hashtbl.create 2 }
+  in
   begin
     try
       Filesystem.iter (fun name ->
@@ -375,6 +406,9 @@ let build_with_config config =
       when dir = t.config.Config.grammar_dir -> ()
   end;
   Filesystem.remove_dir t.config.Config.dest_dir;
+  List.iter (fun taxonomy ->
+      Hashtbl.add t.taxonomies taxonomy { items = Hashtbl.create 11 }
+    ) config.Config.taxonomies;
   preprocess_agda (Config.agda_dest config) (Config.src config "");
   ignore (compile_dir t 0 "")
 
