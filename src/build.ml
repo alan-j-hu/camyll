@@ -105,8 +105,9 @@ let with_in_smart f path =
   | Failure e -> failwith (path ^ ": " ^ e)
 
 let dispatch t subdir name =
-  match Filename.chop_suffix_opt ~suffix:".lagda.md" name with
-  | Some name ->
+  let read_path = Filename.concat subdir name in
+  match String.split_on_char '.' name with
+  | [name; "lagda"; "md"] ->
     let path =
       if subdir = "" then
         t.config.Config.src_dir ^ "." ^ name
@@ -123,33 +124,28 @@ let dispatch t subdir name =
             ; frontmatter
             ; content = process_md t chan }
       ) (Filename.concat (Config.agda_dest t.config) path ^ ".md")
-  | None ->
-    let path = Filename.concat subdir name in
-    match Filename.chop_suffix_opt ~suffix:".html" name with
-    | Some _ ->
-      with_in_smart (fun chan ->
-          let frontmatter = parse_frontmatter chan in
-          Doc { name
-              ; subdir
-              ; frontmatter
-              ; content = Filesystem.read_lines chan }
-        ) (Config.src t.config path)
-    | None ->
-      match Filename.chop_suffix_opt ~suffix:".md" name with
-      | Some name ->
-        with_in_smart (fun chan ->
-            let frontmatter = parse_frontmatter chan in
-            Doc { name = name ^ ".html"
-                ; subdir
-                ; frontmatter
-                ; content = process_md t chan }
-          ) (Config.src t.config path)
-      | None ->
-        Filesystem.with_in_bin (fun chan ->
-            let output_path = Config.dest t.config path in
-            copy_file output_path chan
-          ) (Config.src t.config path);
-        Bin
+  | [_; "html"] ->
+    with_in_smart (fun chan ->
+        let frontmatter = parse_frontmatter chan in
+        Doc { name
+            ; subdir
+            ; frontmatter
+            ; content = Filesystem.read_lines chan }
+      ) (Config.src t.config read_path)
+  | [name; "md"] ->
+    with_in_smart (fun chan ->
+        let frontmatter = parse_frontmatter chan in
+        Doc { name = name ^ ".html"
+            ; subdir
+            ; frontmatter
+            ; content = process_md t chan }
+      ) (Config.src t.config read_path)
+  | _ ->
+    Filesystem.with_in_bin (fun chan ->
+        let output_path = Config.dest t.config read_path in
+        copy_file output_path chan
+      ) (Config.src t.config read_path);
+    Bin
 
 (* Concatenate two URLs, handling trailing slashes on the left URL and
    leading slashes on the right URL. *)
