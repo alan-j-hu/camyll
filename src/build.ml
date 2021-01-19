@@ -8,6 +8,7 @@ type 'a doc = {
 }
 
 type taxonomy = {
+  template : string;
   items : (string, Toml.Types.table) Hashtbl.t;
 }
 
@@ -403,7 +404,9 @@ let build_with_config config =
   end;
   Filesystem.remove_dir t.config.Config.dest_dir;
   List.iter (fun taxonomy ->
-      Hashtbl.add t.taxonomies taxonomy { items = Hashtbl.create 11 }
+      Hashtbl.add t.taxonomies taxonomy.Config.name
+        { template = taxonomy.Config.template
+        ; items = Hashtbl.create 11 }
     ) config.Config.taxonomies;
   preprocess_agda (Config.agda_dest config) (Config.src config "");
   ignore (compile_dir t 0 "")
