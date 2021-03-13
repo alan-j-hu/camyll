@@ -345,33 +345,29 @@ let rec compile_dir t depth subdir =
 
 (** Highlight Literate Agda files *)
 let preprocess_agda html_dir dir =
-  let rec spawn_processes pids dir =
-    Array.fold_left (fun pids name ->
+  let rec go dir =
+    Array.iter (fun name ->
         let path = Filename.concat dir name in
         if Sys.is_directory path then
-          spawn_processes pids path
+          go path
         else
           match Filename.chop_suffix_opt ~suffix:".lagda.md" name with
-          | None -> pids
+          | None -> ()
           | Some _ ->
-            let pid =
-              Unix.create_process "agda"
-                [| "agda"; path; "--html"; "--html-highlight=auto"
-                 ; "--html-dir=" ^ html_dir |]
-                Unix.stdin Unix.stdout Unix.stderr
-            in pid :: pids
-      ) pids (Sys.readdir dir)
+             let code =
+               Sys.command
+                 (Filename.quote_command
+                    "agda"
+                    [ path
+                    ; "--html"
+                    ; "--html-highlight=auto"
+                    ; "--html-dir=" ^ html_dir ])
+             in
+             if code <> 0 then
+               failwith ("Agda process exited with code " ^ Int.to_string code)
+      ) (Sys.readdir dir)
   in
-  spawn_processes [] dir
-  |> List.map (Unix.waitpid [])
-  |> List.iter (function
-      | _, Unix.WEXITED 0 -> ()
-      | _, Unix.WEXITED n ->
-        failwith ("Agda process exited with code " ^ Int.to_string n)
-      | _, Unix.WSIGNALED _ ->
-        failwith "Agda process killed by signal"
-      | _, Unix.WSTOPPED _ ->
-        failwith "Agda process stopped by signal")
+  go dir
 
 let build_with_config config =
   Filesystem.touch_dir config.Config.dest_dir;

@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         ocaml-version:
@@ -15,11 +15,18 @@ jobs:
       - uses: avsm/setup-ocaml@v1
         with:
           ocaml-version: ${{ matrix.ocaml-version }}
+      - name: Update path
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Build
         run: |
           eval $(opam env)
+          sudo apt-get install agda-bin
           sudo apt-get install libonig-dev
+          pip3 install agda-pkg
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          apkg init
+          apkg install standard-library --version v1.1 --yes
           opam install .
           cd example
           camyll build
