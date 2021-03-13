@@ -55,7 +55,7 @@ let read_bin name = with_in_bin read_bytes name
 (* If the directory already exists, does nothing. *)
 let touch_dir name =
   if not (Sys.file_exists name) then
-    Unix.mkdir name 0o777
+    Sys.mkdir name 0o777
 
 let split_re = Re.compile (Re.str Filename.dir_sep)
 
@@ -68,33 +68,15 @@ let create_dirs path =
       path
     ) "" split)
 
-let fold f start dirname =
-  let iterator = Unix.opendir dirname in
-  Fun.protect (fun () ->
-      let rec loop acc =
-        match Unix.readdir iterator with
-        | exception End_of_file -> acc
-        | exception r -> raise r
-        | name ->
-          if name = Filename.current_dir_name
-          || name = Filename.parent_dir_name then
-            loop acc
-          else
-            loop (f acc name)
-      in loop start
-    ) ~finally:(fun () -> Unix.closedir iterator)
-
-let iter f = fold (Fun.const f) ()
-
 let rec remove_dir dirname =
-  fold (fun () name ->
+  Array.iter (fun name ->
       let path = Filename.concat dirname name in
       if Sys.is_directory path then
         remove_dir path
       else
         Unix.unlink path
-    ) () dirname;
-  Unix.rmdir dirname
+    ) (Sys.readdir dirname);
+  Sys.rmdir dirname
 
 let remove name =
   if Sys.is_directory name then

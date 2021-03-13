@@ -325,7 +325,7 @@ let rec compile_dir t depth subdir =
   let dest = Config.dest t.config subdir in
   Filesystem.touch_dir dest;
   let pages =
-    Filesystem.fold (fun pages name ->
+    Array.fold_left (fun pages name ->
         let path = Filename.concat subdir name in
         if Sys.is_directory (Config.src t.config path) then (
           compile_dir t (depth + 1) path;
@@ -338,7 +338,7 @@ let rec compile_dir t depth subdir =
           match dispatch t subdir name with
           | Bin -> pages
           | Doc doc -> doc :: pages
-      ) [] src
+      ) [] (Sys.readdir src)
   in
   let metadata = list_page_metadata pages in
   List.iter (compile_doc t depth metadata) pages
@@ -346,7 +346,7 @@ let rec compile_dir t depth subdir =
 (** Highlight Literate Agda files *)
 let preprocess_agda html_dir dir =
   let rec spawn_processes pids dir =
-    Filesystem.fold (fun pids name ->
+    Array.fold_left (fun pids name ->
         let path = Filename.concat dir name in
         if Sys.is_directory path then
           spawn_processes pids path
@@ -360,7 +360,7 @@ let preprocess_agda html_dir dir =
                  ; "--html-dir=" ^ html_dir |]
                 Unix.stdin Unix.stdout Unix.stderr
             in pid :: pids
-      ) pids dir
+      ) pids (Sys.readdir dir)
   in
   spawn_processes [] dir
   |> List.map (Unix.waitpid [])
@@ -381,26 +381,26 @@ let build_with_config config =
     ; taxonomies = Hashtbl.create 2 }
   in
   begin
-    try
-      Filesystem.iter (fun name ->
-          if Sys.is_directory (Config.grammar t.config name) then
-            ()
-          else
-            let path = Config.grammar t.config name in
-            try
-              let lang =
-                Filesystem.with_in (fun chan ->
-                    Markup.channel chan
-                    |> Plist_xml.parse_exn
-                    |> TmLanguage.of_plist_exn
-                  ) path
-              in
-              TmLanguage.add_grammar t.langs lang
-            with
-            | Plist_xml.Parse_error s -> failwith (path ^ ": " ^ s)
-        ) t.config.Config.grammar_dir
-    with Unix.Unix_error(Unix.ENOENT, "opendir", dir)
-      when dir = t.config.Config.grammar_dir -> ()
+    match Sys.readdir t.config.Config.grammar_dir with
+    | exception (Sys_error _ ) -> ()
+    | names ->
+       Array.iter (fun name ->
+           if Sys.is_directory (Config.grammar t.config name) then
+             ()
+           else
+             let path = Config.grammar t.config name in
+             try
+               let lang =
+                 Filesystem.with_in (fun chan ->
+                     Markup.channel chan
+                     |> Plist_xml.parse_exn
+                     |> TmLanguage.of_plist_exn
+                   ) path
+               in
+               TmLanguage.add_grammar t.langs lang
+             with
+             | Plist_xml.Parse_error s -> failwith (path ^ ": " ^ s)
+         ) names
   end;
   Filesystem.remove_dir t.config.Config.dest_dir;
   List.iter (fun taxonomy ->
