@@ -70,16 +70,12 @@ let create_dirs path =
 
 let rec remove_dir dirname =
   Array.iter (fun name ->
-      let path = Filename.concat dirname name in
-      if Sys.is_directory path then
-        remove_dir path
-      else
-        Unix.unlink path
+      remove (Filename.concat dirname name)
     ) (Sys.readdir dirname);
   Sys.rmdir dirname
 
-let remove name =
+and remove name =
   if Sys.is_directory name then
     remove_dir name
   else
-    Unix.unlink name
+    Sys.remove name
