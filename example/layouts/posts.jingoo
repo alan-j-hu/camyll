@@ -1,6 +1,3 @@
-{%- function datecmp(lhs, rhs) -%}
-  {{ compare(read_date("%F", lhs).unix, read_date("%F", rhs).unix) }}
-{%- endfunction -%}
 <!doctype html>
 <html>
   <head>
@@ -11,7 +8,7 @@
     <h1>{{ page.title }}</h1>
     {{ content }}
     <ul>
-      {%- for post in posts | sort(compare=datecmp, reverse=true, attribute="frontmatter.date") -%}
+      {%- for post in posts | sort(reverse=true, attribute="frontmatter.date") -%}
       <li><a href='{{ post.url }}'>{{ post.frontmatter.title }}</a></li>
       {% endfor -%}
     </ul>

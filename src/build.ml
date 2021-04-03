@@ -272,33 +272,15 @@ let render t pages frontmatter content =
       ; strict_mode = true
       ; template_dirs = [t.config.partial_dir]
       ; filters =
-          [ "read_date"
-          , Jg_types.func_arg2_no_kw (fun format string ->
+          [ "format_date"
+          , Jg_types.func_arg2_no_kw (fun format date ->
                 let open CalendarLib in
-                let date =
-                  Printer.Date.from_fstring
-                    (Jg_types.unbox_string format)
-                    (Jg_types.unbox_string string)
-                in
-                Jg_types.Tpat (function
-                    | "year" ->
-                      Jg_types.Tint (Date.year date)
-                    | "month" ->
-                      Jg_types.Tint
-                        (Date.int_of_month (Date.month date))
-                    | "day" ->
-                      Jg_types.Tint (Date.day_of_month date)
-                    | "unix" ->
-                      Jg_types.Tfloat (Date.to_unixfloat date)
-                    | "format" ->
-                      Jg_types.func_arg1_no_kw (fun format ->
-                          Jg_types.Tstr
-                            (Printer.Date.sprint
-                               (Jg_types.unbox_string format) date)
-                        )
-                    | _ -> Jg_types.Tnull)
-              )
-          ] } in
+                Jg_types.Tstr
+                  (Printer.Date.sprint
+                     (Jg_types.unbox_string format)
+                     (Date.from_unixfloat (Jg_types.unbox_float date))))
+          ]
+      } in
     let models =
       [ "content", Jg_types.Tstr content
       ; "posts", Jg_types.Tlist pages

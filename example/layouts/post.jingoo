@@ -4,9 +4,8 @@
     {% include "head.jingoo" %}
   </head>
   <body>
-    {% include "nav.jingoo" %}
-    {%- set date = read_date("%F", page.date) -%}    
-    Published: {{ date.format("%B %_d, %Y") }}
+    {% include "nav.jingoo" %} 
+    Published: {{ format_date("%B %_d, %Y", page.date) }}
     {{ content }}
   </body>
 </html>

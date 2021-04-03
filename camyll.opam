@@ -26,7 +26,7 @@ depends: [
   "textmate-language" {>= "0.2" & < "0.3"}
   "plist-xml" {< "0.4"}
   "re" {>= "1.9" & < "2.0"}
-  "toml" {>= "6" & < "7"}
+  "toml" {>= "7" & < "8"}
   "odoc" {with-doc}
 ]
 build: [
