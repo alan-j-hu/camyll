@@ -6,3 +6,14 @@ layout = "main.jingoo"
 # Documentation
 
 ## Configuration
+
+```toml
+source_dir = "site"
+dest_dir = "public"
+grammar_dir = "grammars"
+layout_dir = "templates"
+partial_dir = "includes"
+agda_dir = "lagda"
+exclude = ["*.agdai"]
+taxonomies = []
+```

@@ -9,7 +9,10 @@
     {{ content }}
     <ul>
       {%- for post in posts | sort(reverse=true, attribute="frontmatter.date") -%}
-      <li><a href='{{ post.url }}'>{{ post.frontmatter.title }}</a></li>
+      <li>
+        <a href='{{ post.url }}'>{{ post.frontmatter.title }}</a>
+        - {{ format_date("%B %_d, %Y", post.frontmatter.date) }}
+      </li>
       {% endfor -%}
     </ul>
   </body>
