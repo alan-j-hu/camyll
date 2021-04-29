@@ -9,7 +9,7 @@ type 'a doc = {
 
 type taxonomy = {
   template : string;
-  items : (string, Toml.Types.table) Hashtbl.t;
+  items : (string, Jg_types.tvalue list) Hashtbl.t;
 }
 
 type t = {
@@ -18,16 +18,50 @@ type t = {
   taxonomies : (string, taxonomy) Hashtbl.t;
 }
 
-let add_taxonomy t taxonomy name elem =
+let rec jingoo_of_tomlvalue = function
+  | Toml.Types.TBool b -> Jg_types.Tbool b
+  | Toml.Types.TInt i -> Jg_types.Tint i
+  | Toml.Types.TFloat f -> Jg_types.Tfloat f
+  | Toml.Types.TString s -> Jg_types.Tstr s
+  | Toml.Types.TDate d -> Jg_types.Tfloat d
+  | Toml.Types.TArray a -> jingoo_of_tomlarray a
+  | Toml.Types.TTable t -> jingoo_of_tomltable t
+
+and jingoo_of_tomlarray = function
+  | Toml.Types.NodeEmpty -> Jg_types.Tlist []
+  | Toml.Types.NodeBool bs -> Jg_types.Tlist (List.map Jg_types.box_bool bs)
+  | Toml.Types.NodeInt is -> Jg_types.Tlist (List.map Jg_types.box_int is)
+  | Toml.Types.NodeFloat fs -> Jg_types.Tlist (List.map Jg_types.box_float fs)
+  | Toml.Types.NodeString ss -> Jg_types.Tlist (List.map Jg_types.box_string ss)
+  | Toml.Types.NodeDate ds -> Jg_types.Tlist (List.map Jg_types.box_float ds)
+  | Toml.Types.NodeArray ars ->
+    Jg_types.Tlist (List.map jingoo_of_tomlarray ars)
+  | Toml.Types.NodeTable tbls ->
+    Jg_types.Tlist (List.map jingoo_of_tomltable tbls)
+
+and jingoo_of_tomltable table =
+  Jg_types.Tobj (Toml.Types.Table.fold (fun k v acc ->
+      (Toml.Types.Table.Key.to_string k, jingoo_of_tomlvalue v) :: acc
+    ) table [])
+
+let jingoo_of_page page =
+  Jg_types.Tobj
+    [ ("url", Jg_types.Tstr ("/" ^ page.subdir ^ "/" ^ page.name))
+    ; ("frontmatter", jingoo_of_tomltable page.frontmatter) ]
+
+(* Add the Jingoo data to the taxonomy under the specified name. *)
+let add_taxonomy t taxonomy name data =
   match Hashtbl.find_opt t.taxonomies taxonomy with
   | None -> failwith ("Taxonomy " ^ taxonomy ^ " not defined")
   | Some taxonomy ->
-    Hashtbl.add taxonomy.items name elem
+    match Hashtbl.find_opt taxonomy.items name with
+    | None -> Hashtbl.add taxonomy.items name [data]
+    | Some items -> Hashtbl.replace taxonomy.items name (data :: items)
 
-let add_taxonomies t frontmatter =
+let add_taxonomies t page =
   let open Toml.Lenses in
   let open Toml.Types in
-  match get frontmatter (key "taxonomies" |-- table) with
+  match get page.frontmatter (key "taxonomies" |-- table) with
   | None -> ()
   | Some taxonomies ->
     Table.iter (fun k v ->
@@ -35,7 +69,8 @@ let add_taxonomies t frontmatter =
         | None -> failwith "Expected an array of strings"
         | Some tags ->
           List.iter (fun tag ->
-              add_taxonomy t (Table.Key.to_string k) tag frontmatter
+              let jingoo = jingoo_of_page page in
+              add_taxonomy t (Table.Key.to_string k) tag jingoo
             ) tags
       ) taxonomies
 
@@ -221,38 +256,10 @@ let relativize_urls depth node =
   replace "href";
   replace "src"
 
-let rec jingoo_of_tomlvalue = function
-  | Toml.Types.TBool b -> Jg_types.Tbool b
-  | Toml.Types.TInt i -> Jg_types.Tint i
-  | Toml.Types.TFloat f -> Jg_types.Tfloat f
-  | Toml.Types.TString s -> Jg_types.Tstr s
-  | Toml.Types.TDate d -> Jg_types.Tfloat d
-  | Toml.Types.TArray a -> jingoo_of_tomlarray a
-  | Toml.Types.TTable t -> jingoo_of_tomltable t
-
-and jingoo_of_tomlarray = function
-  | Toml.Types.NodeEmpty -> Jg_types.Tlist []
-  | Toml.Types.NodeBool bs -> Jg_types.Tlist (List.map Jg_types.box_bool bs)
-  | Toml.Types.NodeInt is -> Jg_types.Tlist (List.map Jg_types.box_int is)
-  | Toml.Types.NodeFloat fs -> Jg_types.Tlist (List.map Jg_types.box_float fs)
-  | Toml.Types.NodeString ss -> Jg_types.Tlist (List.map Jg_types.box_string ss)
-  | Toml.Types.NodeDate ds -> Jg_types.Tlist (List.map Jg_types.box_float ds)
-  | Toml.Types.NodeArray ars ->
-    Jg_types.Tlist (List.map jingoo_of_tomlarray ars)
-  | Toml.Types.NodeTable tbls ->
-    Jg_types.Tlist (List.map jingoo_of_tomltable tbls)
-
-and jingoo_of_tomltable table =
-  Jg_types.Tobj (Toml.Types.Table.fold (fun k v acc ->
-      (Toml.Types.Table.Key.to_string k, jingoo_of_tomlvalue v) :: acc
-    ) table [])
-
 let list_page_metadata pages =
   pages
   |> List.filter (fun page -> page.name <> "index.html")
-  |> List.map (fun page ->
-      Jg_types.Tobj [ ("url", Jg_types.Tstr page.name)
-                    ; ("frontmatter", jingoo_of_tomltable page.frontmatter) ])
+  |> List.map jingoo_of_page
 
 let get_layout frontmatter =
   match Jg_runtime.jg_obj_lookup frontmatter "layout" with
@@ -260,42 +267,46 @@ let get_layout frontmatter =
   | Jg_types.Tstr name -> Some name
   | _ -> failwith "Template name not a string"
 
+let from_file t models path =
+  let env =
+    { Jg_types.std_env with
+      autoescape = false
+    ; strict_mode = true
+    ; template_dirs = [t.config.partial_dir]
+    ; filters =
+        [ "format_date"
+        , Jg_types.func_arg2_no_kw (fun format date ->
+              let open CalendarLib in
+              Jg_types.Tstr
+                (Printer.Date.sprint
+                   (Jg_types.unbox_string format)
+                   (Date.from_unixfloat (Jg_types.unbox_float date))))
+        ]
+    }
+  in
+  let path = Filename.concat t.config.layout_dir path in
+  try Jg_template.from_file ~env ~models path with
+  | Failure e -> failwith (path ^ ": " ^ e)
+  | Jingoo.Jg_types.SyntaxError e -> failwith (path ^ ": " ^ e)
+
 let render t pages frontmatter content =
-  add_taxonomies t frontmatter;
   let frontmatter = jingoo_of_tomltable frontmatter in
   match get_layout frontmatter with
   | None -> content
   | Some path ->
-    let env =
-      { Jg_types.std_env with
-        autoescape = false
-      ; strict_mode = true
-      ; template_dirs = [t.config.partial_dir]
-      ; filters =
-          [ "format_date"
-          , Jg_types.func_arg2_no_kw (fun format date ->
-                let open CalendarLib in
-                Jg_types.Tstr
-                  (Printer.Date.sprint
-                     (Jg_types.unbox_string format)
-                     (Date.from_unixfloat (Jg_types.unbox_float date))))
-          ]
-      } in
     let models =
       [ "content", Jg_types.Tstr content
       ; "posts", Jg_types.Tlist pages
       ; "page", frontmatter ]
     in
-    let path = Filename.concat t.config.layout_dir path in
-    try Jg_template.from_file ~env ~models path with
-    | Failure e -> failwith (path ^ ": " ^ e)
-    | Jingoo.Jg_types.SyntaxError e -> failwith (path ^ ": " ^ e)
+    from_file t models path
 
-let compile_doc t depth pages { name; subdir; frontmatter; content } =
+let compile_doc t depth pages ({ name; subdir; frontmatter; content } as page) =
   let path = Filename.concat subdir name in
   let output_path = Filename.concat t.config.Config.dest_dir path in
   let content = render t pages frontmatter content in
   let output = Soup.parse content in
+  add_taxonomies t page;
   correct_agda_urls t output;
   relativize_urls depth output;
   Filesystem.with_out (fun out_chan ->
@@ -351,6 +362,30 @@ let preprocess_agda html_dir dir =
   in
   go dir
 
+let build_taxonomy t name taxonomy =
+  let dest = Config.dest t.config name in
+  Filesystem.touch_dir dest;
+  Hashtbl.iter (fun tag_name pages ->
+      let output_path = Filename.concat dest tag_name in
+      let content =
+        from_file t
+          [ "posts", Jg_types.Tlist pages
+          ; "page", Jg_types.Tobj ["title", Jg_types.Tstr ""] ]
+          taxonomy.template
+      in
+      let output = Soup.parse content in
+      correct_agda_urls t output;
+      relativize_urls 1 output;
+      Filesystem.with_out (fun out_chan ->
+          output_string out_chan (Soup.pretty_print output)
+        ) output_path
+    ) taxonomy.items
+
+let build_taxonomies t =
+  Hashtbl.iter (fun name taxonomy ->
+      build_taxonomy t name taxonomy
+    ) t.taxonomies
+
 let build_with_config config =
   Filesystem.touch_dir config.Config.dest_dir;
   let t =
@@ -360,7 +395,7 @@ let build_with_config config =
   in
   begin
     match Sys.readdir t.config.Config.grammar_dir with
-    | exception (Sys_error _ ) -> ()
+    | exception (Sys_error _) -> ()
     | names ->
        Array.iter (fun name ->
            if Sys.is_directory (Config.grammar t.config name) then
@@ -387,7 +422,8 @@ let build_with_config config =
         ; items = Hashtbl.create 11 }
     ) config.Config.taxonomies;
   preprocess_agda (Config.agda_dest config) (Config.src config "");
-  ignore (compile_dir t 0 "")
+  ignore (compile_dir t 0 "");
+  build_taxonomies t
 
 let build () =
   let config =
