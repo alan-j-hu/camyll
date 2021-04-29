@@ -5,6 +5,7 @@
 - Switch from YAML to TOML.
 - Require frontmatter.
 - Add the `new` command for initializing a site.
+- Add taxonomies.
 
 ## 0.1.0 (October 15, 2020)
 

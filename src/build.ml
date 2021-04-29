@@ -18,6 +18,16 @@ type t = {
   taxonomies : (string, taxonomy) Hashtbl.t;
 }
 
+let slugify str =
+  let buf = Buffer.create (String.length str) in
+  String.iter (function
+      | ' ' -> Buffer.add_char buf '-'
+      | 'A' .. 'Z' as ch -> Buffer.add_char buf (Char.chr (Char.code ch + 32))
+      | 'a' .. 'z' as ch -> Buffer.add_char buf ch
+      | _ -> ()
+    ) str;
+  Buffer.contents buf
+
 let rec jingoo_of_tomlvalue = function
   | Toml.Types.TBool b -> Jg_types.Tbool b
   | Toml.Types.TInt i -> Jg_types.Tint i
@@ -366,11 +376,11 @@ let build_taxonomy t name taxonomy =
   let dest = Config.dest t.config name in
   Filesystem.touch_dir dest;
   Hashtbl.iter (fun tag_name pages ->
-      let output_path = Filename.concat dest tag_name in
+      let output_path = Filename.concat dest (slugify tag_name ^ ".html") in
       let content =
         from_file t
           [ "posts", Jg_types.Tlist pages
-          ; "page", Jg_types.Tobj ["title", Jg_types.Tstr ""] ]
+          ; "page", Jg_types.Tobj ["title", Jg_types.Tstr tag_name] ]
           taxonomy.template
       in
       let output = Soup.parse content in
