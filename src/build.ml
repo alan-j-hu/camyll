@@ -23,7 +23,7 @@ let slugify str =
   String.iter (function
       | ' ' -> Buffer.add_char buf '-'
       | 'A' .. 'Z' as ch -> Buffer.add_char buf (Char.chr (Char.code ch + 32))
-      | 'a' .. 'z' as ch -> Buffer.add_char buf ch
+      | 'a' .. 'z' | '-' | '_' as ch -> Buffer.add_char buf ch
       | _ -> ()
     ) str;
   Buffer.contents buf
@@ -64,6 +64,7 @@ let add_taxonomy t taxonomy name data =
   match Hashtbl.find_opt t.taxonomies taxonomy with
   | None -> failwith ("Taxonomy " ^ taxonomy ^ " not defined")
   | Some taxonomy ->
+    let name = slugify name in
     match Hashtbl.find_opt taxonomy.items name with
     | None -> Hashtbl.add taxonomy.items name [data]
     | Some items -> Hashtbl.replace taxonomy.items name (data :: items)

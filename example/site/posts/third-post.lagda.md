@@ -5,7 +5,7 @@ date = 2021-01-01
 
 [taxonomies]
 categories = ["Posts"]
-tags = ["bar baz"]
+tags = ["foo", "bar baz"]
 +++
 
 Hello Agda!
