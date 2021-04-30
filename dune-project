@@ -21,6 +21,8 @@
  (depends
   (calendar (and (>= 2.01) (< 3.0)))
   (cmdliner (and (>= 1.0) (< 2.0)))
+  (httpaf (and (>= 0.7.1) (< 0.8)))
+  (httpaf-lwt-unix (and (>= 0.7.1) (< 0.8)))
   (jingoo (and (>= 1.4) (< 2.0)))
   (lambdasoup (and (>= 0.7) (< 0.8)))
   (markup (and (>= 0.8) (< 2.0)))

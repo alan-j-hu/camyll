@@ -75,3 +75,14 @@ let of_toml toml =
   ; agda_dir
   ; exclude = List.map (fun g -> Re.compile (Re.Glob.glob g)) exclude
   ; taxonomies }
+
+let with_config f =
+  let config =
+    match Toml.Parser.from_filename "config.toml" with
+    | `Error(e, _) -> failwith e
+    | `Ok toml ->
+      match of_toml toml with
+      | Some config -> config
+      | None -> failwith "Could not read config.toml"
+  in
+  f config

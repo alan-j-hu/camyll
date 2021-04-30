@@ -436,13 +436,4 @@ let build_with_config config =
   ignore (compile_dir t 0 "");
   build_taxonomies t
 
-let build () =
-  let config =
-    match Toml.Parser.from_filename "config.toml" with
-    | `Error(e, _) -> failwith e
-    | `Ok toml ->
-      match Config.of_toml toml with
-      | Some config -> config
-      | None -> failwith "Could not read config.toml"
-  in
-  build_with_config config
+let build () = Config.with_config build_with_config

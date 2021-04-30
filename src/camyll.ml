@@ -23,11 +23,16 @@ let build_cmd =
   Term.(ret (const (guard Build.build) $ const ())),
   Term.info "build" ~doc
 
+let serve_cmd =
+  let doc = "serve the site" in
+  Term.(ret (const (guard Serve.serve) $ const 8080)),
+  Term.info "serve" ~doc
+
 let default_cmd =
   let doc = "static site generator" in
   Term.(ret (const (`Help(`Auto, None)))),
   Term.info "camyll" ~doc
 
-let cmds = [new_cmd; build_cmd]
+let cmds = [new_cmd; build_cmd; serve_cmd]
 
 let main () = Term.(exit @@ eval_choice default_cmd cmds)
