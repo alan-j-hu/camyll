@@ -376,14 +376,15 @@ let rec compile_dir t depth root url { dir_page; children } =
   in
   Filesystem.touch_dir root;
   Hashtbl.iter (fun name item ->
-      let dest = Filename.concat root name ^ ".html" in
       match item with
       | Bin data ->
+        let dest = Filename.concat root name in
         Filesystem.with_out_bin (Fun.flip output_string data) dest
       | Dir subdir ->
         compile_dir
           t (depth + 1) (Filename.concat root name) (url ^ "/" ^ name) subdir
       | Page page ->
+        let dest = Filename.concat root name ^ ".html" in
         compile_page t depth pages dest (url ^ "/" ^ name ^ ".html") page
     ) children;
   match dir_page with
