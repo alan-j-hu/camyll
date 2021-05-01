@@ -14,9 +14,9 @@ type t = {
   taxonomies : taxonomy list;
 }
 
-let src t = Filename.concat t.src_dir
+(*let src t = Filename.concat t.src_dir*)
 
-let dest t = Filename.concat t.dest_dir
+(*let dest t = Filename.concat t.dest_dir*)
 
 let grammar t = Filename.concat t.grammar_dir
 

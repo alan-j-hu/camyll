@@ -35,4 +35,6 @@ let default_cmd =
 
 let cmds = [new_cmd; build_cmd; serve_cmd]
 
-let main () = Term.(exit @@ eval_choice default_cmd cmds)
+let main () =
+  Printexc.record_backtrace true;
+  Term.(exit @@ eval_choice default_cmd cmds)

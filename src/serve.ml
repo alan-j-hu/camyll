@@ -10,7 +10,7 @@ let rec serve_file config path = function
     None
   | x :: xs -> serve_file config (Filename.concat path x) xs
   | [] ->
-    let path = C.dest config path in
+    let path = Filename.concat config.C.dest_dir path in
     try
       if Sys.is_directory path then
         let path = Filename.concat path "index.html" in

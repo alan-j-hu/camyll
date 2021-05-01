@@ -5,6 +5,7 @@ layout_dir = "layouts"
 partial_dir = "partials"
 agda_dir = "lagda"
 exclude = ["*.agdai"]
+clean_urls = true
 
 [[taxonomies]]
 name = "categories"

@@ -1,10 +1,22 @@
 open Jingoo
 
-type 'a doc = {
-  name : string;
-  subdir : string;
+type name =
+  | Index
+  | Name of string
+
+type page = {
   frontmatter : Toml.Types.table;
-  content : 'a;
+  content : string;
+}
+
+and item =
+  | Bin of string
+  | Dir of dir
+  | Page of page
+
+and dir = {
+  dir_page : page option;
+  children : (string, item) Hashtbl.t;
 }
 
 type taxonomy = {
@@ -54,9 +66,9 @@ and jingoo_of_tomltable table =
       (Toml.Types.Table.Key.to_string k, jingoo_of_tomlvalue v) :: acc
     ) table [])
 
-let jingoo_of_page page =
+let jingoo_of_page url page =
   Jg_types.Tobj
-    [ ("url", Jg_types.Tstr ("/" ^ page.subdir ^ "/" ^ page.name))
+    [ ("url", Jg_types.Tstr url)
     ; ("frontmatter", jingoo_of_tomltable page.frontmatter) ]
 
 (* Add the Jingoo data to the taxonomy under the specified name. *)
@@ -69,19 +81,19 @@ let add_taxonomy t taxonomy name data =
     | None -> Hashtbl.add taxonomy.items name [data]
     | Some items -> Hashtbl.replace taxonomy.items name (data :: items)
 
-let add_taxonomies t page =
+let add_taxonomies t url page =
   let open Toml.Lenses in
   let open Toml.Types in
   match get page.frontmatter (key "taxonomies" |-- table) with
   | None -> ()
   | Some taxonomies ->
-    Table.iter (fun k v ->
+    Table.iter (fun taxonomy v ->
         match get v (array |-- strings) with
         | None -> failwith "Expected an array of strings"
         | Some tags ->
           List.iter (fun tag ->
-              let jingoo = jingoo_of_page page in
-              add_taxonomy t (Table.Key.to_string k) tag jingoo
+              let jingoo = jingoo_of_page url page in
+              add_taxonomy t (Table.Key.to_string taxonomy) tag jingoo
             ) tags
       ) taxonomies
 
@@ -133,16 +145,6 @@ let highlight t =
         end
       | x -> x)
 
-type doctype =
-  | Bin
-  | Doc of string doc
-
-(* Copy the file exactly. *)
-let copy_file output_path in_chan =
-  Filesystem.with_out_bin (fun out_chan ->
-      output_string out_chan (Filesystem.read_bytes in_chan)
-    ) output_path
-
 let process_md t chan =
   Omd.to_html (highlight t (Omd.of_string (Filesystem.read_lines chan)))
 
@@ -151,48 +153,64 @@ let with_in_smart f path =
   try Filesystem.with_in f path with
   | Failure e -> failwith (path ^ ": " ^ e)
 
-let dispatch t subdir name =
-  let read_path = Filename.concat subdir name in
+let dispatch t path name =
+  let read_path = Filename.concat path name in
   match String.split_on_char '.' name with
+  | ["index"; "html"] ->
+    read_path |> with_in_smart begin fun chan ->
+      let frontmatter = parse_frontmatter chan in
+      ( Index
+      , Page { frontmatter
+             ; content = Filesystem.read_lines chan } )
+    end
+  | ["index"; "md"] ->
+    read_path |> with_in_smart begin fun chan ->
+      let frontmatter = parse_frontmatter chan in
+      ( Index
+      , Page { frontmatter
+             ; content = process_md t chan } )
+    end
   | [name; "lagda"; "md"] ->
-    let path =
-      if subdir = "" then
-        t.config.Config.src_dir ^ "." ^ name
-      else
-        t.config.Config.src_dir ^ "."
-        ^ (String.split_on_char '/' subdir
-           |> String.concat (String.make 1 '.'))
-        ^ "." ^ name
+    let module_name =
+      (String.split_on_char '/' path |> String.concat ".") ^ "." ^ name
     in
-    with_in_smart (fun chan ->
+    let exit_code =
+      Sys.command
+        (Filename.quote_command
+           "agda"
+           [ read_path
+           ; "--html"
+           ; "--html-highlight=auto"
+           ; "--html-dir=" ^ Config.agda_dest t.config ])
+    in
+    if exit_code <> 0 then
+      failwith ("Agda process exited with code " ^ Int.to_string exit_code)
+    else
+      Filename.concat (Config.agda_dest t.config) module_name ^ ".md" |>
+      with_in_smart begin fun chan ->
         let frontmatter = parse_frontmatter chan in
-        Doc { name = name ^ ".html"
-            ; subdir
-            ; frontmatter
-            ; content = process_md t chan }
-      ) (Filename.concat (Config.agda_dest t.config) path ^ ".md")
-  | [_; "html"] ->
-    with_in_smart (fun chan ->
-        let frontmatter = parse_frontmatter chan in
-        Doc { name
-            ; subdir
-            ; frontmatter
-            ; content = Filesystem.read_lines chan }
-      ) (Config.src t.config read_path)
+        ( Name name
+        , Page { frontmatter
+               ; content = process_md t chan } )
+      end
+  | [name; "html"] ->
+    read_path |> with_in_smart begin fun chan ->
+      let frontmatter = parse_frontmatter chan in
+      ( Name name
+      , Page { frontmatter
+             ; content = Filesystem.read_lines chan } )
+    end
   | [name; "md"] ->
-    with_in_smart (fun chan ->
-        let frontmatter = parse_frontmatter chan in
-        Doc { name = name ^ ".html"
-            ; subdir
-            ; frontmatter
-            ; content = process_md t chan }
-      ) (Config.src t.config read_path)
+    read_path |> with_in_smart begin fun chan ->
+      let frontmatter = parse_frontmatter chan in
+      ( Name name
+      , Page { frontmatter
+             ; content = process_md t chan } )
+    end
   | _ ->
-    Filesystem.with_in_bin (fun chan ->
-        let output_path = Config.dest t.config read_path in
-        copy_file output_path chan
-      ) (Config.src t.config read_path);
-    Bin
+    read_path |> Filesystem.with_in_bin begin fun chan ->
+      (Name name, Bin (Filesystem.read_bytes chan))
+    end
 
 (* Concatenate two URLs, handling trailing slashes on the left URL and
    leading slashes on the right URL. *)
@@ -267,18 +285,7 @@ let relativize_urls depth node =
   replace "href";
   replace "src"
 
-let list_page_metadata pages =
-  pages
-  |> List.filter (fun page -> page.name <> "index.html")
-  |> List.map jingoo_of_page
-
-let get_layout frontmatter =
-  match Jg_runtime.jg_obj_lookup frontmatter "layout" with
-  | Jg_types.Tnull -> None
-  | Jg_types.Tstr name -> Some name
-  | _ -> failwith "Template name not a string"
-
-let from_file t models path =
+let render_from_file t models url path =
   let env =
     { Jg_types.std_env with
       autoescape = false
@@ -296,92 +303,104 @@ let from_file t models path =
     }
   in
   let path = Filename.concat t.config.layout_dir path in
+  let print_err e = failwith (path ^ ": " ^ url ^ ":" ^ e) in
   try Jg_template.from_file ~env ~models path with
-  | Failure e -> failwith (path ^ ": " ^ e)
-  | Jingoo.Jg_types.SyntaxError e -> failwith (path ^ ": " ^ e)
+  | Failure e -> failwith (print_err e)
+  | Invalid_argument e -> failwith (print_err e)
+  | Jingoo.Jg_types.SyntaxError e -> failwith (print_err e)
 
-let render t pages frontmatter content =
-  let frontmatter = jingoo_of_tomltable frontmatter in
-  match get_layout frontmatter with
-  | None -> content
+let render_page t siblings url page =
+  match Toml.Lenses.(get page.frontmatter (key "layout" |-- string)) with
+  | None -> page.content
   | Some path ->
     let models =
-      [ "content", Jg_types.Tstr content
-      ; "posts", Jg_types.Tlist pages
-      ; "page", frontmatter ]
+      [ "content", Jg_types.Tstr page.content
+      ; "posts", Jg_types.Tlist siblings
+      ; "page", jingoo_of_tomltable page.frontmatter ]
     in
-    from_file t models path
+    render_from_file t models url path
 
-let compile_doc t depth pages ({ name; subdir; frontmatter; content } as page) =
-  let path = Filename.concat subdir name in
-  let output_path = Filename.concat t.config.Config.dest_dir path in
-  let content = render t pages frontmatter content in
+let compile_page t depth siblings path url page =
+  let content = render_page t siblings url page in
   let output = Soup.parse content in
-  add_taxonomies t page;
+  add_taxonomies t url page;
   correct_agda_urls t output;
   relativize_urls depth output;
-  Filesystem.with_out (fun out_chan ->
-      output_string out_chan (Soup.pretty_print output)
-    ) output_path
+  path |> Filesystem.with_out begin fun out_chan ->
+    output_string out_chan (Soup.pretty_print output)
+  end
 
-let rec compile_dir t depth subdir =
-  let src = Config.src t.config subdir in
-  let dest = Config.dest t.config subdir in
-  Filesystem.touch_dir dest;
+let rec load_dir t src =
+  let files = Sys.readdir src in
+  let pages = Hashtbl.create (Array.length files) in
+  let index = Array.fold_left (fun index name ->
+      let path = Filename.concat src name in
+      if List.exists (Fun.flip Re.execp path) t.config.Config.exclude then
+        index
+      else if Sys.is_directory path then (
+        let dir = load_dir t path in
+        if Hashtbl.mem pages name then
+          failwith ("Duplicate page " ^ path ^ "!")
+        else (
+          Hashtbl.add pages name (Dir dir);
+          index
+        )
+      ) else
+        let name, data = dispatch t src name in
+        match index, name with
+        | _, Name name ->
+          if Hashtbl.mem pages name then
+            failwith ("Duplicate page " ^ path ^ "!")
+          else (
+            Hashtbl.add pages name data;
+            index
+          )
+        | Some _, Index -> failwith ("Duplicate index " ^ path ^ "!")
+        | None, Index ->
+          match data with
+          | Bin _ -> failwith ("Index is a binary: " ^ path ^ "!")
+          | Dir _ -> failwith ("Index is a directory: " ^ path ^ "!")
+          | Page page -> Some page
+    ) None (Sys.readdir src)
+  in
+  { dir_page = index; children = pages }
+
+let rec compile_dir t depth root url { dir_page; children } =
   let pages =
-    Array.fold_left (fun pages name ->
-        let path = Filename.concat subdir name in
-        if Sys.is_directory (Config.src t.config path) then (
-          compile_dir t (depth + 1) path;
-          pages
-        ) else if
-          List.exists (Fun.flip Re.execp path) t.config.Config.exclude
-        then
-          pages
-        else
-          match dispatch t subdir name with
-          | Bin -> pages
-          | Doc doc -> doc :: pages
-      ) [] (Sys.readdir src)
+    Hashtbl.to_seq children
+    |> Seq.filter_map (function
+        | name, Page page ->
+          Some (jingoo_of_page (url ^ "/" ^ name ^ ".html") page)
+        | _, _ -> None)
+    |> List.of_seq
   in
-  let metadata = list_page_metadata pages in
-  List.iter (compile_doc t depth metadata) pages
-
-(** Highlight Literate Agda files *)
-let preprocess_agda html_dir dir =
-  let rec go dir =
-    Array.iter (fun name ->
-        let path = Filename.concat dir name in
-        if Sys.is_directory path then
-          go path
-        else
-          match Filename.chop_suffix_opt ~suffix:".lagda.md" name with
-          | None -> ()
-          | Some _ ->
-             let code =
-               Sys.command
-                 (Filename.quote_command
-                    "agda"
-                    [ path
-                    ; "--html"
-                    ; "--html-highlight=auto"
-                    ; "--html-dir=" ^ html_dir ])
-             in
-             if code <> 0 then
-               failwith ("Agda process exited with code " ^ Int.to_string code)
-      ) (Sys.readdir dir)
-  in
-  go dir
+  Filesystem.touch_dir root;
+  Hashtbl.iter (fun name item ->
+      let dest = Filename.concat root name ^ ".html" in
+      match item with
+      | Bin data ->
+        Filesystem.with_out_bin (Fun.flip output_string data) dest
+      | Dir subdir ->
+        compile_dir
+          t (depth + 1) (Filename.concat root name) (url ^ "/" ^ name) subdir
+      | Page page ->
+        compile_page t depth pages dest (url ^ "/" ^ name ^ ".html") page
+    ) children;
+  match dir_page with
+  | None -> ()
+  | Some page ->
+    compile_page t depth pages (Filename.concat root "index.html") url page
 
 let build_taxonomy t name taxonomy =
-  let dest = Config.dest t.config name in
+  let dest = Filename.concat t.config.Config.dest_dir name in
   Filesystem.touch_dir dest;
   Hashtbl.iter (fun tag_name pages ->
       let output_path = Filename.concat dest (slugify tag_name ^ ".html") in
       let content =
-        from_file t
+        render_from_file t
           [ "posts", Jg_types.Tlist pages
           ; "page", Jg_types.Tobj ["title", Jg_types.Tstr tag_name] ]
+          dest
           taxonomy.template
       in
       let output = Soup.parse content in
@@ -432,8 +451,8 @@ let build_with_config config =
         { template = taxonomy.Config.template
         ; items = Hashtbl.create 11 }
     ) config.Config.taxonomies;
-  preprocess_agda (Config.agda_dest config) (Config.src config "");
-  ignore (compile_dir t 0 "");
+  let dir = load_dir t t.config.Config.src_dir in
+  compile_dir t 0 t.config.Config.dest_dir "" dir;
   build_taxonomies t
 
 let build () = Config.with_config build_with_config
