@@ -272,9 +272,9 @@ let relativize_urls depth node =
         match Soup.attribute attr node with
         | None -> failwith ("Unreachable: " ^ attr)
         | Some link ->
-          if String.get link 0 = '/' then
+          if String.length link > 0 && String.get link 0 = '/' then
             let sub = String.sub link 1 (String.length link - 1) in
-            let buf = Buffer.create 5 in
+            let buf = Buffer.create (depth * 3 + String.length link - 1) in
             for _ = 1 to depth do
               Buffer.add_string buf "../"
             done;
@@ -365,12 +365,18 @@ let rec load_dir t src =
   in
   { dir_page = index; children = pages }
 
-let rec compile_dir t depth root url { dir_page; children } =
+let url t prefix name =
+  if t.config.Config.clean_urls then
+    prefix ^ name ^ "/"
+  else
+    prefix ^ name ^ ".html"
+
+let rec compile_dir t depth root url_prefix { dir_page; children } =
   let pages =
     Hashtbl.to_seq children
     |> Seq.filter_map (function
         | name, Page page ->
-          Some (jingoo_of_page (url ^ "/" ^ name ^ ".html") page)
+          Some (jingoo_of_page (url t url_prefix name) page)
         | _, _ -> None)
     |> List.of_seq
   in
@@ -382,15 +388,24 @@ let rec compile_dir t depth root url { dir_page; children } =
         Filesystem.with_out_bin (Fun.flip output_string data) dest
       | Dir subdir ->
         compile_dir
-          t (depth + 1) (Filename.concat root name) (url ^ "/" ^ name) subdir
+          t (depth + 1) (Filename.concat root name)
+          (url t url_prefix name) subdir
       | Page page ->
-        let dest = Filename.concat root name ^ ".html" in
-        compile_page t depth pages dest (url ^ "/" ^ name ^ ".html") page
+        if t.config.Config.clean_urls then
+          let dir = Filename.concat root name in
+          Filesystem.touch_dir dir;
+          compile_page
+            t depth pages (Filename.concat dir "index.html")
+            (url t url_prefix name) page
+        else
+          let dest = Filename.concat root name ^ ".html" in
+          compile_page t depth pages dest (url t url_prefix name) page
     ) children;
   match dir_page with
   | None -> ()
   | Some page ->
-    compile_page t depth pages (Filename.concat root "index.html") url page
+    compile_page
+      t depth pages (Filename.concat root "index.html") url_prefix page
 
 let build_taxonomy t name taxonomy =
   let dest = Filename.concat t.config.Config.dest_dir name in
@@ -406,7 +421,12 @@ let build_taxonomy t name taxonomy =
       in
       let output = Soup.parse content in
       correct_agda_urls t output;
-      relativize_urls 1 output;
+      begin
+        if t.config.Config.clean_urls then
+          relativize_urls 2 output
+        else
+          relativize_urls 1 output
+      end;
       Filesystem.with_out (fun out_chan ->
           output_string out_chan (Soup.pretty_print output)
         ) output_path
@@ -453,7 +473,12 @@ let build_with_config config =
         ; items = Hashtbl.create 11 }
     ) config.Config.taxonomies;
   let dir = load_dir t t.config.Config.src_dir in
-  compile_dir t 0 t.config.Config.dest_dir "" dir;
+  begin
+    if t.config.Config.clean_urls then
+      compile_dir t 1 t.config.Config.dest_dir "/" dir
+    else
+      compile_dir t 0 t.config.Config.dest_dir "/" dir
+  end;
   build_taxonomies t
 
 let build () = Config.with_config build_with_config

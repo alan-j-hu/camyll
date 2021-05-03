@@ -1,4 +1,4 @@
 <div>
-  <a href='/index.html'>Home</a>
-  <a href='/posts/index.html'>Posts</a>
+  <a href='/'>Home</a>
+  <a href='/posts/'>Posts</a>
 </div>

@@ -11,6 +11,7 @@ type t = {
   partial_dir : string;
   exclude : Re.re list;
   agda_dir : string;
+  clean_urls : bool;
   taxonomies : taxonomy list;
 }
 
@@ -64,6 +65,7 @@ let of_toml toml =
   and* layout_dir = get toml (key "layout_dir" |-- string)
   and* partial_dir = get toml (key "partial_dir" |-- string)
   and* agda_dir = get toml (key "agda_dir" |-- string)
+  and+ clean_urls = get toml (key "clean_urls" |-- bool)
   and* exclude = get toml (key "exclude" |-- array |-- strings)
   and* taxonomies = get toml (key "taxonomies" |-- array |-- tables) in
   let+ taxonomies = mapM taxonomy_of_toml taxonomies in
@@ -73,6 +75,7 @@ let of_toml toml =
   ; layout_dir
   ; partial_dir
   ; agda_dir
+  ; clean_urls
   ; exclude = List.map (fun g -> Re.compile (Re.Glob.glob g)) exclude
   ; taxonomies }
 
