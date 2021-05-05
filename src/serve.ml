@@ -55,6 +55,9 @@ let serve_with_config config port =
          ~request_handler:(request_handler config)
          ~error_handler)
   in
+  prerr_endline
+    ("Now listening on port " ^ Int.to_string port
+     ^ "... Press CTRL+C to stop.");
   let forever, _ = Lwt.wait () in
   Lwt_main.run forever
 

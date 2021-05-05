@@ -11,11 +11,11 @@ let guard f x =
 
 let new_cmd =
   let doc = "initialize a site" in
-  let arg =
+  let path =
     let inf = Arg.info ~docv:"PATH" [] in
     Arg.(required & pos 0 (some string) None inf)
   in
-  Term.(ret (const (guard New.new_) $ arg)),
+  Term.(ret (const (guard New.new_) $ path)),
   Term.info "new" ~doc
 
 let build_cmd =
@@ -25,7 +25,11 @@ let build_cmd =
 
 let serve_cmd =
   let doc = "serve the site" in
-  Term.(ret (const (guard Serve.serve) $ const 8080)),
+  let port =
+    let inf = Arg.info ~docv:"PORT" ["port"] in
+    Arg.(value & opt int 8080 inf)
+  in
+  Term.(ret (const (guard Serve.serve) $ port)),
   Term.info "serve" ~doc
 
 let default_cmd =
