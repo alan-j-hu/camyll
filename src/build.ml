@@ -235,29 +235,35 @@ let concat_urls left right =
 
 let correct_agda_urls t node =
   let open Soup.Infix in
-  Soup.iter (fun node ->
-      match Soup.attribute "href" node with
-      | None -> failwith "Unreachable: href"
-      | Some link ->
-        let root_mod = t.config.Config.src_dir in
-        let root_len = String.length t.config.Config.src_dir in
-        let link_len = String.length link in
-        if link_len >= root_len && String.sub link 0 root_len = root_mod then
-          (* The link is to an internal module *)
-          match String.split_on_char '.' link with
-          | [] -> failwith "Unreachable: Empty Agda link"
-          | _ :: parts ->
-            let rec loop acc = function
-              | [] -> failwith "Unreachable: Singular Agda link"
-              | [ext] -> acc ^ "." ^ ext
-              | x :: xs -> loop (acc ^ "/" ^ x) xs
-            in
-            Soup.set_attribute "href" (loop "" parts) node
-        else
-          (* The link is to an external module *)
-          let link = "/" ^ (concat_urls t.config.Config.agda_dir link) in
-          Soup.set_attribute "href" link node
-    ) (node $$ "pre[class=\"Agda\"] > a[href]")
+  node $$ "pre[class=\"Agda\"] > a[href]" |> Soup.iter begin fun node ->
+    match Soup.attribute "href" node with
+    | None -> failwith "Unreachable: href"
+    | Some link ->
+      let root_mod = t.config.Config.src_dir in
+      let root_len = String.length t.config.Config.src_dir in
+      let link_len = String.length link in
+      if link_len >= root_len && String.sub link 0 root_len = root_mod then
+        (* The link is to an internal module *)
+        match String.split_on_char '.' link with
+        | [] -> failwith "Unreachable: Empty Agda link"
+        | _ :: parts ->
+          let rec loop acc = function
+            | [] -> failwith "Unreachable: Singular Agda link"
+            | ["html"] -> acc
+            | [ext] when String.length ext > 4 ->
+              (* ext is "html#number". *)
+              let after_html = String.sub ext 4 (String.length ext - 4) in
+              acc ^ after_html
+            | [ext] ->
+              failwith ("Unreachable: Unknown Agda-generated extension " ^ ext)
+            | x :: xs -> loop (acc ^ x ^ "/") xs
+          in
+          Soup.set_attribute "href" (loop "/" parts) node
+      else
+        (* The link is to an external module *)
+        let link = "/" ^ (concat_urls t.config.Config.agda_dir link) in
+        Soup.set_attribute "href" link node
+  end
 
 let render_from_file t models url path =
   let env =
@@ -420,11 +426,11 @@ let build_with_config config =
           let path = Config.grammar t.config name in
           try
             let lang =
-              Filesystem.with_in (fun chan ->
-                  Markup.channel chan
-                  |> Plist_xml.parse_exn
-                  |> TmLanguage.of_plist_exn
-                ) path
+              path |> Filesystem.with_in begin fun chan ->
+                Markup.channel chan
+                |> Plist_xml.parse_exn
+                |> TmLanguage.of_plist_exn
+              end
             in
             TmLanguage.add_grammar t.langs lang
           with Plist_xml.Parse_error s -> failwith (path ^ ": " ^ s)
