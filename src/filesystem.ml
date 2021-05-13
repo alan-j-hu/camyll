@@ -62,16 +62,16 @@ let split_re = Re.compile (Re.str Filename.dir_sep)
 (* Creates all directories in the current path. *)
 let create_dirs path =
   let split = Re.split split_re path in
-  ignore(List.fold_left (fun path name ->
+  ignore (List.fold_left (fun path name ->
       let path = Filename.concat path name in
       touch_dir path;
       path
     ) "" split)
 
 let rec remove_dir dirname =
-  Array.iter (fun name ->
-      remove (Filename.concat dirname name)
-    ) (Sys.readdir dirname);
+  Sys.readdir dirname |> Array.iter begin fun name ->
+    remove (Filename.concat dirname name)
+  end;
   Sys.rmdir dirname
 
 and remove name =

@@ -32,12 +32,12 @@ type t = {
 
 let slugify str =
   let buf = Buffer.create (String.length str) in
-  String.iter (function
-      | ' ' -> Buffer.add_char buf '-'
-      | 'A' .. 'Z' as ch -> Buffer.add_char buf (Char.chr (Char.code ch + 32))
-      | 'a' .. 'z' | '-' | '_' as ch -> Buffer.add_char buf ch
-      | _ -> ()
-    ) str;
+  str |> String.iter begin function
+    | ' ' -> Buffer.add_char buf '-'
+    | 'A' .. 'Z' as ch -> Buffer.add_char buf (Char.chr (Char.code ch + 32))
+    | 'a' .. 'z' | '-' | '_' as ch -> Buffer.add_char buf ch
+    | _ -> ()
+  end;
   Buffer.contents buf
 
 let rec jingoo_of_tomlvalue = function
@@ -87,15 +87,15 @@ let add_taxonomies t url page =
   match get page.frontmatter (key "taxonomies" |-- table) with
   | None -> ()
   | Some taxonomies ->
-    Table.iter (fun taxonomy v ->
-        match get v (array |-- strings) with
-        | None -> failwith "Expected an array of strings"
-        | Some tags ->
-          List.iter (fun tag ->
-              let jingoo = jingoo_of_page url page in
-              add_taxonomy t (Table.Key.to_string taxonomy) tag jingoo
-            ) tags
-      ) taxonomies
+    taxonomies |> Table.iter begin fun taxonomy v ->
+      match get v (array |-- strings) with
+      | None -> failwith "Expected an array of strings"
+      | Some tags ->
+        tags |> List.iter begin fun tag ->
+          let jingoo = jingoo_of_page url page in
+          add_taxonomy t (Table.Key.to_string taxonomy) tag jingoo
+        end
+    end
 
 (* Try to parse YAML frontmatter from the channel. *)
 let parse_frontmatter chan =
@@ -117,14 +117,8 @@ let parse_frontmatter chan =
       match Toml.Parser.from_string (Buffer.contents buf) with
       | `Ok toml -> toml
       | `Error(e, _) -> failwith e
-    else (
-      seek_in chan 0;
-      failwith "Missing frontmatter"
-    )
-  with
-  | End_of_file ->
-    seek_in chan 0;
-    failwith "Missing frontmatter"
+    else failwith "Missing ending frontmatter!"
+  with End_of_file -> failwith "Missing frontmatter!"
 
 (* Highlight the code blocks. *)
 let highlight t =
@@ -389,26 +383,24 @@ let rec compile_dir t root url_prefix { dir_page; children } =
 let build_taxonomy t name taxonomy =
   let dest = Filename.concat t.config.Config.dest_dir name in
   Filesystem.touch_dir dest;
-  Hashtbl.iter (fun tag_name pages ->
-      let output_path = Filename.concat dest (slugify tag_name ^ ".html") in
-      let content =
-        render_from_file t
-          [ "posts", Jg_types.Tlist pages
-          ; "page", Jg_types.Tobj ["title", Jg_types.Tstr tag_name] ]
-          dest
-          taxonomy.template
-      in
-      let output = Soup.parse content in
-      correct_agda_urls t output;
-      Filesystem.with_out (fun out_chan ->
-          output_string out_chan (Soup.pretty_print output)
-        ) output_path
-    ) taxonomy.items
+  taxonomy.items |> Hashtbl.iter begin fun tag_name pages ->
+    let output_path = Filename.concat dest (slugify tag_name ^ ".html") in
+    let content =
+      render_from_file t
+        [ "posts", Jg_types.Tlist pages
+        ; "page", Jg_types.Tobj ["title", Jg_types.Tstr tag_name] ]
+        dest
+        taxonomy.template
+    in
+    let output = Soup.parse content in
+    correct_agda_urls t output;
+    output_path |> Filesystem.with_out begin fun out_chan ->
+      output_string out_chan (Soup.pretty_print output)
+    end
+  end
 
 let build_taxonomies t =
-  Hashtbl.iter (fun name taxonomy ->
-      build_taxonomy t name taxonomy
-    ) t.taxonomies
+  Hashtbl.iter (build_taxonomy t) t.taxonomies
 
 let build_with_config config =
   Filesystem.touch_dir config.Config.dest_dir;
@@ -421,30 +413,29 @@ let build_with_config config =
     match Sys.readdir t.config.Config.grammar_dir with
     | exception (Sys_error _) -> ()
     | names ->
-       Array.iter (fun name ->
-           if Sys.is_directory (Config.grammar t.config name) then
-             ()
-           else
-             let path = Config.grammar t.config name in
-             try
-               let lang =
-                 Filesystem.with_in (fun chan ->
-                     Markup.channel chan
-                     |> Plist_xml.parse_exn
-                     |> TmLanguage.of_plist_exn
-                   ) path
-               in
-               TmLanguage.add_grammar t.langs lang
-             with
-             | Plist_xml.Parse_error s -> failwith (path ^ ": " ^ s)
-         ) names
+      names |> Array.iter begin fun name ->
+        if Sys.is_directory (Config.grammar t.config name) then
+          ()
+        else
+          let path = Config.grammar t.config name in
+          try
+            let lang =
+              Filesystem.with_in (fun chan ->
+                  Markup.channel chan
+                  |> Plist_xml.parse_exn
+                  |> TmLanguage.of_plist_exn
+                ) path
+            in
+            TmLanguage.add_grammar t.langs lang
+          with Plist_xml.Parse_error s -> failwith (path ^ ": " ^ s)
+      end
   end;
   Filesystem.remove_dir t.config.Config.dest_dir;
-  List.iter (fun taxonomy ->
-      Hashtbl.add t.taxonomies taxonomy.Config.name
-        { template = taxonomy.Config.template
-        ; items = Hashtbl.create 11 }
-    ) config.Config.taxonomies;
+  config.Config.taxonomies |> List.iter begin fun taxonomy ->
+    Hashtbl.add t.taxonomies taxonomy.Config.name
+      { template = taxonomy.Config.template
+      ; items = Hashtbl.create 11 }
+  end;
   let dir = load_dir t t.config.Config.src_dir in
   compile_dir t t.config.Config.dest_dir "/" dir;
   build_taxonomies t
