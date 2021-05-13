@@ -62,6 +62,9 @@ let get_class = function
   | "number" :: _ -> Some "m"
   | "operator" :: "word" :: _ -> Some "ow"
   | "operator" :: _ -> Some "o"
+  (* Workaround to highlight comments and strings correctly *)
+  | "punctuation" :: "definition" :: "comment" :: _ -> Some "c"
+  | "punctuation" :: "definition" :: "string" :: _ -> Some "s"
   | "punctuation" :: _ -> Some "p"
   | "comment" :: "hashbang" :: _ -> Some "ch"
   | "comment" :: "multiline":: _ -> Some "cm"
