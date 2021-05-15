@@ -122,22 +122,19 @@ let parse_frontmatter chan =
 
 (* Highlight the code blocks. *)
 let highlight t =
-  List.map (fun block ->
-      match block with
-      | Omd.Code_block(lang, code) ->
-        begin match lang with
-          | "" -> Omd.Code_block("", code)
-          | lang ->
-            match TmLanguage.find_by_name t.langs lang with
-            | None ->
-              prerr_endline ("Warning: unknown language " ^ lang);
-              Omd.Code_block(lang, code)
-            | Some grammar ->
-              Omd.Raw
-                (Soup.pretty_print
-                   (Highlight.highlight_block t.langs grammar code))
-        end
-      | x -> x)
+  List.map begin function
+    | Omd.Code_block("", _) as block -> block
+    | Omd.Code_block(lang, code) as block ->
+      begin match TmLanguage.find_by_name t.langs lang with
+        | None ->
+          prerr_endline ("Warning: unknown language " ^ lang);
+          block
+        | Some grammar ->
+          let html = Highlight.highlight_block t.langs grammar code in
+          Omd.Raw (Soup.pretty_print html)
+      end
+    | x -> x
+  end
 
 let process_md t chan =
   Omd.to_html (highlight t (Omd.of_string (Filesystem.read_lines chan)))
@@ -300,11 +297,44 @@ let render_page t siblings url page =
     in
     render_from_file t models url path
 
+let chop_common_prefix url1 url2 =
+  let url1 = String.split_on_char '/' url1 in
+  let url2 = String.split_on_char '/' url2 in
+  let rec loop url1 url2 = match url1, url2 with
+    | x :: xs, y :: ys when x = y -> loop xs ys
+    | url1, url2 -> url1, url2
+  in
+  loop url1 url2
+
+let relativize_urls url node =
+  let open Soup.Infix in
+  let replace attr =
+    node $$ ("[" ^ attr ^ "]") |> Soup.iter begin fun node ->
+      match Soup.attribute attr node with
+      | None -> failwith ("Unreachable: attribute " ^ attr ^ " not found!")
+      | Some link ->
+        if String.get link 0 = '/' then
+          let src, target = chop_common_prefix url link in
+          let s =
+            match src with
+            | [] -> String.concat "/" target
+            | _ :: src ->
+              target
+              |> List.rev_append (List.init (List.length src) (Fun.const ".."))
+              |> String.concat "/"
+          in
+          Soup.set_attribute attr s node
+    end
+  in
+  replace "href";
+  replace "src"
+
 let compile_page t siblings path url page =
   let content = render_page t siblings url page in
   let output = Soup.parse content in
   add_taxonomies t url page;
   correct_agda_urls t output;
+  relativize_urls url output;
   path |> Filesystem.with_out begin fun out_chan ->
     output_string out_chan (Soup.pretty_print output)
   end
@@ -390,7 +420,10 @@ let build_taxonomy t name taxonomy =
   let dest = Filename.concat t.config.Config.dest_dir name in
   Filesystem.touch_dir dest;
   taxonomy.items |> Hashtbl.iter begin fun tag_name pages ->
-    let output_path = Filename.concat dest (slugify tag_name ^ ".html") in
+    let slugified = slugify tag_name in
+    let dest = Filename.concat dest slugified in
+    Filesystem.touch_dir dest;
+    let output_path = Filename.concat dest "index.html" in
     let content =
       render_from_file t
         [ "posts", Jg_types.Tlist pages
@@ -400,6 +433,8 @@ let build_taxonomy t name taxonomy =
     in
     let output = Soup.parse content in
     correct_agda_urls t output;
+    let url = "/" ^ name ^ "/" ^ slugified ^ "/" in
+    relativize_urls url output;
     output_path |> Filesystem.with_out begin fun out_chan ->
       output_string out_chan (Soup.pretty_print output)
     end

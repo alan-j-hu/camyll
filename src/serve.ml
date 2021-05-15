@@ -4,7 +4,6 @@ open Httpaf
 open Httpaf_lwt_unix
 
 let rec serve_file config path = function
-  | "" :: xs -> serve_file config path xs
   | x :: _
     when x = Filename.current_dir_name || x = Filename.parent_dir_name ->
     None
