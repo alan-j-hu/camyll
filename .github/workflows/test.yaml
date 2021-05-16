@@ -27,7 +27,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           apkg init
           apkg install standard-library --version v1.1 --yes
-          opam install .
+          opam install . --with-test
           cd example
           camyll build
           cd ../docs

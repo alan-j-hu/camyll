@@ -203,33 +203,6 @@ let dispatch t path name =
       (Name name, Bin (Filesystem.read_bytes chan))
     end
 
-(* Concatenate two URLs, handling trailing slashes on the left URL and
-   leading slashes on the right URL. *)
-let concat_urls left right =
-  let left_len =
-    let len = String.length left in
-    if len = 0 then
-      0
-    else if String.get left (len - 1) = '/' then
-      len - 1
-    else
-      len
-  in
-  let right_start, right_len =
-    let len = String.length right in
-    if len = 0 then
-      (0, 0)
-    else if String.get right 0 = '/' then
-      (1, len - 1)
-    else
-      (0, len)
-  in
-  let bytes = Bytes.create (left_len + right_len + 1) in
-  Bytes.blit_string left 0 bytes 0 left_len;
-  Bytes.set bytes left_len '/';
-  Bytes.blit_string right right_start bytes (left_len + 1) right_len;
-  Bytes.unsafe_to_string bytes
-
 let correct_agda_urls t node =
   let open Soup.Infix in
   node $$ "pre[class=\"Agda\"] > a[href]" |> Soup.iter begin fun node ->
@@ -258,7 +231,7 @@ let correct_agda_urls t node =
           Soup.set_attribute "href" (loop "/" parts) node
       else
         (* The link is to an external module *)
-        let link = "/" ^ (concat_urls t.config.Config.agda_dir link) in
+        let link = "/" ^ (Url.concat_urls t.config.Config.agda_dir link) in
         Soup.set_attribute "href" link node
   end
 
@@ -297,15 +270,6 @@ let render_page t siblings url page =
     in
     render_from_file t models url path
 
-let chop_common_prefix url1 url2 =
-  let url1 = String.split_on_char '/' url1 in
-  let url2 = String.split_on_char '/' url2 in
-  let rec loop url1 url2 = match url1, url2 with
-    | x :: xs, y :: ys when x = y -> loop xs ys
-    | url1, url2 -> url1, url2
-  in
-  loop url1 url2
-
 let relativize_urls url node =
   let open Soup.Infix in
   let replace attr =
@@ -314,16 +278,7 @@ let relativize_urls url node =
       | None -> failwith ("Unreachable: attribute " ^ attr ^ " not found!")
       | Some link ->
         if String.get link 0 = '/' then
-          let src, target = chop_common_prefix url link in
-          let s =
-            match src with
-            | [] -> String.concat "/" target
-            | _ :: src ->
-              target
-              |> List.rev_append (List.init (List.length src) (Fun.const ".."))
-              |> String.concat "/"
-          in
-          Soup.set_attribute attr s node
+          Soup.set_attribute attr (Url.relativize ~src:url ~dest:link) node
     end
   in
   replace "href";
