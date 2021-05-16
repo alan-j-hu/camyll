@@ -231,7 +231,7 @@ let correct_agda_urls t node =
           Soup.set_attribute "href" (loop "/" parts) node
       else
         (* The link is to an external module *)
-        let link = "/" ^ (Url.concat_urls t.config.Config.agda_dir link) in
+        let link = "/" ^ (Filename.concat t.config.Config.agda_dir link) in
         Soup.set_attribute "href" link node
   end
 
