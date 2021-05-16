@@ -6,3 +6,7 @@ let () =
   assert
     (relativize ~src:"/posts/first-post/" ~dest:"/posts/second-post/"
      = "../second-post/");
+  assert
+    (relativize ~src:"/posts/first-post/" ~dest:"posts/second-post/"
+     = "posts/second-post/");
+  assert (relativize ~src:"/posts/first-post/" ~dest:"" = "")

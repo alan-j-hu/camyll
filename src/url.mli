@@ -1,3 +1,3 @@
-(** Relativizes the absolute URL [dest] assumint it appears on a page at URL
-    [src]. *)
+(** If [dest] begins with /, returns a URL equivalent to [dest] relative to URL
+    [src]. If [dest] does not begin with /, returns [dest]. *)
 val relativize : src:string -> dest:string -> string

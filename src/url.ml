@@ -8,10 +8,13 @@ let relativize ~src ~dest =
     in
     loop url1 url2
   in
-  let src, dest = chop_common_prefix src dest in
-  match src with
-  | [] -> String.concat "/" dest
-  | _ :: src ->
+  if String.length dest > 0 && String.get dest 0 = '/' then
+    let src, dest = chop_common_prefix src dest in
+    match src with
+    | [] -> String.concat "/" dest
+    | _ :: src ->
+      dest
+      |> List.rev_append (List.init (List.length src) (Fun.const ".."))
+      |> String.concat "/"
+  else
     dest
-    |> List.rev_append (List.init (List.length src) (Fun.const ".."))
-    |> String.concat "/"

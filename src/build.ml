@@ -277,8 +277,7 @@ let relativize_urls url node =
       match Soup.attribute attr node with
       | None -> failwith ("Unreachable: attribute " ^ attr ^ " not found!")
       | Some link ->
-        if String.get link 0 = '/' then
-          Soup.set_attribute attr (Url.relativize ~src:url ~dest:link) node
+        Soup.set_attribute attr (Url.relativize ~src:url ~dest:link) node
     end
   in
   replace "href";
