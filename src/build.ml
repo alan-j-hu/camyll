@@ -34,6 +34,7 @@ let slugify str =
   let buf = Buffer.create (String.length str) in
   str |> String.iter begin function
     | ' ' -> Buffer.add_char buf '-'
+    | '/' -> Buffer.add_string buf "--"
     | 'A' .. 'Z' as ch -> Buffer.add_char buf (Char.chr (Char.code ch + 32))
     | 'a' .. 'z' | '-' | '_' as ch -> Buffer.add_char buf ch
     | _ -> ()

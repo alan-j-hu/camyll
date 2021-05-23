@@ -6,7 +6,15 @@ layout = "main.jingoo"
 
 Camyll is a static site generator.
 
-## Features:
+## Features
 
-- Literate Agda awareness
-- Arbitrary syntax highlighting
+- Markdown
+- Literate Agda
+- Syntax highlighting for any language
+- Tags (and arbitrary taxonomies)
+
+## Installation
+
+```
+opam install camyll
+```
