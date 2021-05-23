@@ -249,6 +249,9 @@ let render_from_file t models url path =
                 (Printer.Date.sprint
                    (Jg_types.unbox_string format)
                    (Date.from_unixfloat (Jg_types.unbox_float date))))
+        ; "slugify"
+        , Jg_types.func_arg1_no_kw (fun str ->
+              Jg_types.Tstr (slugify (Jg_types.unbox_string str)))
         ]
     }
   in

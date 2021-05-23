@@ -4,8 +4,20 @@
     {% include "head.jingoo" %}
   </head>
   <body>
-    {% include "nav.jingoo" %} 
-    Published: {{ format_date("%B %_d, %Y", page.date) }}
+    {% include "nav.jingoo" %}
+    Published: {{ format_date("%B %_d, %Y", page.date) }}<br>
+    Tags:
+    [
+    {%- set ns = namespace (sep = false) -%}
+    {%- for tag in page.taxonomies.tags -%}
+      {%- if ns.sep -%}
+        , 
+      {% else -%}
+        {%- set ns.sep = true -%}
+      {%- endif -%}
+      <a href='/tags/{{ slugify(tag) }}'>{{ tag }}</a>
+    {%- endfor -%}
+    ]
     {{ content }}
   </body>
 </html>
