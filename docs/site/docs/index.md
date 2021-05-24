@@ -5,5 +5,5 @@ layout = "main.jingoo"
 
 # Documentation
 
-- [Configuration](configuration)
-- [Templates](templates)
+- [Configuration](configuration.html)
+- [Templates](templates.html)

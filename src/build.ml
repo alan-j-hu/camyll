@@ -213,24 +213,19 @@ let correct_agda_urls t node =
       let root_mod = t.config.Config.src_dir in
       let root_len = String.length t.config.Config.src_dir in
       let link_len = String.length link in
-      if link_len >= root_len && String.sub link 0 root_len = root_mod then
+      if link_len >= root_len && String.sub link 0 root_len = root_mod then (
         (* The link is to an internal module *)
         match String.split_on_char '.' link with
         | [] -> failwith "Unreachable: Empty Agda link"
         | _ :: parts ->
           let rec loop acc = function
             | [] -> failwith "Unreachable: Singular Agda link"
-            | ["html"] -> acc
-            | [ext] when String.length ext > 4 ->
-              (* ext is "html#number". *)
-              let after_html = String.sub ext 4 (String.length ext - 4) in
-              acc ^ after_html
-            | [ext] ->
-              failwith ("Unreachable: Unknown Agda-generated extension " ^ ext)
+            | [_] -> failwith "Unreachable: Double Agda link"
+            | [name; ext] -> acc ^ name ^ "." ^ ext
             | x :: xs -> loop (acc ^ x ^ "/") xs
           in
           Soup.set_attribute "href" (loop "/" parts) node
-      else
+      ) else
         (* The link is to an external module *)
         let link = "/" ^ (Filename.concat t.config.Config.agda_dir link) in
         Soup.set_attribute "href" link node
@@ -332,42 +327,27 @@ let rec load_dir t src =
   in
   { dir_page = index; children = pages }
 
-let url t prefix name =
-  if t.config.Config.clean_urls then
-    prefix ^ name ^ "/"
-  else
-    prefix ^ name ^ ".html"
-
 let rec compile_dir t root url_prefix { dir_page; children } =
   let pages =
     Hashtbl.to_seq children
     |> Seq.filter_map (function
         | name, Page page ->
-          Some (jingoo_of_page (url t url_prefix name) page)
+          Some (jingoo_of_page (url_prefix ^ name ^ ".html") page)
         | _, _ -> None)
     |> List.of_seq
   in
   Filesystem.touch_dir root;
-  Hashtbl.iter (fun name item ->
-      match item with
-      | Bin data ->
-        let dest = Filename.concat root name in
-        Filesystem.with_out_bin (Fun.flip output_string data) dest
-      | Dir subdir ->
-        compile_dir
-          t (Filename.concat root name)
-          (url t url_prefix name) subdir
-      | Page page ->
-        if t.config.Config.clean_urls then
-          let dir = Filename.concat root name in
-          Filesystem.touch_dir dir;
-          compile_page
-            t pages (Filename.concat dir "index.html")
-            (url t url_prefix name) page
-        else
-          let dest = Filename.concat root name ^ ".html" in
-          compile_page t pages dest (url t url_prefix name) page
-    ) children;
+  children |> Hashtbl.iter begin fun name item ->
+    match item with
+    | Bin data ->
+      let dest = Filename.concat root name in
+      Filesystem.with_out_bin (Fun.flip output_string data) dest
+    | Dir subdir ->
+      compile_dir t (Filename.concat root name) (url_prefix ^ name ^ "/") subdir
+    | Page page ->
+      let dest = Filename.concat root name ^ ".html" in
+      compile_page t pages dest (url_prefix ^ name ^ ".html") page
+  end;
   match dir_page with
   | None -> ()
   | Some page ->
@@ -375,23 +355,21 @@ let rec compile_dir t root url_prefix { dir_page; children } =
       t pages (Filename.concat root "index.html") url_prefix page
 
 let build_taxonomy t name taxonomy =
-  let dest = Filename.concat t.config.Config.dest_dir name in
-  Filesystem.touch_dir dest;
+  let dir = Filename.concat t.config.Config.dest_dir name in
+  Filesystem.touch_dir dir;
   taxonomy.items |> Hashtbl.iter begin fun tag_name pages ->
     let slugified = slugify tag_name in
-    let dest = Filename.concat dest slugified in
-    Filesystem.touch_dir dest;
-    let output_path = Filename.concat dest "index.html" in
+    let output_path = Filename.concat dir slugified  ^ ".html" in
     let content =
       render_from_file t
         [ "posts", Jg_types.Tlist pages
         ; "page", Jg_types.Tobj ["title", Jg_types.Tstr tag_name] ]
-        dest
+        output_path
         taxonomy.template
     in
     let output = Soup.parse content in
     correct_agda_urls t output;
-    let url = "/" ^ name ^ "/" ^ slugified ^ "/" in
+    let url = "/" ^ name ^ "/" ^ slugified ^ ".html" in
     relativize_urls url output;
     output_path |> Filesystem.with_out begin fun out_chan ->
       output_string out_chan (Soup.pretty_print output)

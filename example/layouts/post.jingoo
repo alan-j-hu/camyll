@@ -15,7 +15,7 @@
       {% else -%}
         {%- set ns.sep = true -%}
       {%- endif -%}
-      <a href='/tags/{{ slugify(tag) }}'>{{ tag }}</a>
+      <a href='/tags/{{ slugify(tag) }}.html'>{{ tag }}</a>
     {%- endfor -%}
     ]
     {{ content }}
