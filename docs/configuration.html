@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <link href="../site.css" rel="stylesheet">
+  <link href="../highlighting.css" rel="stylesheet">
+  <title>
+   Configuration
+  </title>
+ </head>
+ <body>
+  <nav class="nav">
+   <ul>
+    <li>
+     <a href="../">Home</a>
+    </li>
+    <li>
+     <a href="index.html">Docs</a>
+    </li>
+   </ul>
+  </nav>
+  <h1 id="Configuration">
+   Configuration
+  </h1>
+  <p>
+   Camyll uses <a href="https://toml.io/en/">TOML</a> for configuration.
+  </p>
+  <pre><code class="highlight"><a class="sourceLine"><span class="c">#</span><span class="c"> The directory that contains the page data</span><span class="c">
+</span></a><a class="sourceLine">source_dir = <span class="c">#</span><span class="c"> : string</span><span class="c">
+</span></a><a class="sourceLine">
+</a><a class="sourceLine"><span class="c">#</span><span class="c"> The directory that contains the rendered site</span><span class="c">
+</span></a><a class="sourceLine">dest_dir = <span class="c">#</span><span class="c"> : string</span><span class="c">
+</span></a><a class="sourceLine">
+</a><a class="sourceLine"><span class="c">#</span><span class="c"> The directory that contains the grammars for syntax highlighting</span><span class="c">
+</span></a><a class="sourceLine">grammar_dir = <span class="c">#</span><span class="c"> : string</span><span class="c">
+</span></a><a class="sourceLine">
+</a><a class="sourceLine"><span class="c">#</span><span class="c"> The directory that contains the templates</span><span class="c">
+</span></a><a class="sourceLine">layout_dir = <span class="c">#</span><span class="c"> : string</span><span class="c">
+</span></a><a class="sourceLine">
+</a><a class="sourceLine"><span class="c">#</span><span class="c"> The directory that contains the template partials</span><span class="c">
+</span></a><a class="sourceLine">partial_dir = <span class="c">#</span><span class="c"> : string</span><span class="c">
+</span></a><a class="sourceLine">
+</a><a class="sourceLine"><span class="c">#</span><span class="c"> The directory within the dest_dir that contains the rendered Literate Agda</span><span class="c">
+</span></a><a class="sourceLine">agda_dir = <span class="c">#</span><span class="c"> : string</span><span class="c">
+</span></a><a class="sourceLine">
+</a><a class="sourceLine"><span class="c">#</span><span class="c"> A list of globs of files to ignore</span><span class="c">
+</span></a><a class="sourceLine">exclude = <span class="c">#</span><span class="c"> : string list</span><span class="c">
+</span></a><a class="sourceLine">
+</a><a class="sourceLine"><span class="c">#</span><span class="c"> A list of taxonomies</span><span class="c">
+</span></a><a class="sourceLine">taxonomies = <span class="c">#</span><span class="c"> : string list</span><span class="c">
+</span></a></code></pre>
+ </body>
+</html>
