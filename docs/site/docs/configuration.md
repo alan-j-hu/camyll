@@ -29,6 +29,8 @@ agda_dir = # : string
 # A list of globs of files to ignore
 exclude = # : string list
 
-# A list of taxonomies
-taxonomies = # : string list
+# A list of taxonomies. The name is the name of the taxonomy (e.g. "tags",
+# "categories"), and the template is the file used to generate the page for
+# an individual taxonomy list page.
+taxonomies = # : { name : string; template : string } list
 ```
