@@ -31,8 +31,8 @@ operation. This function is useful for getting the URL of a tag page.
 Individual pages have the following names in scope:
 
 - `content` - The content of the page, expressed in HTML.
-- `page` - The page frontmatter.
-- `posts` - The pages in the current directory.
-  Each post is an object of the following format:
+- `frontmatter` - The page frontmatter.
+- `pages` - All the pages in the current directory.
+  Each page is an object of the following format:
   - `frontmatter` - The frontmatter of the post
   - `url` - The URL of the post

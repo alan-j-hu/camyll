@@ -8,8 +8,8 @@ exclude = ["*.agdai"]
 
 [[taxonomies]]
 name = "categories"
-template = "posts.jingoo"
+template = "tag.jingoo"
 
 [[taxonomies]]
 name = "tags"
-template = "posts.jingoo"
+template = "tag.jingoo"

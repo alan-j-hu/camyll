@@ -258,14 +258,14 @@ let render_from_file t models url path =
   | Invalid_argument e -> failwith (print_err e)
   | Jingoo.Jg_types.SyntaxError e -> failwith (print_err e)
 
-let render_page t siblings url page =
+let render_page t pages url page =
   match Toml.Lenses.(get page.frontmatter (key "layout" |-- string)) with
   | None -> page.content
   | Some path ->
     let models =
       [ "content", Jg_types.Tstr page.content
-      ; "posts", Jg_types.Tlist siblings
-      ; "page", jingoo_of_tomltable page.frontmatter ]
+      ; "pages", Jg_types.Tlist pages
+      ; "frontmatter", jingoo_of_tomltable page.frontmatter ]
     in
     render_from_file t models url path
 
@@ -362,8 +362,8 @@ let build_taxonomy t name taxonomy =
     let output_path = Filename.concat dir slugified  ^ ".html" in
     let content =
       render_from_file t
-        [ "posts", Jg_types.Tlist pages
-        ; "page", Jg_types.Tobj ["title", Jg_types.Tstr tag_name] ]
+        [ "pages", Jg_types.Tlist pages
+        ; "name", Jg_types.Tstr tag_name ]
         output_path
         taxonomy.template
     in

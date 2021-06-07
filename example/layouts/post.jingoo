@@ -5,11 +5,11 @@
   </head>
   <body>
     {% include "nav.jingoo" %}
-    Published: {{ format_date("%B %_d, %Y", page.date) }}<br>
+    Published: {{ format_date("%B %_d, %Y", frontmatter.date) }}<br>
     Tags:
     [
     {%- set ns = namespace (sep = false) -%}
-    {%- for tag in page.taxonomies.tags -%}
+    {%- for tag in frontmatter.taxonomies.tags -%}
       {%- if ns.sep -%}
         , 
       {% else -%}
