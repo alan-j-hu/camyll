@@ -28,7 +28,7 @@
   (markup (and (>= 0.8) (< 2.0)))
   (ocaml (>= 4.12))
   (omd (and (>= 1.3.1) (< 2.0)))
-  (textmate-language (and (>= 0.2.1) (< 0.3)))
+  (textmate-language (and (>= 0.3) (< 0.4)))
   (plist-xml (< 0.4))
   (re (and (>= 1.9) (< 2.0)))
   (toml (and (>= 7) (< 8)))))
