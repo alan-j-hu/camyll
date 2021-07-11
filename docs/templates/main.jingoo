@@ -5,6 +5,8 @@
   </head>
   <body>
     {% include "header.jingoo" %}
+    <main>
     {{ content }}
+    </main>
   </body>
 </html>
