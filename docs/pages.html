@@ -19,16 +19,17 @@
     </li>
    </ul>
   </nav>
-  <h1 id="Pages">
-   Pages
-  </h1>
-  <p>
-   <em>Pages</em> are files that have a one-to-one mapping with the webpages of the
+  <main>
+   <h1 id="Pages">
+    Pages
+   </h1>
+   <p>
+    <em>Pages</em> are files that have a one-to-one mapping with the webpages of the
 generated site. At the top of a page, there must be a pair of <code>+++</code>s. In
 between the <code>+++</code> is the page's <em>frontmatter</em>, which is written in
 <a href="https://toml.io/en/">TOML</a>. For example:
-  </p>
-  <pre class="markdown"><code class="markdown">+++
+   </p>
+   <pre class="markdown"><code class="markdown">+++
 title = "Pages"
 layout = "main.jingoo"
 +++
@@ -39,25 +40,25 @@ layout = "main.jingoo"
 generated site. At the top of a page, there must be a pair of `+++`s. In
 between the `+++` is the page's *frontmatter*, which is written in
 [TOML](https://toml.io/en/). For example:</code></pre>
-  <h2 id="Frontmatter">
-   Frontmatter
-  </h2>
-  <p>
-   The frontmatter attributes that Camyll uses are:
-  </p>
-  <pre><code class="highlight"><a class="sourceLine"><span class="c">#</span><span class="c"> The Jingoo layout to use</span><span class="c">
+   <h2 id="Frontmatter">
+    Frontmatter
+   </h2>
+   <p>
+    The frontmatter attributes that Camyll uses are:
+   </p>
+   <pre><code class="highlight"><a class="sourceLine"><span class="c">#</span><span class="c"> The Jingoo layout to use</span><span class="c">
 </span></a><a class="sourceLine">layout = <span class="c">#</span><span class="c"> : string</span><span class="c">
 </span></a><a class="sourceLine"><span class="c">#</span><span class="c"> A map from taxonomies to a list of taxonomy terms.</span><span class="c">
 </span></a><a class="sourceLine">taxonomies = <span class="c">#</span><span class="c"> : { string -&gt; string list }</span><span class="c">
 </span></a></code></pre>
-  <p>
-   Other attributes can be added to the frontmatter, and they will be accessible
+   <p>
+    Other attributes can be added to the frontmatter, and they will be accessible
 from the Jingoo layout. An enhanced frontmatter could look like this:
-  </p>
-  <p>
-   For example:
-  </p>
-  <pre><code class="highlight"><a class="sourceLine">title <span class="p">=</span> <span class="s">"</span><span class="s">Introduction to OCaml</span><span class="s">"</span>
+   </p>
+   <p>
+    For example:
+   </p>
+   <pre><code class="highlight"><a class="sourceLine">title <span class="p">=</span> <span class="s">"</span><span class="s">Introduction to OCaml</span><span class="s">"</span>
 </a><a class="sourceLine">layout <span class="p">=</span> <span class="s">"</span><span class="s">post.jingoo</span><span class="s">"</span>
 </a><a class="sourceLine">date <span class="p">=</span> 2021-01-05
 </a><a class="sourceLine">
@@ -65,30 +66,31 @@ from the Jingoo layout. An enhanced frontmatter could look like this:
 </a><a class="sourceLine">categories <span class="p">=</span> <span class="p">[</span><span class="s">"</span><span class="s">Programming</span><span class="s">"</span><span class="p">]</span>
 </a><a class="sourceLine">tags <span class="p">=</span> <span class="p">[</span><span class="s">"</span><span class="s">OCaml</span><span class="s">"</span><span class="p">,</span> <span class="s">"</span><span class="s">Functional programming</span><span class="s">"</span><span class="p">]</span>
 </a></code></pre>
-  <p>
-   This frontmatter describes a page that will be transformed according to the
+   <p>
+    This frontmatter describes a page that will be transformed according to the
 layout "post.jingoo", belongs to category "Programming", and has tags "OCaml"
 and "Functional programming". In addition, the page has a title of "Introduction
 to OCaml" and an associated date of January 5th, 2021.
-  </p>
-  <h2 id="File-Extensions">
-   File Extensions
-  </h2>
-  <p>
-   The file extension of a page determines how Camyll handles it. The supported
+   </p>
+   <h2 id="File-Extensions">
+    File Extensions
+   </h2>
+   <p>
+    The file extension of a page determines how Camyll handles it. The supported
 file extensions are:
-  </p>
-  <ul>
-   <li>
-    <code>.html</code>: HTML pages are left as-is.
-   </li>
-   <li>
-    <code>.md</code>: Markdown files are translated to HTML.
-   </li>
-   <li>
-    <code>.lagda.md</code>: Literate Agda Markdown files are transformed into regular
+   </p>
+   <ul>
+    <li>
+     <code>.html</code>: HTML pages are left as-is.
+    </li>
+    <li>
+     <code>.md</code>: Markdown files are translated to HTML.
+    </li>
+    <li>
+     <code>.lagda.md</code>: Literate Agda Markdown files are transformed into regular
  Markdown files by the Agda compiler, then handled like other Markdown files.
-   </li>
-  </ul>
+    </li>
+   </ul>
+  </main>
  </body>
 </html>
