@@ -21,11 +21,11 @@ jobs:
           sudo apt-get install libonig-dev
           eval $(opam env)
           opam install ./camyll.opam
-          cd docs
+          cd web
           camyll build
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs/public
+          publish_dir: ./web/public

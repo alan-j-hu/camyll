@@ -28,6 +28,7 @@ type t = {
   config : Config.t;
   langs : TmLanguage.t;
   taxonomies : (string, taxonomy) Hashtbl.t;
+  tm_theme : Highlight.theme option;
 }
 
 let slugify str =
@@ -121,24 +122,33 @@ let parse_frontmatter chan =
     else failwith "Missing ending frontmatter!"
   with End_of_file -> failwith "Missing frontmatter!"
 
+let find_grammar t lang =
+  match TmLanguage.find_by_name t.langs lang with
+  | Some grammar -> Some grammar
+  | None -> TmLanguage.find_by_filetype t.langs lang
+
 (* Highlight the code blocks. *)
-let highlight t =
+let highlight t theme =
   List.map begin function
     | Omd.Code_block("", _) as block -> block
     | Omd.Code_block(lang, code) as block ->
-      begin match TmLanguage.find_by_name t.langs lang with
+      begin match find_grammar t lang with
         | None ->
           prerr_endline ("Warning: unknown language " ^ lang);
           block
         | Some grammar ->
-          let html = Highlight.highlight_block t.langs grammar code in
+          let html = Highlight.highlight_block t.langs grammar theme code in
           Omd.Raw (Soup.pretty_print html)
       end
     | x -> x
   end
 
 let process_md t chan =
-  Omd.to_html (highlight t (Omd.of_string (Filesystem.read_lines chan)))
+  match t.tm_theme with
+  | Some theme ->
+    Omd.to_html (highlight t theme (Omd.of_string (Filesystem.read_lines chan)))
+  | None ->
+    Omd.to_html (Omd.of_string (Filesystem.read_lines chan))
 
 (* Intercepts [Failure _] exceptions to report the file name. *)
 let with_in_smart f path =
@@ -381,20 +391,15 @@ let build_taxonomies t =
 
 let build_with_config config =
   Filesystem.touch_dir config.Config.dest_dir;
-  let t =
-    { config
-    ; langs = TmLanguage.create ()
-    ; taxonomies = Hashtbl.create 2 }
-  in
-  begin
-    match Sys.readdir t.config.Config.grammar_dir with
+  let langs = TmLanguage.create () in
+  begin match Sys.readdir config.Config.grammar_dir with
     | exception (Sys_error _) -> ()
     | names ->
       names |> Array.iter begin fun name ->
-        if Sys.is_directory (Config.grammar t.config name) then
+        if Sys.is_directory (Config.grammar config name) then
           ()
         else
-          let path = Config.grammar t.config name in
+          let path = Config.grammar config name in
           try
             let lang =
               path |> Filesystem.with_in begin fun chan ->
@@ -403,10 +408,26 @@ let build_with_config config =
                 |> TmLanguage.of_plist_exn
               end
             in
-            TmLanguage.add_grammar t.langs lang
+            TmLanguage.add_grammar langs lang
           with Plist_xml.Parse_error s -> failwith (path ^ ": " ^ s)
       end
   end;
+  let tm_theme =
+    if Sys.file_exists "theme.tmTheme" then
+      Some ("theme.tmTheme"
+            |> open_in
+            |> Markup.channel
+            |> Plist_xml.parse_exn
+            |> Highlight.theme_of_plist)
+    else
+      None
+  in
+  let t =
+    { config
+    ; langs
+    ; taxonomies = Hashtbl.create 2
+    ; tm_theme }
+  in
   Filesystem.remove_dir t.config.Config.dest_dir;
   config.Config.taxonomies |> List.iter begin fun taxonomy ->
     Hashtbl.add t.taxonomies taxonomy.Config.name

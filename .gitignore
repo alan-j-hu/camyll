@@ -1,5 +1,5 @@
 _build
 .merlin
-docs/public
+web/public
 example/public
 *.agdai
