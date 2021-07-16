@@ -3,7 +3,6 @@
  <head>
   <meta charset="utf-8">
   <link href="../site.css" rel="stylesheet">
-  <link href="../highlighting.css" rel="stylesheet">
   <title>
    Pages
   </title>
@@ -29,27 +28,28 @@ generated site. At the top of a page, there must be a pair of <code>+++</code>s.
 between the <code>+++</code> is the page's <em>frontmatter</em>, which is written in
 <a href="https://toml.io/en/">TOML</a>. For example:
    </p>
-   <pre class="markdown"><code class="markdown">+++
-title = "Pages"
-layout = "main.jingoo"
-+++
-
-# Pages
-
-*Pages* are files that have a one-to-one mapping with the webpages of the
-generated site. At the top of a page, there must be a pair of `+++`s. In
-between the `+++` is the page's *frontmatter*, which is written in
-[TOML](https://toml.io/en/). For example:</code></pre>
+   <pre><code class="highlight"><a class="sourceLine"><span style="">+++
+</span></a><a class="sourceLine"><span style="">title = "Pages"
+</span></a><a class="sourceLine"><span style="">layout = "main.jingoo"
+</span></a><a class="sourceLine"><span style="">+++
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;">
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;"># Pages
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;">
+</span></a><a class="sourceLine"><span style="">*Pages* are files that have a one-to-one mapping with the webpages of the
+</span></a><a class="sourceLine"><span style="">generated site. At the top of a page, there must be a pair of `+++`s. In
+</span></a><a class="sourceLine"><span style="">between the `+++` is the page's *frontmatter*, which is written in
+</span></a><a class="sourceLine"><span style="">[TOML](https://toml.io/en/). For example:
+</span></a></code></pre>
    <h2 id="Frontmatter">
     Frontmatter
    </h2>
    <p>
     The frontmatter attributes that Camyll uses are:
    </p>
-   <pre><code class="highlight"><a class="sourceLine"><span class="c">#</span><span class="c"> The Jingoo layout to use</span><span class="c">
-</span></a><a class="sourceLine">layout = <span class="c">#</span><span class="c"> : string</span><span class="c">
-</span></a><a class="sourceLine"><span class="c">#</span><span class="c"> A map from taxonomies to a list of taxonomy terms.</span><span class="c">
-</span></a><a class="sourceLine">taxonomies = <span class="c">#</span><span class="c"> : { string -&gt; string list }</span><span class="c">
+   <pre><code class="highlight"><a class="sourceLine"><span style="color: #AEAEAE;">#</span><span style="color: #AEAEAE;"> The Jingoo layout to use</span><span style="color: #AEAEAE;">
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;">layout = </span><span style="color: #AEAEAE;">#</span><span style="color: #AEAEAE;"> : string</span><span style="color: #AEAEAE;">
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;">#</span><span style="color: #AEAEAE;"> A map from taxonomies to a list of taxonomy terms.</span><span style="color: #AEAEAE;">
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;">taxonomies = </span><span style="color: #AEAEAE;">#</span><span style="color: #AEAEAE;"> : { string -&gt; string list }</span><span style="color: #AEAEAE;">
 </span></a></code></pre>
    <p>
     Other attributes can be added to the frontmatter, and they will be accessible
@@ -58,14 +58,14 @@ from the Jingoo layout. An enhanced frontmatter could look like this:
    <p>
     For example:
    </p>
-   <pre><code class="highlight"><a class="sourceLine">title <span class="p">=</span> <span class="s">"</span><span class="s">Introduction to OCaml</span><span class="s">"</span>
-</a><a class="sourceLine">layout <span class="p">=</span> <span class="s">"</span><span class="s">post.jingoo</span><span class="s">"</span>
-</a><a class="sourceLine">date <span class="p">=</span> 2021-01-05
-</a><a class="sourceLine">
-</a><a class="sourceLine"><span class="p">[</span>taxonomies<span class="p">]</span>
-</a><a class="sourceLine">categories <span class="p">=</span> <span class="p">[</span><span class="s">"</span><span class="s">Programming</span><span class="s">"</span><span class="p">]</span>
-</a><a class="sourceLine">tags <span class="p">=</span> <span class="p">[</span><span class="s">"</span><span class="s">OCaml</span><span class="s">"</span><span class="p">,</span> <span class="s">"</span><span class="s">Functional programming</span><span class="s">"</span><span class="p">]</span>
-</a></code></pre>
+   <pre><code class="highlight"><a class="sourceLine"><span style="color: #3E87E3;">title </span><span style="color: #AEAEAE;">=</span><span style="color: #AEAEAE;"> </span><span style="color: #AEAEAE;">"</span><span style="color: #65B042;">Introduction to OCaml</span><span style="color: #AEAEAE;">"</span><span style="color: #AEAEAE;">
+</span></a><a class="sourceLine"><span style="color: #3E87E3;">layout </span><span style="color: #AEAEAE;">=</span><span style="color: #AEAEAE;"> </span><span style="color: #AEAEAE;">"</span><span style="color: #65B042;">post.jingoo</span><span style="color: #AEAEAE;">"</span><span style="color: #AEAEAE;">
+</span></a><a class="sourceLine"><span style="color: #3E87E3;">date </span><span style="color: #AEAEAE;">=</span><span style="color: #AEAEAE;"> </span><span style="color: #3387CC;">2021-01-05</span><span style="color: #AEAEAE;">
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;">
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;">[</span><span style="color: #AEAEAE;">taxonomies</span><span style="color: #AEAEAE;">]</span><span style="color: #AEAEAE;">
+</span></a><a class="sourceLine"><span style="color: #3E87E3;">categories </span><span style="color: #AEAEAE;">=</span><span style="color: #AEAEAE;"> </span><span style="color: #AEAEAE;">[</span><span style="color: #AFC4DB;">"</span><span style="color: #494949;">Programming</span><span style="color: #AFC4DB;">"</span><span style="color: #AEAEAE;">]</span><span style="color: #AEAEAE;">
+</span></a><a class="sourceLine"><span style="color: #3E87E3;">tags </span><span style="color: #AEAEAE;">=</span><span style="color: #AEAEAE;"> </span><span style="color: #AEAEAE;">[</span><span style="color: #AFC4DB;">"</span><span style="color: #494949;">OCaml</span><span style="color: #AFC4DB;">"</span><span style="color: #AFC4DB;">,</span><span style=""> </span><span style="color: #AFC4DB;">"</span><span style="color: #494949;">Functional programming</span><span style="color: #AFC4DB;">"</span><span style="color: #AEAEAE;">]</span><span style="color: #AEAEAE;">
+</span></a></code></pre>
    <p>
     This frontmatter describes a page that will be transformed according to the
 layout "post.jingoo", belongs to category "Programming", and has tags "OCaml"
