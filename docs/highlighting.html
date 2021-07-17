@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8">
+  <link href="../site.css" rel="stylesheet">
+  <title>
+   Syntax Highlighting
+  </title>
+ </head>
+ <body>
+  <nav class="nav">
+   <ul>
+    <li>
+     <a href="../">Home</a>
+    </li>
+    <li>
+     <a href="index.html">Docs</a>
+    </li>
+   </ul>
+  </nav>
+  <main>
+   <h1>
+    Syntax Highlighting
+   </h1>
+   <p>
+    Camyll supports syntax highlighting using TextMate themes and grammars. If a
+TextMate theme file called <code>theme.tmTheme</code> exists in the project directory,
+Camyll will use it to highlight Markdown fenced code blocks. Put the grammars
+for the languages you want to highlight in the directory specified in the
+<a href="configuration.html">configuration</a>, and Camyll will find them. When searching
+for a language, Camyll will first search case-insensitively by the <code>name</code>
+attribute of the grammar files, then search case-sensitively by the <code>fileTypes</code>
+attribute of the grammar files.
+   </p>
+  </main>
+ </body>
+</html>
