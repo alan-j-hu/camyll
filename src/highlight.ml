@@ -166,18 +166,26 @@ let highlight_line langs grammar theme stack line =
   List.iter (fun (Node node) -> Soup.append_child a node) nodes;
   a, stack
 
-(** Maps over the list while keeping track of some state.
-    Discards the state because I don't need it. *)
+(* Maps over the list while keeping track of some state.
+   Discards the state at the end because I don't need it. *)
 let rec map_fold f acc = function
   | [] -> []
   | x :: xs ->
     let y, acc = f acc x in
     y :: map_fold f acc xs
 
+(* Splits a string into lines, keeping the newline at the end. Assumes that
+   the string ends with a newline. *)
+let lines s =
+  let rec loop lines i =
+    match String.index_from_opt s i '\n' with
+    | None -> List.rev lines
+    | Some j -> loop (String.sub s i (j - i + 1) :: lines) (j + 1)
+  in
+  loop [] 0
+
 let highlight_block langs grammar theme code =
-  let lines = String.split_on_char '\n' code in
-  (* Some patterns don't work if there isn't a newline *)
-  let lines = List.map (fun s -> s ^ "\n") lines in
+  let lines = lines code in
   let a's =
     map_fold (highlight_line langs grammar theme) TmLanguage.empty lines
   in
