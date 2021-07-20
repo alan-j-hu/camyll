@@ -187,7 +187,11 @@ let lines s =
 let highlight_block langs grammar theme code =
   let lines = lines code in
   let a's =
-    map_fold (highlight_line langs grammar theme) TmLanguage.empty lines
+    try
+      map_fold (highlight_line langs grammar theme) TmLanguage.empty lines
+    with
+    | Oniguruma.Error s -> failwith s
+    | TmLanguage.Error s -> failwith s
   in
   let code = Soup.create_element "code" ~class_:"highlight" in
   List.iter (Soup.append_child code) a's;

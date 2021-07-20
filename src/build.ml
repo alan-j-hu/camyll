@@ -409,7 +409,9 @@ let build_with_config config =
               end
             in
             TmLanguage.add_grammar langs lang
-          with Plist_xml.Parse_error s -> failwith (path ^ ": " ^ s)
+          with
+          | Oniguruma.Error s -> failwith (path ^ ": Oniguruma: " ^ s)
+          | Plist_xml.Parse_error s -> failwith (path ^ ": " ^ s)
       end
   end;
   let tm_theme =
