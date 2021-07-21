@@ -14,10 +14,13 @@
  (synopsis "A static site generator")
  (description "Camyll is a static site generator.
 
-- Supports syntax highlighting of arbitrary languages via grammar files
-  included in the site directory
-- Aware of Literate Agda")
- (tags (blog))
+Features:
+
+- Conversion from Markdown to HTML
+- Syntax highlighting of any language via user-provided TextMate grammars
+- Post tagging
+- Processing of literate Agda")
+ (tags (blog web website))
  (depends
   (calendar (and (>= 2.01) (< 3.0)))
   (cmdliner (and (>= 1.0) (< 2.0)))

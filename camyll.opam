@@ -5,13 +5,16 @@ synopsis: "A static site generator"
 description: """
 Camyll is a static site generator.
 
-- Supports syntax highlighting of arbitrary languages via grammar files
-  included in the site directory
-- Aware of Literate Agda"""
+Features:
+
+- Conversion from Markdown to HTML
+- Syntax highlighting of any language via user-provided TextMate grammars
+- Post tagging
+- Processing of literate Agda"""
 maintainer: ["Alan Hu <alanh@ccs.neu.edu>"]
 authors: ["Alan Hu <alanh@ccs.neu.edu>"]
 license: "MIT"
-tags: ["blog"]
+tags: ["blog" "web" "website"]
 homepage: "https://alan-j-hu.github.io/camyll"
 bug-reports: "https://github.com/alan-j-hu/camyll/issues"
 depends: [

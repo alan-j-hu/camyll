@@ -1,4 +1,4 @@
-## Unreleased
+## 0.2.0 (July 22, 2020)
 
 - Switch template language from Mustache to Jingoo.
 - Switch config language from YAML to TOML.
