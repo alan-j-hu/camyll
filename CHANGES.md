@@ -1,10 +1,9 @@
 ## Unreleased
 
-- Upgrade `textmate-language` to 0.2.0.
-- Switch from Mustache to Jingoo.
-- Switch from YAML to TOML.
+- Switch template language from Mustache to Jingoo.
+- Switch config language from YAML to TOML.
 - Require frontmatter.
-- Add the `new` command for initializing a site.
+- Add the `serve` command for serving a site.
 - Add taxonomies.
 
 ## 0.1.0 (October 15, 2020)
