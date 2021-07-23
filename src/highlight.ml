@@ -36,6 +36,21 @@ let get_string = function
   | `String s -> s
   | _ -> failwith "Type error: Expected string."
 
+let validate_color str =
+  let open Angstrom in
+  let is_hexadecimal = function
+    | '0'..'9' | 'a'..'f' | 'A'..'F' -> true
+    | _ -> false
+  in
+  let rgb_maybe_a =
+    char '#' *>
+    (count 3 (satisfy is_hexadecimal) *> end_of_input
+     <|> count 4 (satisfy is_hexadecimal) *> end_of_input
+     <|> count 6 (satisfy is_hexadecimal) *> end_of_input
+     <|> count 8 (satisfy is_hexadecimal) *> end_of_input)
+  in
+  parse_string ~consume:All rgb_maybe_a str
+
 let token_of_plist (plist : Plist_xml.t) : token option =
   (* TODO: Handle selector substraction operator *)
   let make select = { select; excludes = [] } in
@@ -57,11 +72,17 @@ let token_of_plist (plist : Plist_xml.t) : token option =
           |> make)
     in
     let settings = find_exn "settings" d |> get_dict in
+    let validate_color c =
+      let str = get_string c in
+      match validate_color str with
+      | Ok () -> str
+      | Error e -> raise (Invalid_argument ("Invalid color: " ^ str ^ " " ^ e))
+    in
     Some
       { background =
-          Option.map get_string (List.assoc_opt "background" settings)
+          Option.map validate_color (List.assoc_opt "background" settings)
       ; foreground =
-          Option.map get_string (List.assoc_opt "foreground" settings)
+          Option.map validate_color (List.assoc_opt "foreground" settings)
       ; selectors }
 
 let theme_of_plist plist =
@@ -115,7 +136,12 @@ let style_of_token token =
     | None -> ""
     | Some foreground -> "color: " ^ foreground ^ ";"
   in
-  color
+  let background =
+    match token.background with
+    | None -> ""
+    | Some background -> "background: " ^ background ^ ";"
+  in
+  color ^ background
 
 let create_node theme scopes i j line =
   assert (j > i);

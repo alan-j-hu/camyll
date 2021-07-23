@@ -19,6 +19,7 @@ homepage: "https://alan-j-hu.github.io/camyll"
 bug-reports: "https://github.com/alan-j-hu/camyll/issues"
 depends: [
   "dune" {>= "2.7"}
+  "angstrom" {>= "0.15" & < "0.16"}
   "calendar" {>= "2.01" & < "3.0"}
   "cmdliner" {>= "1.0" & < "2.0"}
   "httpaf" {>= "0.7.1" & < "0.8"}

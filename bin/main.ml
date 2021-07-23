@@ -4,6 +4,7 @@ open Cmdliner
 let guard f x =
   try `Ok (f x) with
   | Failure e -> `Error(false, e)
+  | Invalid_argument e -> `Error(false, e)
   | Sys_error e -> `Error(false, e)
   | Unix.Unix_error(e, cmd, "") ->
     `Error(false, cmd ^ ": " ^ Unix.error_message e)

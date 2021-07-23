@@ -22,6 +22,7 @@ Features:
 - Processing of literate Agda")
  (tags (blog web website))
  (depends
+  (angstrom (and (>= 0.15) (< 0.16)))
   (calendar (and (>= 2.01) (< 3.0)))
   (cmdliner (and (>= 1.0) (< 2.0)))
   (httpaf (and (>= 0.7.1) (< 0.8)))
