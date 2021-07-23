@@ -28,17 +28,17 @@ generated site. At the top of a page, there must be a pair of <code>+++</code>s.
 between the <code>+++</code> is the page's <em>frontmatter</em>, which is written in
 <a href="https://toml.io/en/">TOML</a>. For example:
    </p>
-   <pre><code class="highlight"><a class="sourceLine"><span style="">+++
-</span></a><a class="sourceLine"><span style="">title = "Pages"
-</span></a><a class="sourceLine"><span style="">layout = "main.jingoo"
-</span></a><a class="sourceLine"><span style="">+++
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;"># Pages
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;">
-</span></a><a class="sourceLine"><span style="">*Pages* are files that have a one-to-one mapping with the webpages of the
-</span></a><a class="sourceLine"><span style="">generated site. At the top of a page, there must be a pair of `+++`s. In
-</span></a><a class="sourceLine"><span style="">between the `+++` is the page's *frontmatter*, which is written in
-</span></a><a class="sourceLine"><span style="">[TOML](https://toml.io/en/). For example:
+   <pre><code class="highlight"><a class="sourceLine"><span style="background: #B1B3BA08;">+++
+</span></a><a class="sourceLine"><span style="background: #B1B3BA08;">title = "Pages"
+</span></a><a class="sourceLine"><span style="background: #B1B3BA08;">layout = "main.jingoo"
+</span></a><a class="sourceLine"><span style="background: #B1B3BA08;">+++
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;"># Pages
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">
+</span></a><a class="sourceLine"><span style="background: #B1B3BA08;">*Pages* are files that have a one-to-one mapping with the webpages of the
+</span></a><a class="sourceLine"><span style="background: #B1B3BA08;">generated site. At the top of a page, there must be a pair of `+++`s. In
+</span></a><a class="sourceLine"><span style="background: #B1B3BA08;">between the `+++` is the page's *frontmatter*, which is written in
+</span></a><a class="sourceLine"><span style="background: #B1B3BA08;">[TOML](https://toml.io/en/). For example:
 </span></a></code></pre>
    <h2>
     Frontmatter
@@ -46,10 +46,10 @@ between the <code>+++</code> is the page's <em>frontmatter</em>, which is writte
    <p>
     The frontmatter attributes that Camyll uses are:
    </p>
-   <pre><code class="highlight"><a class="sourceLine"><span style="color: #AEAEAE;">#</span><span style="color: #AEAEAE;"> The Jingoo layout to use</span><span style="color: #AEAEAE;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;">layout = </span><span style="color: #AEAEAE;">#</span><span style="color: #AEAEAE;"> : string</span><span style="color: #AEAEAE;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;">#</span><span style="color: #AEAEAE;"> A map from taxonomies to a list of taxonomy terms.</span><span style="color: #AEAEAE;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;">taxonomies = </span><span style="color: #AEAEAE;">#</span><span style="color: #AEAEAE;"> : { string -&gt; string list }</span><span style="color: #AEAEAE;">
+   <pre><code class="highlight"><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> The Jingoo layout to use</span><span style="color: #AEAEAE;font-style: italic;">
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">layout = </span><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> : string</span><span style="color: #AEAEAE;font-style: italic;">
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> A map from taxonomies to a list of taxonomy terms.</span><span style="color: #AEAEAE;font-style: italic;">
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">taxonomies = </span><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> : { string -&gt; string list }</span><span style="color: #AEAEAE;font-style: italic;">
 </span></a></code></pre>
    <p>
     Other attributes can be added to the frontmatter, and they will be accessible
@@ -58,13 +58,13 @@ from the Jingoo layout. An enhanced frontmatter could look like this:
    <p>
     For example:
    </p>
-   <pre><code class="highlight"><a class="sourceLine"><span style="color: #3E87E3;">title </span><span style="color: #AEAEAE;">=</span><span style="color: #AEAEAE;"> </span><span style="color: #AEAEAE;">"</span><span style="color: #65B042;">Introduction to OCaml</span><span style="color: #AEAEAE;">"</span><span style="color: #AEAEAE;">
-</span></a><a class="sourceLine"><span style="color: #3E87E3;">layout </span><span style="color: #AEAEAE;">=</span><span style="color: #AEAEAE;"> </span><span style="color: #AEAEAE;">"</span><span style="color: #65B042;">post.jingoo</span><span style="color: #AEAEAE;">"</span><span style="color: #AEAEAE;">
-</span></a><a class="sourceLine"><span style="color: #3E87E3;">date </span><span style="color: #AEAEAE;">=</span><span style="color: #AEAEAE;"> </span><span style="color: #3387CC;">2021-01-05</span><span style="color: #AEAEAE;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;">[</span><span style="color: #AEAEAE;">taxonomies</span><span style="color: #AEAEAE;">]</span><span style="color: #AEAEAE;">
-</span></a><a class="sourceLine"><span style="color: #3E87E3;">categories </span><span style="color: #AEAEAE;">=</span><span style="color: #AEAEAE;"> </span><span style="color: #AEAEAE;">[</span><span style="color: #AFC4DB;">"</span><span style="color: #494949;">Programming</span><span style="color: #AFC4DB;">"</span><span style="color: #AEAEAE;">]</span><span style="color: #AEAEAE;">
-</span></a><a class="sourceLine"><span style="color: #3E87E3;">tags </span><span style="color: #AEAEAE;">=</span><span style="color: #AEAEAE;"> </span><span style="color: #AEAEAE;">[</span><span style="color: #AFC4DB;">"</span><span style="color: #494949;">OCaml</span><span style="color: #AFC4DB;">"</span><span style="color: #AFC4DB;">,</span><span style=""> </span><span style="color: #AFC4DB;">"</span><span style="color: #494949;">Functional programming</span><span style="color: #AFC4DB;">"</span><span style="color: #AEAEAE;">]</span><span style="color: #AEAEAE;">
+   <pre><code class="highlight"><a class="sourceLine"><span style="color: #3E87E3;">title </span><span style="color: #AEAEAE;font-style: italic;">=</span><span style="color: #AEAEAE;font-style: italic;"> </span><span style="color: #AEAEAE;font-style: italic;">"</span><span style="color: #65B042;">Introduction to OCaml</span><span style="color: #AEAEAE;font-style: italic;">"</span><span style="color: #AEAEAE;font-style: italic;">
+</span></a><a class="sourceLine"><span style="color: #3E87E3;">layout </span><span style="color: #AEAEAE;font-style: italic;">=</span><span style="color: #AEAEAE;font-style: italic;"> </span><span style="color: #AEAEAE;font-style: italic;">"</span><span style="color: #65B042;">post.jingoo</span><span style="color: #AEAEAE;font-style: italic;">"</span><span style="color: #AEAEAE;font-style: italic;">
+</span></a><a class="sourceLine"><span style="color: #3E87E3;">date </span><span style="color: #AEAEAE;font-style: italic;">=</span><span style="color: #AEAEAE;font-style: italic;"> </span><span style="color: #3387CC;">2021-01-05</span><span style="color: #AEAEAE;font-style: italic;">
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">
+</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">[</span><span style="color: #AEAEAE;font-style: italic;">taxonomies</span><span style="color: #AEAEAE;font-style: italic;">]</span><span style="color: #AEAEAE;font-style: italic;">
+</span></a><a class="sourceLine"><span style="color: #3E87E3;">categories </span><span style="color: #AEAEAE;font-style: italic;">=</span><span style="color: #AEAEAE;font-style: italic;"> </span><span style="color: #AEAEAE;font-style: italic;">[</span><span style="color: #AFC4DB;">"</span><span style="color: #494949;">Programming</span><span style="color: #AFC4DB;">"</span><span style="color: #AEAEAE;font-style: italic;">]</span><span style="color: #AEAEAE;font-style: italic;">
+</span></a><a class="sourceLine"><span style="color: #3E87E3;">tags </span><span style="color: #AEAEAE;font-style: italic;">=</span><span style="color: #AEAEAE;font-style: italic;"> </span><span style="color: #AEAEAE;font-style: italic;">[</span><span style="color: #AFC4DB;">"</span><span style="color: #494949;">OCaml</span><span style="color: #AFC4DB;">"</span><span style="color: #AFC4DB;">,</span><span style="background: #B1B3BA08;"> </span><span style="color: #AFC4DB;">"</span><span style="color: #494949;">Functional programming</span><span style="color: #AFC4DB;">"</span><span style="color: #AEAEAE;font-style: italic;">]</span><span style="color: #AEAEAE;font-style: italic;">
 </span></a></code></pre>
    <p>
     This frontmatter describes a page that will be transformed according to the
