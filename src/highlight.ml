@@ -12,6 +12,9 @@ type selector = {
 type token = {
   background : string option;
   foreground : string option;
+  is_bold : bool;
+  is_italics : bool;
+  is_underline : bool;
   selectors : selector list;
 }
 
@@ -51,6 +54,23 @@ let validate_color str =
   in
   parse_string ~consume:All rgb_maybe_a str
 
+let get_styles str =
+  let tokens =
+    str
+    |> String.split_on_char ' '
+    |> List.filter ((<>) "")
+  in
+  let rec loop ~is_bold ~is_italic ~is_underline = function
+    | [] -> is_bold, is_italic, is_underline
+    | "bold" :: tokens ->
+      loop ~is_bold:true ~is_italic ~is_underline tokens
+    | "italic" :: tokens ->
+      loop ~is_bold ~is_italic:true ~is_underline tokens
+    | "underline" :: tokens ->
+      loop ~is_bold ~is_italic ~is_underline:true tokens
+    | token :: _ -> raise (Invalid_argument ("Unknown style " ^ token ^ "!"))
+  in loop ~is_bold:false ~is_italic:false ~is_underline:false tokens
+
 let token_of_plist (plist : Plist_xml.t) : token option =
   (* TODO: Handle selector substraction operator *)
   let make select = { select; excludes = [] } in
@@ -78,11 +98,19 @@ let token_of_plist (plist : Plist_xml.t) : token option =
       | Ok () -> str
       | Error e -> raise (Invalid_argument ("Invalid color: " ^ str ^ " " ^ e))
     in
+    let is_bold, is_italics, is_underline =
+      match List.assoc_opt "fontStyle" settings with
+      | None -> false, false, false
+      | Some styles -> get_styles (get_string styles)
+    in
     Some
       { background =
           Option.map validate_color (List.assoc_opt "background" settings)
       ; foreground =
           Option.map validate_color (List.assoc_opt "foreground" settings)
+      ; is_bold
+      ; is_italics
+      ; is_underline
       ; selectors }
 
 let theme_of_plist plist =
@@ -141,7 +169,12 @@ let style_of_token token =
     | None -> ""
     | Some background -> "background: " ^ background ^ ";"
   in
-  color ^ background
+  let style = if token.is_italics then "font-style: italic;" else "" in
+  let weight = if token.is_bold then "font-weight: bold;" else "" in
+  let decoration =
+    if token.is_underline then "text-decoration: underline;" else ""
+  in
+  color ^ background ^ style ^ weight ^ decoration
 
 let create_node theme scopes i j line =
   assert (j > i);
