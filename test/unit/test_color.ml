@@ -10,4 +10,5 @@ let () =
 
 let () =
   assert (Result.is_error (validate_color "#"));
-  assert (Result.is_error (validate_color "#12345"))
+  assert (Result.is_error (validate_color "#12345"));
+  assert (Result.is_error (validate_color "#gggggg"))
