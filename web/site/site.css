@@ -13,46 +13,62 @@ body {
 }
 
 header {
-  display: initial;
-}
-
-nav {
   background-color: #222;
   width: 100%;
   box-shadow: 0 0 5px #222;
-  position:sticky;
-  z-index : 1000;
-  top: 0;
+  line-height: 3rem;
+  text-align: center;
 }
 
-nav > ul {
-  display: flex;
-  width: 80%;
-  max-width: 700px;
-  border: 0;
-  margin: 0 auto;
-  padding: 0 5%;
-}
-
-nav > ul > li {
+.logo {
+  color: white;
+  padding: 0 1rem;
   display: inline-block;
-  flex: 1;
-  height: 3rem;
 }
 
-nav > ul > li > a {
+.logo img {
+  max-height: 2.5rem;
+  width: auto;
+  float: left;
+}
+
+nav {
+  display: inline-block;
+  width: 80%;
+  border: 0;
+  margin: 0;
+  padding: 0 10%;
+}
+
+.nav ul {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+.nav li {
+  display: inline-block;
+  height: 100%;
+}
+
+.nav a {
   color: white;
   display: inline-block;
-  width: 100%;
   height: 100%;
+  padding: 0 1rem;
   text-align: center;
   text-decoration: none;
-  line-height: 3rem;
 }
 
-nav > ul > li > a:hover {
+.nav a:hover {
   color: white;
   background-color: #f48a32;
+}
+
+@media screen and (max-width: 700px) {
+  .logo {
+    display: block;
+  }
 }
 
 main {
@@ -65,8 +81,8 @@ main {
   padding: 2em 5%;
 }
 
-main a {
-  color: #f48a32;
+main a[href] {
+  color: #e57600;
   text-decoration: none;
 }
 

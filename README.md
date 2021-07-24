@@ -1,5 +1,7 @@
 # Camyll
 
+![logo]
+
 Camyll is a static site generator.
 
 Features:
@@ -12,3 +14,5 @@ Features:
 ## Installing
 
     opam install camyll
+
+[logo]: ./web/site/logo.svg
