@@ -17,6 +17,7 @@ header {
   width: 100%;
   box-shadow: 0 0 5px #222;
   line-height: 3rem;
+  white-space: nowrap;
   text-align: center;
 }
 
@@ -24,12 +25,12 @@ header {
   color: white;
   padding: 0 1rem;
   display: inline-block;
+  vertical-align: middle;
 }
 
 .logo img {
   max-height: 2.5rem;
-  width: auto;
-  float: left;
+  vertical-align: middle;
 }
 
 nav {
