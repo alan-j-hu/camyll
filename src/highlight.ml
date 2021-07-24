@@ -19,6 +19,8 @@ type token = {
 }
 
 type theme = {
+  background : string option;
+  foreground : string option;
   tokens : token list;
 }
 
@@ -71,6 +73,12 @@ let get_styles str =
     | token :: _ -> raise (Invalid_argument ("Unknown style " ^ token ^ "!"))
   in loop ~is_bold:false ~is_italic:false ~is_underline:false tokens
 
+let validate_color_exn c =
+  let str = get_string c in
+  match validate_color str with
+  | Ok () -> str
+  | Error e -> raise (Invalid_argument ("Invalid color: " ^ str ^ " " ^ e))
+
 let token_of_plist (plist : Plist_xml.t) : token option =
   (* TODO: Handle selector substraction operator *)
   let make select = { select; excludes = [] } in
@@ -92,12 +100,6 @@ let token_of_plist (plist : Plist_xml.t) : token option =
           |> make)
     in
     let settings = find_exn "settings" d |> get_dict in
-    let validate_color c =
-      let str = get_string c in
-      match validate_color str with
-      | Ok () -> str
-      | Error e -> raise (Invalid_argument ("Invalid color: " ^ str ^ " " ^ e))
-    in
     let is_bold, is_italics, is_underline =
       match List.assoc_opt "fontStyle" settings with
       | None -> false, false, false
@@ -105,9 +107,9 @@ let token_of_plist (plist : Plist_xml.t) : token option =
     in
     Some
       { background =
-          Option.map validate_color (List.assoc_opt "background" settings)
+          Option.map validate_color_exn (List.assoc_opt "background" settings)
       ; foreground =
-          Option.map validate_color (List.assoc_opt "foreground" settings)
+          Option.map validate_color_exn (List.assoc_opt "foreground" settings)
       ; is_bold
       ; is_italics
       ; is_underline
@@ -117,7 +119,15 @@ let theme_of_plist plist =
   let d = get_dict plist in
   let tokens = find_exn "settings" d in
   let tokens = get_list Fun.id tokens in
-  { tokens = List.filter_map token_of_plist tokens }
+  match tokens with
+  | [] -> failwith "Empty ruleset!"
+  | main :: tokens ->
+    let settings = main |> get_dict |> find_exn "settings" |> get_dict in
+    { tokens = List.filter_map token_of_plist tokens
+    ; background =
+        Option.map validate_color_exn (List.assoc_opt "background" settings)
+    ; foreground =
+        Option.map validate_color_exn (List.assoc_opt "foreground" settings) }
 
 let prefix_length scope selector =
   let rec loop acc scope selector =
@@ -158,7 +168,7 @@ let score_token scopes_stack (token : token) =
         Some score2
   in List.fold_left f None token.selectors
 
-let style_of_token token =
+let style_of_token (token : token) =
   let color =
     match token.foreground with
     | None -> ""
@@ -221,9 +231,9 @@ let rec highlight_tokens theme i acc line = function
 let highlight_line langs grammar theme stack line =
   let tokens, stack = TmLanguage.tokenize_exn langs grammar stack line in
   let nodes = highlight_tokens theme 0 [] line tokens in
-  let a = Soup.create_element "a" ~class_:"sourceLine" in
-  List.iter (fun (Node node) -> Soup.append_child a node) nodes;
-  a, stack
+  let span = Soup.create_element "span" ~class_:"sourceLine" in
+  List.iter (fun (Node node) -> Soup.append_child span node) nodes;
+  span, stack
 
 (* Maps over the list while keeping track of some state.
    Discards the state at the end because I don't need it. *)
@@ -244,16 +254,27 @@ let lines s =
   loop [] 0
 
 let highlight_block langs grammar theme code =
+  let color =
+    match theme.foreground with
+    | None -> ""
+    | Some color -> "color: " ^ color ^ ";"
+  in
+  let background =
+    match theme.background with
+    | None -> ""
+    | Some background -> "background: " ^ background ^ ";"
+  in
+  let style = color ^ background in
   let lines = lines code in
-  let a's =
+  let spans =
     try
       map_fold (highlight_line langs grammar theme) TmLanguage.empty lines
     with
     | Oniguruma.Error s -> failwith s
     | TmLanguage.Error s -> failwith s
   in
-  let code = Soup.create_element "code" ~class_:"highlight" in
-  List.iter (Soup.append_child code) a's;
-  let pre = Soup.create_element "pre" in
+  let code = Soup.create_element "code" in
+  List.iter (Soup.append_child code) spans;
+  let pre = Soup.create_element "pre" ~attributes:["style", style] in
   Soup.append_child pre code;
   pre

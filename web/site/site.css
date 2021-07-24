@@ -93,16 +93,18 @@ h2 {
 }
 
 code {
-  display: inline-block;
   font-size: 1rem;
-  padding: 0 5px;
-  border: 1px solid #c0c0c0;
-  border-radius: 5px;
 }
 
 pre code {
   border: none;
   border-radius: 0;
+}
+
+p code, li code {
+  padding: 0 5px;
+  border: 1px solid #c0c0c0;
+  border-radius: 5px;
 }
 
 p {
@@ -112,11 +114,5 @@ p {
 pre {
   line-height: 1;
   overflow: auto;
-  padding: 5px 0;
-  border: 1px solid #c0c0c0;
-  border-radius: 5px;
-}
-
-code, pre {
-  background-color: #f7f7f7;
+  padding: 5px;
 }
