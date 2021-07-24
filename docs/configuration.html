@@ -25,32 +25,32 @@
    <p>
     Camyll uses <a href="https://toml.io/en/">TOML</a> for configuration.
    </p>
-   <pre><code class="highlight"><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> The directory that contains the page data</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">source_dir = </span><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> : string</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> The directory that contains the rendered site</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">dest_dir = </span><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> : string</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> The directory that contains the grammars for syntax highlighting</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">grammar_dir = </span><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> : string</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> The directory that contains the templates</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">layout_dir = </span><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> : string</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> The directory that contains the template partials</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">partial_dir = </span><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> : string</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> The directory within the dest_dir that contains the rendered Literate Agda</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">agda_dir = </span><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> : string</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> A list of globs of files to ignore</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">exclude = </span><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> : string list</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> A list of taxonomies. The name is the name of the taxonomy (e.g. "tags",</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> "categories"), and the template is the file used to generate the page for</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> an individual taxonomy list page.</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a><a class="sourceLine"><span style="color: #AEAEAE;font-style: italic;">taxonomies = </span><span style="color: #AEAEAE;font-style: italic;">#</span><span style="color: #AEAEAE;font-style: italic;"> : { name : string; template : string } list</span><span style="color: #AEAEAE;font-style: italic;">
-</span></a></code></pre>
+   <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory that contains the page data</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">source_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">
+</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory that contains the rendered site</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">dest_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">
+</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory that contains the grammars for syntax highlighting</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">grammar_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">
+</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory that contains the templates</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">layout_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">
+</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory that contains the template partials</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">partial_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">
+</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory within the dest_dir that contains the rendered Literate Agda</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">agda_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">
+</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> A list of globs of files to ignore</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">exclude = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string list</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">
+</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> A list of taxonomies. The name is the name of the taxonomy (e.g. "tags",</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> "categories"), and the template is the file used to generate the page for</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> an individual taxonomy list page.</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">taxonomies = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : { name : string; template : string } list</span><span style="color: #959da5;">
+</span></span></code></pre>
   </main>
  </body>
 </html>
