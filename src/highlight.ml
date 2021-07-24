@@ -6,7 +6,6 @@ type scope_stack = scope list
 
 type selector = {
   select : scope_stack;
-  excludes : scope_stack list;
 }
 
 type token = {
@@ -81,7 +80,7 @@ let validate_color_exn c =
 
 let token_of_plist (plist : Plist_xml.t) : token option =
   (* TODO: Handle selector substraction operator *)
-  let make select = { select; excludes = [] } in
+  let make select = { select } in
   let d = get_dict plist in
   match List.assoc_opt "scope" d with
   | None -> None
