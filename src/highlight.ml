@@ -40,6 +40,7 @@ let get_string = function
   | `String s -> s
   | _ -> failwith "Type error: Expected string."
 
+(* Checks if a string represents a valid CSS color. *)
 let validate_color str =
   let open Angstrom in
   let is_hexadecimal = function
@@ -252,7 +253,8 @@ let lines s =
   in
   loop [] 0
 
-let highlight_block langs grammar theme code =
+(* Applies a theme to a list of spans. *)
+let theme_spans theme spans =
   let color =
     match theme.foreground with
     | None -> ""
@@ -264,6 +266,14 @@ let highlight_block langs grammar theme code =
     | Some background -> "background: " ^ background ^ ";"
   in
   let style = color ^ background in
+  let code = Soup.create_element "code" in
+  List.iter (Soup.append_child code) spans;
+  let pre = Soup.create_element "pre" ~attributes:["style", style] in
+  Soup.append_child pre code;
+  pre
+
+(* Highlights a block of code. *)
+let highlight_block langs grammar theme code =
   let lines = lines code in
   let spans =
     try
@@ -272,8 +282,10 @@ let highlight_block langs grammar theme code =
     | Oniguruma.Error s -> failwith s
     | TmLanguage.Error s -> failwith s
   in
-  let code = Soup.create_element "code" in
-  List.iter (Soup.append_child code) spans;
-  let pre = Soup.create_element "pre" ~attributes:["style", style] in
-  Soup.append_child pre code;
-  pre
+  theme_spans theme spans
+
+(* Themes a block of code without tokenizing anything. *)
+let theme_block theme code =
+  let span = Soup.create_element "span" in
+  Soup.append_child span (Soup.create_text code);
+  theme_spans theme [span]

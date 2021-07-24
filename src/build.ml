@@ -130,15 +130,17 @@ let find_grammar t lang =
 (* Highlight the code blocks. *)
 let highlight t theme =
   List.map begin function
-    | Omd.Code_block(_, "", _) as block -> block
-    | Omd.Code_block(attr, lang, code) as block ->
+    | Omd.Code_block(attr, "", code) ->
+      Omd.Html_block(attr, Soup.pretty_print (Highlight.theme_block theme code))
+    | Omd.Code_block(attr, lang, code) ->
       begin match find_grammar t lang with
         | None ->
           prerr_endline ("Warning: unknown language " ^ lang);
-          block
+          let elt = Highlight.theme_block theme code in
+          Omd.Html_block(attr, Soup.pretty_print elt)
         | Some grammar ->
-          let html = Highlight.highlight_block t.langs grammar theme code in
-          Omd.Html_block(attr, Soup.pretty_print html)
+          let elt = Highlight.highlight_block t.langs grammar theme code in
+          Omd.Html_block(attr, Soup.pretty_print elt)
       end
     | x -> x
   end

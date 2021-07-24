@@ -16,5 +16,5 @@ Camyll is a static site generator.
 ## Installation
 
 ```
-opam install camyll
+$ opam install camyll
 ```
