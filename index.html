@@ -32,34 +32,35 @@
    </nav>
   </header>
   <main>
-   <h1>
-    Camyll
-   </h1>
-   <p>
-    Camyll is a static site generator.
-   </p>
-   <h2>
-    Features
-   </h2>
-   <ul>
-    <li>
-     Markdown
-    </li>
-    <li>
-     Literate Agda
-    </li>
-    <li>
-     Syntax highlighting for any language
-    </li>
-    <li>
-     Tags (and arbitrary taxonomies)
-    </li>
-   </ul>
-   <h2>
-    Installation
-   </h2>
    <pre style="color: #f6f8fa;background: #24292e;"><code><span>$ opam install camyll
 </span></code></pre>
+   <h2>
+    Markdown
+   </h2>
+   <p>
+    Camyll converts files ending in <code>.md</code> from Markdown to HTML.
+   </p>
+   <h2>
+    Literate Agda
+   </h2>
+   <p>
+    Camyll recognizes files ending in <code>.lagda.md</code> as Literate Agda files and
+invokes the Agda compiler to preprocess the Agda code blocks.
+   </p>
+   <h2>
+    Syntax Highlighting
+   </h2>
+   <p>
+    Instead of supporting a fixed set of languages, Camyll lets the user provide
+TextMate grammars in the site directory for any desired language. Camyll uses
+TextMate themes to assign colors to tokens.
+   </p>
+   <h2>
+    Tags and Taxonomies
+   </h2>
+   <p>
+    Camyll supports tags and user-defined taxonomies.
+   </p>
   </main>
  </body>
 </html>
