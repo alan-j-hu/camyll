@@ -3,34 +3,22 @@ module C = Config
 open Httpaf
 open Httpaf_lwt_unix
 
-let rec serve_file config path = function
-  | x :: _
-    when x = Filename.current_dir_name || x = Filename.parent_dir_name ->
-    None
-  | x :: xs -> serve_file config (Filename.concat path x) xs
-  | [] ->
-    let path = Filename.concat config.C.dest_dir path in
-    try
-      if Sys.is_directory path then
-        let path = Filename.concat path "index.html" in
-        Some (Filesystem.read_bin path)
-      else
-        Some (Filesystem.read_bin path)
-    with Sys_error _ -> None
+let serve_file config path =
+  let path = Filename.concat config.C.dest_dir path in
+  try
+    if Sys.is_directory path then
+      let path = Filename.concat path "index.html" in
+      Some (Filesystem.read_bin path)
+    else
+      Some (Filesystem.read_bin path)
+  with Sys_error _ -> None
 
 let request_handler config _ reqd =
   let { Request.meth; target; _ } = Reqd.request reqd in
   match meth with
   | `GET ->
-    let path =
-      match String.index_opt target '?', String.index_opt target '#' with
-      | None, None -> target
-      | Some idx, None | None, Some idx -> String.sub target 0 idx
-      | Some idx1, Some idx2 when idx1 < idx2 -> String.sub target 0 idx2
-      | Some _, Some idx2 -> String.sub target 0 idx2
-    in
-    let path = String.split_on_char '/' path in
-    begin match serve_file config "" path with
+    let path = target |> Uri.of_string |> Uri.path in
+    begin match serve_file config path with
       | Some response_body ->
         let headers =
           Headers.of_list

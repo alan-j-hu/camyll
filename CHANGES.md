@@ -2,6 +2,8 @@
 
 - Validate colors from TextMate themes.
 - Implement other theme attributes.
+- Use proper URI parsing library in server; previous code didn't handle ? and
+  #.
 
 ## 0.2.0 (July 21, 2020)
 

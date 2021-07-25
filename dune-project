@@ -35,4 +35,5 @@ Features:
   (plist-xml (< 0.4))
   (re (and (>= 1.9) (< 2.0)))
   (textmate-language (and (>= 0.3.1) (< 0.4)))
-  (toml (and (>= 7) (< 8)))))
+  (toml (and (>= 7) (< 8)))
+  (uri (and (>= 4.2) (< 5)))))
