@@ -1,7 +1,5 @@
 # Camyll
 
-![logo]
-
 Camyll is a static site generator.
 
 Features:
@@ -9,10 +7,8 @@ Features:
 - Conversion from Markdown to HTML
 - Syntax highlighting of any language via user-provided TextMate grammars
 - Post tagging
-- Processing of literate AgdaCamyll is a static site generator that I originally wrote for my personal site.
+- Processing of Literate Agda
 
 ## Installing
 
     opam install camyll
-
-[logo]: ./web/site/logo.svg
