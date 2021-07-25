@@ -38,8 +38,6 @@ taxonomies = # : { string -> string list }
 Other attributes can be added to the frontmatter, and they will be accessible
 from the Jingoo layout. An enhanced frontmatter could look like this:
 
-For example:
-
 ```toml
 title = "Introduction to OCaml"
 layout = "post.jingoo"
