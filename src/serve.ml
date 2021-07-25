@@ -22,7 +22,14 @@ let request_handler config _ reqd =
   let { Request.meth; target; _ } = Reqd.request reqd in
   match meth with
   | `GET ->
-    let path = String.split_on_char '/' target in
+    let path =
+      match String.index_opt target '?', String.index_opt target '#' with
+      | None, None -> target
+      | Some idx, None | None, Some idx -> String.sub target 0 idx
+      | Some idx1, Some idx2 when idx1 < idx2 -> String.sub target 0 idx2
+      | Some _, Some idx2 -> String.sub target 0 idx2
+    in
+    let path = String.split_on_char '/' path in
     begin match serve_file config "" path with
       | Some response_body ->
         let headers =

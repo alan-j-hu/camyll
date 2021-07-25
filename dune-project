@@ -32,7 +32,7 @@ Features:
   (markup (and (>= 0.8) (< 2.0)))
   (ocaml (>= 4.12))
   (omd (= 2.0.0~alpha2))
-  (textmate-language (and (>= 0.3.1) (< 0.4)))
   (plist-xml (< 0.4))
   (re (and (>= 1.9) (< 2.0)))
+  (textmate-language (and (>= 0.3.1) (< 0.4)))
   (toml (and (>= 7) (< 8)))))

@@ -29,9 +29,9 @@ depends: [
   "markup" {>= "0.8" & < "2.0"}
   "ocaml" {>= "4.12"}
   "omd" {= "2.0.0~alpha2"}
-  "textmate-language" {>= "0.3.1" & < "0.4"}
   "plist-xml" {< "0.4"}
   "re" {>= "1.9" & < "2.0"}
+  "textmate-language" {>= "0.3.1" & < "0.4"}
   "toml" {>= "7" & < "8"}
   "odoc" {with-doc}
 ]
