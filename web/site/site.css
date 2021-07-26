@@ -1,5 +1,9 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
-  background-color: #f0f0f0;
+  background-color: #333;
   border: 0;
   margin: 0;
   padding: 0;
@@ -10,6 +14,15 @@ body {
      code larger fonts. */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: none;
+}
+
+a[href] {
+  color: #e57600;
+  text-decoration: none;
+}
+
+a[href]:hover {
+  text-decoration: underline;
 }
 
 header {
@@ -33,7 +46,7 @@ header {
   vertical-align: middle;
 }
 
-nav {
+nav.nav {
   display: inline-block;
   width: 80%;
   border: 0;
@@ -72,28 +85,44 @@ nav {
   }
 }
 
-main {
+.main {
+  width: 100%;
   background-color: #f0f0f0;
-  box-shadow: 0 0 5px #f0f0f0;
-  overflow: auto;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.main > div {
+  display: flex;
   width: 80%;
-  max-width: 700px;
-  margin: 2em auto;
+  margin: 0 auto;
+}
+
+@media (max-width: 700px) {
+  .main > div {
+    flex-direction: column;
+  }
+
+  main {
+    order: 0;
+  }
+
+  nav.sidebar {
+    order: 1;
+  }
+}
+
+
+nav.sidebar {
+  width: 20%;
+  margin: 10px;
+}
+
+main {
   padding: 2em 5%;
-}
-
-main a[href] {
-  color: #e57600;
-  text-decoration: none;
-}
-
-main a[href]:hover {
-  text-decoration: underline;
-}
-
-footer {
-  color: #f0f0f0;
-  text-align: center;
+  width: 80%;
+  margin: 10px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -132,4 +161,10 @@ pre {
   line-height: 1;
   overflow: auto;
   padding: 5px;
+}
+
+footer {
+  color: white;
+  text-align: center;
+  padding: 1em;
 }
