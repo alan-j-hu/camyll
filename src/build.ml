@@ -243,12 +243,12 @@ let correct_agda_urls t node =
         Soup.set_attribute "href" link node
   end
 
-let render_from_file t models url path =
+let render_from_file models url path =
   let env =
     { Jg_types.std_env with
       autoescape = false
     ; strict_mode = true
-    ; template_dirs = [t.config.partial_dir]
+    ; template_dirs = ["partials"]
     ; filters =
         [ "format_date"
         , Jg_types.func_arg2_no_kw (fun format date ->
@@ -263,15 +263,15 @@ let render_from_file t models url path =
         ]
     }
   in
-  let path = Filename.concat t.config.layout_dir path in
+  let path = Filename.concat "templates" path in
   let print_err e = failwith (path ^ ": " ^ url ^ ":" ^ e) in
   try Jg_template.from_file ~env ~models path with
   | Failure e -> failwith (print_err e)
   | Invalid_argument e -> failwith (print_err e)
   | Jingoo.Jg_types.SyntaxError e -> failwith (print_err e)
 
-let render_page t pages url page =
-  match Toml.Lenses.(get page.frontmatter (key "layout" |-- string)) with
+let render_page pages url page =
+  match Toml.Lenses.(get page.frontmatter (key "template" |-- string)) with
   | None -> page.content
   | Some path ->
     let models =
@@ -279,7 +279,7 @@ let render_page t pages url page =
       ; "pages", Jg_types.Tlist pages
       ; "frontmatter", jingoo_of_tomltable page.frontmatter ]
     in
-    render_from_file t models url path
+    render_from_file models url path
 
 let relativize_urls url node =
   let open Soup.Infix in
@@ -295,7 +295,7 @@ let relativize_urls url node =
   replace "src"
 
 let compile_page t siblings path url page =
-  let content = render_page t siblings url page in
+  let content = render_page siblings url page in
   let output = Soup.parse content in
   add_taxonomies t url page;
   correct_agda_urls t output;
@@ -373,7 +373,7 @@ let build_taxonomy t name taxonomy =
     let slugified = slugify tag_name in
     let output_path = Filename.concat dir slugified  ^ ".html" in
     let content =
-      render_from_file t
+      render_from_file
         [ "pages", Jg_types.Tlist pages
         ; "name", Jg_types.Tstr tag_name ]
         output_path
@@ -394,14 +394,14 @@ let build_taxonomies t =
 let build_with_config config =
   Filesystem.touch_dir config.Config.dest_dir;
   let langs = TmLanguage.create () in
-  begin match Sys.readdir config.Config.grammar_dir with
+  begin match Sys.readdir "grammars" with
     | exception (Sys_error _) -> ()
     | names ->
       names |> Array.iter begin fun name ->
-        if Sys.is_directory (Config.grammar config name) then
+        if Sys.is_directory (Filename.concat "grammars" name) then
           ()
         else
-          let path = Config.grammar config name in
+          let path = Filename.concat "grammars" name in
           try
             let lang =
               path |> Filesystem.with_in begin fun chan ->

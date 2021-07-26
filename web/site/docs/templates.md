@@ -1,6 +1,6 @@
 +++
 title = "Templates"
-layout = "main.jingoo"
+template = "main.jingoo"
 +++
 
 # Templates

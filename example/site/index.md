@@ -1,6 +1,6 @@
 +++
 title = "Home"
-layout = "main.jingoo"
+template = "main.jingoo"
 +++
 
 Welcome to my example blog!

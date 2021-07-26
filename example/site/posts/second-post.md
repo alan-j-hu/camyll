@@ -1,6 +1,6 @@
 +++
 title = "Second Post"
-layout = "post.jingoo"
+template = "post.jingoo"
 date = 2020-02-29
 
 [taxonomies]

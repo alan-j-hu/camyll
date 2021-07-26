@@ -1,6 +1,6 @@
 +++
 title = "Pages"
-layout = "main.jingoo"
+template = "main.jingoo"
 +++
 
 # Pages
@@ -13,7 +13,7 @@ between the `+++` is the page's *frontmatter*, which is written in
 ```markdown
 +++
 title = "Pages"
-layout = "main.jingoo"
+template = "main.jingoo"
 +++
 
 # Pages
@@ -29,18 +29,18 @@ between the `+++` is the page's *frontmatter*, which is written in
 The frontmatter attributes that Camyll uses are:
 
 ```toml
-# The Jingoo layout to use
-layout = # : string
+# The Jingoo template to use
+template = # : string
 # A map from taxonomies to a list of taxonomy terms.
 taxonomies = # : { string -> string list }
 ```
 
 Other attributes can be added to the frontmatter, and they will be accessible
-from the Jingoo layout. An enhanced frontmatter could look like this:
+from the Jingoo template. An enhanced frontmatter could look like this:
 
 ```toml
 title = "Introduction to OCaml"
-layout = "post.jingoo"
+template = "post.jingoo"
 date = 2021-01-05
 
 [taxonomies]
@@ -49,7 +49,7 @@ tags = ["OCaml", "Functional programming"]
 ```
 
 This frontmatter describes a page that will be transformed according to the
-layout "post.jingoo", belongs to category "Programming", and has tags "OCaml"
+template "post.jingoo", belongs to category "Programming", and has tags "OCaml"
 and "Functional programming". In addition, the page has a title of "Introduction
 to OCaml" and an associated date of January 5th, 2021.
 

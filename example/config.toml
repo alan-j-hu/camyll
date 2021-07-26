@@ -1,8 +1,5 @@
 source_dir = "site"
 dest_dir = "public"
-grammar_dir = "grammars"
-layout_dir = "layouts"
-partial_dir = "partials"
 agda_dir = "lagda"
 exclude = ["*.agdai"]
 

@@ -1,9 +1,10 @@
-## 0.2.1 (July 25, 2020)
+## 0.3.0 (July 26, 2020)
 
 - Validate colors from TextMate themes.
 - Implement other theme attributes.
 - Use proper URI parsing library in server; previous code didn't handle ? and
   #.
+- Use opinionated directory names instead of making them configurable.
 
 ## 0.2.0 (July 21, 2020)
 

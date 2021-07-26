@@ -1,6 +1,6 @@
 +++
 title = "Commands"
-layout = "main.jingoo"
+template = "main.jingoo"
 +++
 
 # Commands
