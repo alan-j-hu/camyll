@@ -8,9 +8,6 @@ template = "main.jingoo"
 Camyll uses [TOML](https://toml.io/en/) for configuration.
 
 ```toml
-# The directory that contains the page data
-source_dir = # : string
-
 # The directory that contains the rendered site
 dest_dir = # : string
 
