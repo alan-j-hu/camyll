@@ -216,16 +216,19 @@ let dispatch t path name =
       (Name name, Bin (Filesystem.read_bytes chan))
     end
 
+(* Does [haystack] begin with [needle]? *)
+let begins_with haystack needle =
+  let needle_len = String.length needle in
+  let haystack_len = String.length haystack in
+  haystack_len >= needle_len && String.sub haystack 0 needle_len = needle
+
 let correct_agda_urls t node =
   let open Soup.Infix in
   node $$ "pre[class=\"Agda\"] > a[href]" |> Soup.iter begin fun node ->
     match Soup.attribute "href" node with
     | None -> failwith "Unreachable: href"
     | Some link ->
-      let root_mod = t.config.Config.src_dir in
-      let root_len = String.length t.config.Config.src_dir in
-      let link_len = String.length link in
-      if link_len >= root_len && String.sub link 0 root_len = root_mod then (
+      if begins_with link "content" then (
         (* The link is to an internal module *)
         match String.split_on_char '.' link with
         | [] -> failwith "Unreachable: Empty Agda link"
@@ -438,7 +441,7 @@ let build_with_config config =
       { template = taxonomy.Config.template
       ; items = Hashtbl.create 11 }
   end;
-  let dir = load_dir t t.config.Config.src_dir in
+  let dir = load_dir t "content" in
   compile_dir t t.config.Config.dest_dir "/" dir;
   build_taxonomies t
 

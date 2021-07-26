@@ -4,7 +4,6 @@ type taxonomy = {
 }
 
 type t = {
-  src_dir : string;
   dest_dir : string;
   exclude : Re.re list;
   agda_dir : string;
@@ -45,14 +44,12 @@ let taxonomy_of_toml toml =
 
 let of_toml toml =
   let open Toml.Lenses in
-  let* src_dir = get toml (key "source_dir" |-- string)
-  and* dest_dir = get toml (key "dest_dir" |-- string)
+  let* dest_dir = get toml (key "dest_dir" |-- string)
   and* agda_dir = get toml (key "agda_dir" |-- string)
   and* exclude = get toml (key "exclude" |-- array |-- strings)
   and* taxonomies = get toml (key "taxonomies" |-- array |-- tables) in
   let+ taxonomies = mapM taxonomy_of_toml taxonomies in
-  { src_dir
-  ; dest_dir
+  { dest_dir
   ; agda_dir
   ; exclude = List.map (fun g -> Re.compile (Re.Glob.glob g)) exclude
   ; taxonomies }

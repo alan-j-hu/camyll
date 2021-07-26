@@ -11,7 +11,7 @@ tags = ["foo", "bar baz"]
 Hello Agda!
 
 ```
-module site.posts.third-post where
+module content.posts.third-post where
 
 open import Data.Nat using (ℕ; zero; suc)
 ```

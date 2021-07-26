@@ -6,9 +6,9 @@ template = "main.jingoo"
 Hello Agda!
 
 ```
-module site.agda where
+module content.agda where
 
-open import site.posts.third-post using (Nat)
+open import content.posts.third-post using (Nat)
 ```
 
 **Bold**
