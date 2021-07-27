@@ -206,10 +206,10 @@ let dispatch t dir name =
       Sys.command
         (Filename.quote_command
            "agda"
-           [ read_path
-           ; "--html"
+           [ "--html"
            ; "--html-highlight=auto"
-           ; "--html-dir=" ^ Config.agda_dest t.config ])
+           ; "--html-dir=" ^ Config.agda_dest t.config
+           ; read_path ])
     in
     if exit_code = 0 then (
       Hashtbl.replace t.agda_links module_name (name :: dir);
