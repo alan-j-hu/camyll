@@ -1,6 +1,6 @@
 +++
 title = "Pages"
-template = "main.jingoo"
+template = "docs.jingoo"
 +++
 
 # Pages

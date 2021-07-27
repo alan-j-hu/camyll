@@ -2,6 +2,7 @@
 <html>
   <head>
     {% include "head.jingoo" %}
+    <link rel='stylesheet' type='text/css' href='/docs.css'/>
   </head>
   <body>
     {% include "header.jingoo" %}

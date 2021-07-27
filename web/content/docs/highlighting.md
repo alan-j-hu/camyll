@@ -1,6 +1,6 @@
 +++
 title = "Syntax Highlighting"
-template = "main.jingoo"
+template = "docs.jingoo"
 +++
 
 # Syntax Highlighting

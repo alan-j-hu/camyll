@@ -1,6 +1,6 @@
 +++
 title = "Documentation"
-template = "main.jingoo"
+template = "docs.jingoo"
 +++
 
 # Documentation
