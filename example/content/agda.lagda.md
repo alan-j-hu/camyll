@@ -1,14 +1,14 @@
 +++
-title = "Home"
+title = "Agda"
 template = "main.jingoo"
 +++
 
 Hello Agda!
 
 ```
-module content.agda where
+module agda where
 
-open import content.posts.third-post using (Nat)
+open import posts.third-post using (Nat)
 ```
 
 **Bold**

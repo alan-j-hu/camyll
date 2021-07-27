@@ -29,6 +29,7 @@ type t = {
   langs : TmLanguage.t;
   taxonomies : (string, taxonomy) Hashtbl.t;
   tm_theme : Highlight.theme option;
+  agda_links : (string list, string list) Hashtbl.t;
 }
 
 let slugify str =
@@ -157,26 +158,49 @@ let with_in_smart f path =
   try Filesystem.with_in f path with
   | Failure e -> failwith (path ^ ": " ^ e)
 
-let dispatch t path name =
-  let read_path = Filename.concat path name in
+let get_agda_module_name line =
+  let open Angstrom in
+  let whitespace = take_while1 (function
+      | ' ' | '\n' | '\t' | '\r' -> true
+      | _ -> false)
+  in
+  let name_part = take_while1 (function
+      | '.' | ';' | '{' | '}' | '(' | ')' | '@' | '"'
+      | ' ' | '\n' | '\t'| '\r' -> false
+      | _ -> true)
+  in
+  let qualified_name = sep_by (char '.') name_part in
+  let main =
+    string "module" *> whitespace *> qualified_name
+    <* whitespace <* string "where"
+  in
+  parse_string ~consume:Consume.Prefix main line
+
+let source_dir dir =
+  Filename.concat "content" (List.fold_left (Fun.flip Filename.concat) "" dir)
+
+let dispatch t dir name =
+  let read_path = Filename.concat (source_dir dir) name in
   match String.split_on_char '.' name with
   | ["index"; "html"] ->
     read_path |> with_in_smart begin fun chan ->
       let frontmatter = parse_frontmatter chan in
-      ( Index
-      , Page { frontmatter
-             ; content = Filesystem.read_lines chan } )
+      (Index, Page { frontmatter; content = Filesystem.read_lines chan })
     end
   | ["index"; "md"] ->
     read_path |> with_in_smart begin fun chan ->
       let frontmatter = parse_frontmatter chan in
-      ( Index
-      , Page { frontmatter
-             ; content = process_md t chan } )
+      (Index, Page { frontmatter; content = process_md t chan })
     end
   | [name; "lagda"; "md"] ->
     let module_name =
-      (String.split_on_char '/' path |> String.concat ".") ^ "." ^ name
+      read_path |> with_in_smart begin fun chan ->
+        let rec loop () = match get_agda_module_name (input_line chan) with
+          | Ok name -> name
+          | Error _ -> loop ()
+        in
+        try loop () with End_of_file -> failwith "No module name found!"
+      end
     in
     let exit_code =
       Sys.command
@@ -187,40 +211,35 @@ let dispatch t path name =
            ; "--html-highlight=auto"
            ; "--html-dir=" ^ Config.agda_dest t.config ])
     in
-    if exit_code <> 0 then
-      failwith ("Agda process exited with code " ^ Int.to_string exit_code)
-    else
-      Filename.concat (Config.agda_dest t.config) module_name ^ ".md" |>
-      with_in_smart begin fun chan ->
-        let frontmatter = parse_frontmatter chan in
-        ( Name name
-        , Page { frontmatter
-               ; content = process_md t chan } )
-      end
+    if exit_code = 0 then (
+      Hashtbl.replace t.agda_links module_name (name :: dir);
+      let generated_md_name = Filename.concat
+          (Config.agda_dest t.config)
+          (String.concat "." module_name) ^ ".md"
+      in
+      let page = generated_md_name |> with_in_smart begin fun chan ->
+          let frontmatter = parse_frontmatter chan in
+          let content = process_md t chan in
+          { frontmatter; content }
+        end
+      in
+      Sys.remove generated_md_name;
+      (Name name, Page page)
+    ) else failwith ("Agda exited with code " ^ Int.to_string exit_code ^ "!")
   | [name; "html"] ->
     read_path |> with_in_smart begin fun chan ->
       let frontmatter = parse_frontmatter chan in
-      ( Name name
-      , Page { frontmatter
-             ; content = Filesystem.read_lines chan } )
+      (Name name, Page { frontmatter; content = process_md t chan })
     end
   | [name; "md"] ->
     read_path |> with_in_smart begin fun chan ->
       let frontmatter = parse_frontmatter chan in
-      ( Name name
-      , Page { frontmatter
-             ; content = process_md t chan } )
+      (Name name, Page { frontmatter; content = process_md t chan })
     end
   | _ ->
     read_path |> Filesystem.with_in_bin begin fun chan ->
       (Name name, Bin (Filesystem.read_bytes chan))
     end
-
-(* Does [haystack] begin with [needle]? *)
-let begins_with haystack needle =
-  let needle_len = String.length needle in
-  let haystack_len = String.length haystack in
-  haystack_len >= needle_len && String.sub haystack 0 needle_len = needle
 
 let correct_agda_urls t node =
   let open Soup.Infix in
@@ -228,19 +247,20 @@ let correct_agda_urls t node =
     match Soup.attribute "href" node with
     | None -> failwith "Unreachable: href"
     | Some link ->
-      if begins_with link "content" then (
-        (* The link is to an internal module *)
-        match String.split_on_char '.' link with
+      let rec loop acc = function
         | [] -> failwith "Unreachable: Empty Agda link"
-        | _ :: parts ->
-          let rec loop acc = function
-            | [] -> failwith "Unreachable: Singular Agda link"
-            | [_] -> failwith "Unreachable: Double Agda link"
-            | [name; ext] -> acc ^ name ^ "." ^ ext
-            | x :: xs -> loop (acc ^ x ^ "/") xs
-          in
-          Soup.set_attribute "href" (loop "/" parts) node
-      ) else
+        | [ext] -> (acc, ext)
+        | x :: xs -> loop (x :: acc) xs
+      in
+      let module_path, ext = loop [] (String.split_on_char '.' link) in
+      match Hashtbl.find_opt t.agda_links (List.rev module_path) with
+      | Some dir_path ->
+        (* The link is to an internal module *)
+        Soup.set_attribute
+          "href"
+          ("/" ^ String.concat "/" (List.rev dir_path) ^ "." ^ ext)
+          node
+      | None ->
         (* The link is to an external module *)
         let link = "/" ^ (Filename.concat t.config.Config.agda_dir link) in
         Soup.set_attribute "href" link node
@@ -307,15 +327,16 @@ let compile_page t siblings path url page =
     output_string out_chan (Soup.pretty_print output)
   end
 
-let rec load_dir t src =
-  let files = Sys.readdir src in
+let rec load_dir t dir =
+  let read_dir = source_dir dir in
+  let files = Sys.readdir read_dir in
   let pages = Hashtbl.create (Array.length files) in
   let index = Array.fold_left (fun index name ->
-      let path = Filename.concat src name in
+      let path = Filename.concat read_dir name in
       if List.exists (Fun.flip Re.execp path) t.config.Config.exclude then
         index
       else if Sys.is_directory path then (
-        let dir = load_dir t path in
+        let dir = load_dir t (name :: dir) in
         if Hashtbl.mem pages name then
           failwith ("Duplicate page " ^ path ^ "!")
         else (
@@ -323,7 +344,7 @@ let rec load_dir t src =
           index
         )
       ) else
-        let name, data = dispatch t src name in
+        let name, data = dispatch t dir name in
         match index, name with
         | _, Name name ->
           if Hashtbl.mem pages name then
@@ -338,7 +359,7 @@ let rec load_dir t src =
           | Bin _ -> failwith ("Index is a binary: " ^ path ^ "!")
           | Dir _ -> failwith ("Index is a directory: " ^ path ^ "!")
           | Page page -> Some page
-    ) None (Sys.readdir src)
+    ) None files
   in
   { dir_page = index; children = pages }
 
@@ -433,7 +454,8 @@ let build_with_config config =
     { config
     ; langs
     ; taxonomies = Hashtbl.create 2
-    ; tm_theme }
+    ; tm_theme
+    ; agda_links = Hashtbl.create 29 }
   in
   Filesystem.remove_dir t.config.Config.dest_dir;
   config.Config.taxonomies |> List.iter begin fun taxonomy ->
@@ -441,7 +463,7 @@ let build_with_config config =
       { template = taxonomy.Config.template
       ; items = Hashtbl.create 11 }
   end;
-  let dir = load_dir t "content" in
+  let dir = load_dir t [] in
   compile_dir t t.config.Config.dest_dir "/" dir;
   build_taxonomies t
 
