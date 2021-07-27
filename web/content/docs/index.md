@@ -10,7 +10,7 @@ template = "docs.jingoo"
 The easiest way to install Camyll is through Opam.
 
 ```
-opam install Camyll
+opam install camyll
 ```
 
 ## Directory Structure
