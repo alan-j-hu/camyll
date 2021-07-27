@@ -3,11 +3,12 @@
  <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="../site.css" rel="stylesheet">
   <title>
    Configuration
   </title>
   <link href="../favicon.ico?" rel="shortcut icon" type="image/x-icon">
+  <link href="../site.css" rel="stylesheet" type="text/css">
+  <link href="../docs.css" rel="stylesheet" type="text/css">
  </head>
  <body>
   <header>
@@ -32,27 +33,42 @@
     </ul>
    </nav>
   </header>
-  <main>
-   <h1>
-    Configuration
-   </h1>
-   <p>
-    Camyll uses <a href="https://toml.io/en/">TOML</a> for configuration.
-   </p>
-   <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory that contains the page data</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">source_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">
-</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory that contains the rendered site</span><span style="color: #959da5;">
+  <div class="main">
+   <div>
+    <nav class="sidebar">
+     <h3>
+      Documentation
+     </h3>
+     <ul>
+      <li>
+       <a href="commands.html">Commands</a>
+      </li>
+      <li>
+       <a href="configuration.html">Configuration</a>
+      </li>
+      <li>
+       <a href="pages.html">Pages</a>
+      </li>
+      <li>
+       <a href="highlighting.html">Syntax Highlighting</a>
+      </li>
+      <li>
+       <a href="taxonomies.html">Taxonomies</a>
+      </li>
+      <li>
+       <a href="templates.html">Templates</a>
+      </li>
+     </ul>
+    </nav>
+    <main>
+     <h1>
+      Configuration
+     </h1>
+     <p>
+      Camyll uses <a href="https://toml.io/en/">TOML</a> for configuration.
+     </p>
+     <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory that contains the rendered site</span><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #79b8ff;">dest_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">
-</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory that contains the grammars for syntax highlighting</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">grammar_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">
-</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory that contains the templates</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">layout_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">
-</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory that contains the template partials</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">partial_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #79b8ff;">
 </span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory within the dest_dir that contains the rendered Literate Agda</span><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #79b8ff;">agda_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
@@ -65,6 +81,14 @@
 </span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> an individual taxonomy list page.</span><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #79b8ff;">taxonomies = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : { name : string; template : string } list</span><span style="color: #959da5;">
 </span></span></code></pre>
-  </main>
+    </main>
+   </div>
+  </div>
+  <footer>
+   © 2020-2021 Alan Hu. Camyll is available under the MIT license.<br>
+  The syntax highlighting style is
+  <a href="https://github.com/primer/github-textmate-theme">GitHub TextMate
+  dark theme</a>.
+  </footer>
  </body>
 </html>

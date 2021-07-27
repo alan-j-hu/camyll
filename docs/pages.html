@@ -3,11 +3,12 @@
  <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="../site.css" rel="stylesheet">
   <title>
    Pages
   </title>
   <link href="../favicon.ico?" rel="shortcut icon" type="image/x-icon">
+  <link href="../site.css" rel="stylesheet" type="text/css">
+  <link href="../docs.css" rel="stylesheet" type="text/css">
  </head>
  <body>
   <header>
@@ -32,19 +33,46 @@
     </ul>
    </nav>
   </header>
-  <main>
-   <h1>
-    Pages
-   </h1>
-   <p>
-    <em>Pages</em> are files that have a one-to-one mapping with the webpages of the
+  <div class="main">
+   <div>
+    <nav class="sidebar">
+     <h3>
+      Documentation
+     </h3>
+     <ul>
+      <li>
+       <a href="commands.html">Commands</a>
+      </li>
+      <li>
+       <a href="configuration.html">Configuration</a>
+      </li>
+      <li>
+       <a href="pages.html">Pages</a>
+      </li>
+      <li>
+       <a href="highlighting.html">Syntax Highlighting</a>
+      </li>
+      <li>
+       <a href="taxonomies.html">Taxonomies</a>
+      </li>
+      <li>
+       <a href="templates.html">Templates</a>
+      </li>
+     </ul>
+    </nav>
+    <main>
+     <h1>
+      Pages
+     </h1>
+     <p>
+      <em>Pages</em> are files that have a one-to-one mapping with the webpages of the
 generated site. At the top of a page, there must be a pair of <code>+++</code>s. In
 between the <code>+++</code> is the page's <em>frontmatter</em>, which is written in
 <a href="https://toml.io/en/">TOML</a>. For example:
-   </p>
-   <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #c8e1ff;">+++
+     </p>
+     <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #c8e1ff;">+++
 </span></span><span class="sourceLine"><span style="color: #c8e1ff;">title = "Pages"
-</span></span><span class="sourceLine"><span style="color: #c8e1ff;">layout = "main.jingoo"
+</span></span><span class="sourceLine"><span style="color: #c8e1ff;">template = "main.jingoo"
 </span></span><span class="sourceLine"><span style="color: #c8e1ff;">+++
 </span></span><span class="sourceLine"><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #959da5;"># Pages
@@ -54,54 +82,62 @@ between the <code>+++</code> is the page's <em>frontmatter</em>, which is writte
 </span></span><span class="sourceLine"><span style="color: #c8e1ff;">between the `+++` is the page's *frontmatter*, which is written in
 </span></span><span class="sourceLine"><span style="color: #c8e1ff;">[TOML](https://toml.io/en/). For example:
 </span></span></code></pre>
-   <h2>
-    Frontmatter
-   </h2>
-   <p>
-    The frontmatter attributes that Camyll uses are:
-   </p>
-   <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The Jingoo layout to use</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">layout = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
+     <h2>
+      Frontmatter
+     </h2>
+     <p>
+      The frontmatter attributes that Camyll uses are:
+     </p>
+     <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The Jingoo template to use</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">template = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> A map from taxonomies to a list of taxonomy terms.</span><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #79b8ff;">taxonomies = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : { string -&gt; string list }</span><span style="color: #959da5;">
 </span></span></code></pre>
-   <p>
-    Other attributes can be added to the frontmatter, and they will be accessible
-from the Jingoo layout. An enhanced frontmatter could look like this:
-   </p>
-   <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #c8e1ff;">title </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">Introduction to OCaml</span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;">
-</span></span><span class="sourceLine"><span style="color: #c8e1ff;">layout </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">post.jingoo</span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;">
+     <p>
+      Other attributes can be added to the frontmatter, and they will be accessible
+from the Jingoo template. An enhanced frontmatter could look like this:
+     </p>
+     <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #c8e1ff;">title </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">Introduction to OCaml</span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;">
+</span></span><span class="sourceLine"><span style="color: #c8e1ff;">template </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">post.jingoo</span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;">
 </span></span><span class="sourceLine"><span style="color: #c8e1ff;">date </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;text-decoration: underline;">2021-01-05</span><span style="color: #79b8ff;">
 </span></span><span class="sourceLine"><span style="color: #79b8ff;">
 </span></span><span class="sourceLine"><span style="color: #959da5;">[</span><span style="color: #79b8ff;">taxonomies</span><span style="color: #959da5;">]</span><span style="color: #79b8ff;">
 </span></span><span class="sourceLine"><span style="color: #c8e1ff;">categories </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #959da5;">[</span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">Programming</span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">]</span><span style="color: #79b8ff;">
 </span></span><span class="sourceLine"><span style="color: #c8e1ff;">tags </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #959da5;">[</span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">OCaml</span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">,</span><span style="color: #c8e1ff;"> </span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">Functional programming</span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">]</span><span style="color: #79b8ff;">
 </span></span></code></pre>
-   <p>
-    This frontmatter describes a page that will be transformed according to the
-layout "post.jingoo", belongs to category "Programming", and has tags "OCaml"
+     <p>
+      This frontmatter describes a page that will be transformed according to the
+template "post.jingoo", belongs to category "Programming", and has tags "OCaml"
 and "Functional programming". In addition, the page has a title of "Introduction
 to OCaml" and an associated date of January 5th, 2021.
-   </p>
-   <h2>
-    File Extensions
-   </h2>
-   <p>
-    The file extension of a page determines how Camyll handles it. The supported
+     </p>
+     <h2>
+      File Extensions
+     </h2>
+     <p>
+      The file extension of a page determines how Camyll handles it. The supported
 file extensions are:
-   </p>
-   <ul>
-    <li>
-     <code>.html</code>: HTML pages are left as-is.
-    </li>
-    <li>
-     <code>.md</code>: Markdown files are translated to HTML.
-    </li>
-    <li>
-     <code>.lagda.md</code>: Literate Agda Markdown files are transformed into regular
+     </p>
+     <ul>
+      <li>
+       <code>.html</code>: HTML pages are left as-is.
+      </li>
+      <li>
+       <code>.md</code>: Markdown files are translated to HTML.
+      </li>
+      <li>
+       <code>.lagda.md</code>: Literate Agda Markdown files are transformed into regular
 Markdown files by the Agda compiler, then handled like other Markdown files.
-    </li>
-   </ul>
-  </main>
+      </li>
+     </ul>
+    </main>
+   </div>
+  </div>
+  <footer>
+   © 2020-2021 Alan Hu. Camyll is available under the MIT license.<br>
+  The syntax highlighting style is
+  <a href="https://github.com/primer/github-textmate-theme">GitHub TextMate
+  dark theme</a>.
+  </footer>
  </body>
 </html>

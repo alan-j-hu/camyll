@@ -3,11 +3,12 @@
  <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="../site.css" rel="stylesheet">
   <title>
    Syntax Highlighting
   </title>
   <link href="../favicon.ico?" rel="shortcut icon" type="image/x-icon">
+  <link href="../site.css" rel="stylesheet" type="text/css">
+  <link href="../docs.css" rel="stylesheet" type="text/css">
  </head>
  <body>
   <header>
@@ -32,12 +33,39 @@
     </ul>
    </nav>
   </header>
-  <main>
-   <h1>
-    Syntax Highlighting
-   </h1>
-   <p>
-    Camyll supports syntax highlighting using TextMate themes and grammars. If a
+  <div class="main">
+   <div>
+    <nav class="sidebar">
+     <h3>
+      Documentation
+     </h3>
+     <ul>
+      <li>
+       <a href="commands.html">Commands</a>
+      </li>
+      <li>
+       <a href="configuration.html">Configuration</a>
+      </li>
+      <li>
+       <a href="pages.html">Pages</a>
+      </li>
+      <li>
+       <a href="highlighting.html">Syntax Highlighting</a>
+      </li>
+      <li>
+       <a href="taxonomies.html">Taxonomies</a>
+      </li>
+      <li>
+       <a href="templates.html">Templates</a>
+      </li>
+     </ul>
+    </nav>
+    <main>
+     <h1>
+      Syntax Highlighting
+     </h1>
+     <p>
+      Camyll supports syntax highlighting using TextMate themes and grammars. If a
 TextMate theme file called <code>theme.tmTheme</code> exists in the project directory,
 Camyll will use it to highlight Markdown fenced code blocks. Put the grammars
 for the languages you want to highlight in the directory specified in the
@@ -45,7 +73,15 @@ for the languages you want to highlight in the directory specified in the
 for a language, Camyll will first search case-insensitively by the <code>name</code>
 attribute of the grammar files, then search case-sensitively by the <code>fileTypes</code>
 attribute of the grammar files.
-   </p>
-  </main>
+     </p>
+    </main>
+   </div>
+  </div>
+  <footer>
+   © 2020-2021 Alan Hu. Camyll is available under the MIT license.<br>
+  The syntax highlighting style is
+  <a href="https://github.com/primer/github-textmate-theme">GitHub TextMate
+  dark theme</a>.
+  </footer>
  </body>
 </html>

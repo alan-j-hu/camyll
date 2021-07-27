@@ -3,11 +3,12 @@
  <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="../site.css" rel="stylesheet">
   <title>
    Templates
   </title>
   <link href="../favicon.ico?" rel="shortcut icon" type="image/x-icon">
+  <link href="../site.css" rel="stylesheet" type="text/css">
+  <link href="../docs.css" rel="stylesheet" type="text/css">
  </head>
  <body>
   <header>
@@ -32,62 +33,97 @@
     </ul>
    </nav>
   </header>
-  <main>
-   <h1>
-    Templates
-   </h1>
-   <p>
-    Camyll uses the <a href="http://tategakibunko.github.io/jingoo/templates/templates.en.html">Jingoo</a> templating
-engine.
-   </p>
-   <h2>
-    Built-ins
-   </h2>
-   <p>
-    In addition to the functions provided by Jingoo, Camyll offers two additional
-built-in functions:
-   </p>
-   <p>
-    <code>format_date(format : string, date : float) : string</code>
-   </p>
-   <p>
-    Formats a date given in Unix time. The format string is <a href="https://github.com/ocaml-community/calendar/blob/a447a88ae3c1e9873e32d2a95d3d3e7c5ed4a7da/src/printer.mli#L34">that of the
-Calendar library</a>,
-which itself closely follows the Unix <code>date</code> command.
-   </p>
-   <p>
-    <code>slugify(str : string) : string</code>
-   </p>
-   <p>
-    "Slugifies" a string for use in a URL, consistent with Camyll's internal slugify
-operation. This function is useful for getting the URL of a tag page.
-   </p>
-   <h2>
-    Pages
-   </h2>
-   <p>
-    Individual pages have the following names in scope:
-   </p>
-   <ul>
-    <li>
-     <code>content</code> - The content of the page, expressed in HTML.
-    </li>
-    <li>
-     <code>frontmatter</code> - The page frontmatter.
-    </li>
-    <li>
-     <code>pages</code> - All the pages in the current directory.
-Each page is an object of the following format:
+  <div class="main">
+   <div>
+    <nav class="sidebar">
+     <h3>
+      Documentation
+     </h3>
      <ul>
       <li>
-       <code>frontmatter</code> - The frontmatter of the post
+       <a href="commands.html">Commands</a>
       </li>
       <li>
-       <code>url</code> - The URL of the post
+       <a href="configuration.html">Configuration</a>
+      </li>
+      <li>
+       <a href="pages.html">Pages</a>
+      </li>
+      <li>
+       <a href="highlighting.html">Syntax Highlighting</a>
+      </li>
+      <li>
+       <a href="taxonomies.html">Taxonomies</a>
+      </li>
+      <li>
+       <a href="templates.html">Templates</a>
       </li>
      </ul>
-    </li>
-   </ul>
-  </main>
+    </nav>
+    <main>
+     <h1>
+      Templates
+     </h1>
+     <p>
+      Camyll uses the <a href="http://tategakibunko.github.io/jingoo/templates/templates.en.html">Jingoo</a> templating
+engine.
+     </p>
+     <h2>
+      Built-ins
+     </h2>
+     <p>
+      In addition to the functions provided by Jingoo, Camyll offers two additional
+built-in functions:
+     </p>
+     <p>
+      <code>format_date(format : string, date : float) : string</code>
+     </p>
+     <p>
+      Formats a date given in Unix time. The format string is <a href="https://github.com/ocaml-community/calendar/blob/a447a88ae3c1e9873e32d2a95d3d3e7c5ed4a7da/src/printer.mli#L34">that of the
+Calendar library</a>,
+which itself closely follows the Unix <code>date</code> command.
+     </p>
+     <p>
+      <code>slugify(str : string) : string</code>
+     </p>
+     <p>
+      "Slugifies" a string for use in a URL, consistent with Camyll's internal slugify
+operation. This function is useful for getting the URL of a tag page.
+     </p>
+     <h2>
+      Pages
+     </h2>
+     <p>
+      Individual pages have the following names in scope:
+     </p>
+     <ul>
+      <li>
+       <code>content</code> - The content of the page, expressed in HTML.
+      </li>
+      <li>
+       <code>frontmatter</code> - The page frontmatter.
+      </li>
+      <li>
+       <code>pages</code> - All the pages in the current directory.
+Each page is an object of the following format:
+       <ul>
+        <li>
+         <code>frontmatter</code> - The frontmatter of the post
+        </li>
+        <li>
+         <code>url</code> - The URL of the post
+        </li>
+       </ul>
+      </li>
+     </ul>
+    </main>
+   </div>
+  </div>
+  <footer>
+   © 2020-2021 Alan Hu. Camyll is available under the MIT license.<br>
+  The syntax highlighting style is
+  <a href="https://github.com/primer/github-textmate-theme">GitHub TextMate
+  dark theme</a>.
+  </footer>
  </body>
 </html>
