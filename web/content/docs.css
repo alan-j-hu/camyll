@@ -23,11 +23,11 @@ nav.sidebar {
   }
 
   main {
-    order: 0;
+    width: 100%;
   }
 
   nav.sidebar {
-    order: 1;
+    width: 100%;
   }
 }
 
