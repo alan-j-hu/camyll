@@ -65,22 +65,45 @@
       Configuration
      </h1>
      <p>
-      Camyll uses <a href="https://toml.io/en/">TOML</a> for configuration.
+      Camyll uses <a href="https://toml.io/en/">TOML</a> for configuration. A configuration file
+has the following format:
      </p>
-     <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory that contains the rendered site</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">dest_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
+     <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #c8e1ff;">dest_dir </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;"> </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #79b8ff;">
-</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The directory within the dest_dir that contains the rendered Literate Agda</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">agda_dir = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">agda_dir = "" </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #79b8ff;">
-</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> A list of globs of files to ignore</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">exclude = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string list</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">exclude = [] </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string list</span><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #79b8ff;">
-</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> A list of taxonomies. The name is the name of the taxonomy (e.g. "tags",</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> "categories"), and the template is the file used to generate the page for</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> an individual taxonomy list page.</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">taxonomies = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : { name : string; template : string } list</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">taxonomies = {} </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : { name : string; layout : string } list</span><span style="color: #959da5;">
 </span></span></code></pre>
+     <h2>
+      dest_dir
+     </h2>
+     <p>
+      <code>dest_dir</code> is the name of the directory that contains the rendered site.
+     </p>
+     <h2>
+      agda_dir
+     </h2>
+     <p>
+      <code>agda_dir</code> is the name of the directory (inside the destination directory) that
+contains the generated Literate Agda documentation for libraries.
+     </p>
+     <h2>
+      exclude
+     </h2>
+     <p>
+      <code>exclude</code> is a list of globs of files to ignore.
+     </p>
+     <h2>
+      taxonomies
+     </h2>
+     <p>
+      <code>taxonomies</code> is the list of <a href="taxonomies.html">taxonomies</a>. Each taxonomy
+contains the key <code>name</code>, which is its name, used in the URL, and the key
+<code>layout</code>, which is the name of the layout template to use to generate the page
+of an individual taxonomy term.
+     </p>
     </main>
    </div>
   </div>

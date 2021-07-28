@@ -72,7 +72,7 @@ between the <code>+++</code> is the page's <em>frontmatter</em>, which is writte
      </p>
      <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #c8e1ff;">+++
 </span></span><span class="sourceLine"><span style="color: #c8e1ff;">title = "Pages"
-</span></span><span class="sourceLine"><span style="color: #c8e1ff;">template = "main.jingoo"
+</span></span><span class="sourceLine"><span style="color: #c8e1ff;">layout = "main.jingoo"
 </span></span><span class="sourceLine"><span style="color: #c8e1ff;">+++
 </span></span><span class="sourceLine"><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #959da5;"># Pages
@@ -89,7 +89,7 @@ between the <code>+++</code> is the page's <em>frontmatter</em>, which is writte
       The frontmatter attributes that Camyll uses are:
      </p>
      <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> The Jingoo template to use</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">template = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
+</span></span><span class="sourceLine"><span style="color: #79b8ff;">layout = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #959da5;">#</span><span style="color: #959da5;"> A map from taxonomies to a list of taxonomy terms.</span><span style="color: #959da5;">
 </span></span><span class="sourceLine"><span style="color: #79b8ff;">taxonomies = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : { string -&gt; string list }</span><span style="color: #959da5;">
 </span></span></code></pre>
@@ -98,7 +98,7 @@ between the <code>+++</code> is the page's <em>frontmatter</em>, which is writte
 from the Jingoo template. An enhanced frontmatter could look like this:
      </p>
      <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #c8e1ff;">title </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">Introduction to OCaml</span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;">
-</span></span><span class="sourceLine"><span style="color: #c8e1ff;">template </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">post.jingoo</span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;">
+</span></span><span class="sourceLine"><span style="color: #c8e1ff;">layout </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;">"</span><span style="color: #959da5;">post.jingoo</span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;">
 </span></span><span class="sourceLine"><span style="color: #c8e1ff;">date </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;text-decoration: underline;">2021-01-05</span><span style="color: #79b8ff;">
 </span></span><span class="sourceLine"><span style="color: #79b8ff;">
 </span></span><span class="sourceLine"><span style="color: #959da5;">[</span><span style="color: #79b8ff;">taxonomies</span><span style="color: #959da5;">]</span><span style="color: #79b8ff;">
