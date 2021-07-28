@@ -1,6 +1,6 @@
 +++
 title = "Taxonomies"
-template = "docs.jingoo"
+layout = "docs.jingoo"
 +++
 
 # Taxonomies

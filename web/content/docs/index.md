@@ -1,6 +1,6 @@
 +++
 title = "Documentation"
-template = "docs.jingoo"
+layout = "docs.jingoo"
 +++
 
 # Documentation
@@ -22,8 +22,8 @@ A site directory should look like this:
 ├── config.toml
 ├── content/
 ├── grammars/
-├── partials/
-├── templates/
+├── includes/
+├── layouts/
 └── theme.tmTheme
 ```
 
@@ -31,8 +31,8 @@ A site directory should look like this:
 - `content/` is a directory that contains the site content to be transformed.
 - `grammars/` is a directory that contains the TextMate grammars used for
   syntax highlighting.
-- `partials/` is a directory that contains partial templates that may be
+- `includes/` is a directory that contains partial templates that may be
   included in other templates.
-- `templates/` is a directory that contains whole-page templates.
+- `layouts/` is a directory that contains whole-page templates.
 - `theme.tmTheme` is a file that contains the TextMate theme used for syntax
   highlighting.

@@ -20,7 +20,7 @@ and dir = {
 }
 
 type taxonomy = {
-  template : string;
+  layout : string;
   items : (string, Jg_types.tvalue list) Hashtbl.t;
 }
 
@@ -271,7 +271,7 @@ let render_from_file models url path =
     { Jg_types.std_env with
       autoescape = false
     ; strict_mode = true
-    ; template_dirs = ["partials"]
+    ; template_dirs = ["includes"]
     ; filters =
         [ "format_date"
         , Jg_types.func_arg2_no_kw (fun format date ->
@@ -286,7 +286,7 @@ let render_from_file models url path =
         ]
     }
   in
-  let path = Filename.concat "templates" path in
+  let path = Filename.concat "layouts" path in
   let print_err e = failwith (path ^ ": " ^ url ^ ":" ^ e) in
   try Jg_template.from_file ~env ~models path with
   | Failure e -> failwith (print_err e)
@@ -294,7 +294,7 @@ let render_from_file models url path =
   | Jingoo.Jg_types.SyntaxError e -> failwith (print_err e)
 
 let render_page pages url page =
-  match Toml.Lenses.(get page.frontmatter (key "template" |-- string)) with
+  match Toml.Lenses.(get page.frontmatter (key "layout" |-- string)) with
   | None -> page.content
   | Some path ->
     let models =
@@ -401,7 +401,7 @@ let build_taxonomy t name taxonomy =
         [ "pages", Jg_types.Tlist pages
         ; "name", Jg_types.Tstr tag_name ]
         output_path
-        taxonomy.template
+        taxonomy.layout
     in
     let output = Soup.parse content in
     correct_agda_urls t output;
@@ -460,7 +460,7 @@ let build_with_config config =
   Filesystem.remove_dir t.config.Config.dest_dir;
   config.Config.taxonomies |> List.iter begin fun taxonomy ->
     Hashtbl.add t.taxonomies taxonomy.Config.name
-      { template = taxonomy.Config.template
+      { layout = taxonomy.Config.layout
       ; items = Hashtbl.create 11 }
   end;
   let dir = load_dir t [] in

@@ -1,4 +1,4 @@
 +++
 title = "Posts"
-template = "posts.jingoo"
+layout = "posts.jingoo"
 +++

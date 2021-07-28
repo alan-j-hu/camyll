@@ -1,6 +1,6 @@
 +++
 title = "Agda"
-template = "main.jingoo"
+layout = "main.jingoo"
 +++
 
 Hello Agda!

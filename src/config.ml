@@ -1,6 +1,6 @@
 type taxonomy = {
   name : string;
-  template : string;
+  layout : string;
 }
 
 type t = {
@@ -39,8 +39,8 @@ let rec mapM f = function
 let taxonomy_of_toml toml =
   let open Toml.Lenses in
   let+ name = get toml (key "name" |-- string)
-  and+ template = get toml (key "template" |-- string) in
-  { name; template }
+  and+ layout = get toml (key "layout" |-- string) in
+  { name; layout }
 
 let of_toml toml =
   let open Toml.Lenses in

@@ -1,6 +1,6 @@
 +++
 title = "Configuration"
-template = "docs.jingoo"
+layout = "docs.jingoo"
 +++
 
 # Configuration
