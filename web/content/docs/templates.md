@@ -7,7 +7,10 @@ layout = "docs.jingoo"
 
 Camyll uses the [Jingoo](
 http://tategakibunko.github.io/jingoo/templates/templates.en.html) templating
-engine.
+engine. Camyll has two types of templates:
+
+- Layouts, which are whole-page templates.
+- Includes, which are partial templates that are included in other templates.
 
 ## Built-ins
 

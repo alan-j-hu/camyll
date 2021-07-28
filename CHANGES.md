@@ -1,4 +1,4 @@
-## 0.3.0 (July 27, 2020)
+## 0.3.0 (July 28, 2020)
 
 - Validate colors from TextMate themes.
 - Implement other theme attributes.
