@@ -1,3 +1,5 @@
+module Otoml = Otoml_impl.T
+
 open Jingoo
 
 type name =
@@ -5,7 +7,7 @@ type name =
   | Name of string
 
 type page = {
-  frontmatter : Toml.Types.table;
+  frontmatter : Otoml.t;
   content : string;
 }
 
@@ -44,35 +46,21 @@ let slugify str =
   Buffer.contents buf
 
 let rec jingoo_of_tomlvalue = function
-  | Toml.Types.TBool b -> Jg_types.Tbool b
-  | Toml.Types.TInt i -> Jg_types.Tint i
-  | Toml.Types.TFloat f -> Jg_types.Tfloat f
-  | Toml.Types.TString s -> Jg_types.Tstr s
-  | Toml.Types.TDate d -> Jg_types.Tfloat d
-  | Toml.Types.TArray a -> jingoo_of_tomlarray a
-  | Toml.Types.TTable t -> jingoo_of_tomltable t
-
-and jingoo_of_tomlarray = function
-  | Toml.Types.NodeEmpty -> Jg_types.Tlist []
-  | Toml.Types.NodeBool bs -> Jg_types.Tlist (List.map Jg_types.box_bool bs)
-  | Toml.Types.NodeInt is -> Jg_types.Tlist (List.map Jg_types.box_int is)
-  | Toml.Types.NodeFloat fs -> Jg_types.Tlist (List.map Jg_types.box_float fs)
-  | Toml.Types.NodeString ss -> Jg_types.Tlist (List.map Jg_types.box_string ss)
-  | Toml.Types.NodeDate ds -> Jg_types.Tlist (List.map Jg_types.box_float ds)
-  | Toml.Types.NodeArray ars ->
-    Jg_types.Tlist (List.map jingoo_of_tomlarray ars)
-  | Toml.Types.NodeTable tbls ->
-    Jg_types.Tlist (List.map jingoo_of_tomltable tbls)
-
-and jingoo_of_tomltable table =
-  Jg_types.Tobj (Toml.Types.Table.fold (fun k v acc ->
-      (Toml.Types.Table.Key.to_string k, jingoo_of_tomlvalue v) :: acc
-    ) table [])
+  | Otoml.TomlBoolean b -> Jg_types.Tbool b
+  | Otoml.TomlInteger i -> Jg_types.Tint i
+  | Otoml.TomlFloat f -> Jg_types.Tfloat f
+  | Otoml.TomlString s -> Jg_types.Tstr s
+  | Otoml.TomlLocalDateTime d | Otoml.TomlOffsetDateTime d
+  | Otoml.TomlLocalDate d | Otoml.TomlLocalTime d -> Jg_types.Tfloat d
+  | Otoml.TomlArray a | Otoml.TomlTableArray a ->
+    Jg_types.Tlist (List.map jingoo_of_tomlvalue a)
+  | Otoml.TomlTable t | Otoml.TomlInlineTable t ->
+    Jg_types.Tobj (List.map (fun (k, v) -> (k, jingoo_of_tomlvalue v)) t)
 
 let jingoo_of_page url page =
   Jg_types.Tobj
     [ ("url", Jg_types.Tstr url)
-    ; ("frontmatter", jingoo_of_tomltable page.frontmatter) ]
+    ; ("frontmatter", jingoo_of_tomlvalue page.frontmatter) ]
 
 (* Add the Jingoo data to the taxonomy under the specified name. *)
 let add_taxonomy t taxonomy name data =
@@ -85,18 +73,20 @@ let add_taxonomy t taxonomy name data =
     | Some items -> Hashtbl.replace taxonomy.items name (data :: items)
 
 let add_taxonomies t url page =
-  let open Toml.Lenses in
-  let open Toml.Types in
-  match get page.frontmatter (key "taxonomies" |-- table) with
+  let get_string_array v =
+    try Some (Otoml.get_array Otoml.get_string v)
+    with _ -> None
+  in
+  match Otoml.find_opt page.frontmatter Otoml.get_table ["taxonomies"] with
   | None -> ()
   | Some taxonomies ->
-    taxonomies |> Table.iter begin fun taxonomy v ->
-      match get v (array |-- strings) with
+    taxonomies |> List.iter begin fun (taxonomy, v) ->
+      match get_string_array v with
       | None -> failwith "Expected an array of strings"
       | Some tags ->
         tags |> List.iter begin fun tag ->
           let jingoo = jingoo_of_page url page in
-          add_taxonomy t (Table.Key.to_string taxonomy) tag jingoo
+          add_taxonomy t taxonomy tag jingoo
         end
     end
 
@@ -117,9 +107,9 @@ let parse_frontmatter chan =
         )
       in
       loop ();
-      match Toml.Parser.from_string (Buffer.contents buf) with
-      | `Ok toml -> toml
-      | `Error(e, _) -> failwith e
+      match Otoml.Parser.from_string_result (Buffer.contents buf) with
+      | Ok toml -> toml
+      | Error e -> failwith e
     else failwith "Missing ending frontmatter!"
   with End_of_file -> failwith "Missing frontmatter!"
 
@@ -294,13 +284,13 @@ let render_from_file models url path =
   | Jingoo.Jg_types.SyntaxError e -> failwith (print_err e)
 
 let render_page pages url page =
-  match Toml.Lenses.(get page.frontmatter (key "layout" |-- string)) with
+  match Otoml.find_opt page.frontmatter Otoml.get_string ["layout"] with
   | None -> page.content
   | Some path ->
     let models =
       [ "content", Jg_types.Tstr page.content
       ; "pages", Jg_types.Tlist pages
-      ; "frontmatter", jingoo_of_tomltable page.frontmatter ]
+      ; "frontmatter", jingoo_of_tomlvalue page.frontmatter ]
     in
     render_from_file models url path
 
