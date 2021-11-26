@@ -1,6 +1,6 @@
 ## 0.4.0 (Unreleased)
 
-- Switch from To.ml to OTOML library (#1).
+- Switch from To.ml to OTOML library (#1, Daniil Baturin).
 
 ## 0.3.0 (July 28, 2020)
 

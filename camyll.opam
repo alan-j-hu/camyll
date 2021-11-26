@@ -29,10 +29,10 @@ depends: [
   "markup" {>= "0.8" & < "2.0"}
   "ocaml" {>= "4.12"}
   "omd" {= "2.0.0~alpha2"}
+  "otoml" {>= "0.9.3"}
   "plist-xml" {< "0.4"}
   "re" {>= "1.9" & < "2.0"}
   "textmate-language" {>= "0.3.1" & < "0.4"}
-  "otoml" {>= "0.9.3"}
   "uri" {>= "4.2" & < "5"}
   "odoc" {with-doc}
 ]
