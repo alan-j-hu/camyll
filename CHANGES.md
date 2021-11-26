@@ -1,6 +1,7 @@
 ## 0.4.0 (Unreleased)
 
 - Switch from To.ml to OTOML library (#1, Daniil Baturin).
+- Close a leaked file handle.
 
 ## 0.3.0 (July 28, 2020)
 

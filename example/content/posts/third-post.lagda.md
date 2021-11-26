@@ -10,7 +10,7 @@ tags = ["foo", "bar baz"]
 
 Hello Agda!
 
-```
+```agda
 module posts.third-post where
 
 open import Data.Nat using (ℕ; zero; suc)

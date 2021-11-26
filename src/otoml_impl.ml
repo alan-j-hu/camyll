@@ -14,6 +14,4 @@ module ISODate = struct
   let offset_datetime_to_string = ISO8601.Permissive.string_of_datetime
 end
 
-module T = Otoml.Base.Make (Otoml.Base.OCamlNumber) (ISODate)
-
-
+module T = Otoml.Base.Make(Otoml.Base.OCamlNumber)(ISODate)

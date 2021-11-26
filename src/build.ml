@@ -85,7 +85,7 @@ let add_taxonomies t url page =
         end
     end
 
-(* Try to parse YAML frontmatter from the channel. *)
+(* Try to parse TOML frontmatter from the channel. *)
 let parse_frontmatter chan =
   try
     let line = input_line chan in
@@ -413,7 +413,7 @@ let build_with_config config =
           let path = Filename.concat "grammars" name in
           try
             let lang =
-              path |> Filesystem.with_in begin fun chan ->
+              path |> with_in_smart begin fun chan ->
                 Markup.channel chan
                 |> Plist_xml.parse_exn
                 |> TmLanguage.of_plist_exn
@@ -427,11 +427,12 @@ let build_with_config config =
   end;
   let tm_theme =
     if Sys.file_exists "theme.tmTheme" then
-      Some ("theme.tmTheme"
-            |> open_in
-            |> Markup.channel
-            |> Plist_xml.parse_exn
-            |> Highlight.theme_of_plist)
+      Some ("theme.tmTheme" |> with_in_smart begin fun chan ->
+          chan
+          |> Markup.channel
+          |> Plist_xml.parse_exn
+          |> Highlight.theme_of_plist
+        end)
     else
       None
   in
