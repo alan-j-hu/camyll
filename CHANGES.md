@@ -1,3 +1,7 @@
+## 0.4.0 (Unreleased)
+
+- Switch from To.ml to OTOML library (#1).
+
 ## 0.3.0 (July 28, 2020)
 
 - Validate colors from TextMate themes.
