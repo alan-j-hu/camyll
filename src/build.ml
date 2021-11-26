@@ -73,20 +73,15 @@ let add_taxonomy t taxonomy name data =
     | Some items -> Hashtbl.replace taxonomy.items name (data :: items)
 
 let add_taxonomies t url page =
-  let get_string_array v =
-    try Some (Otoml.get_array Otoml.get_string v)
-    with _ -> None
-  in
   match Otoml.find_opt page.frontmatter Otoml.get_table ["taxonomies"] with
   | None -> ()
   | Some taxonomies ->
     taxonomies |> List.iter begin fun (taxonomy, v) ->
-      match get_string_array v with
-      | None -> failwith "Expected an array of strings"
-      | Some tags ->
+      match Otoml.get_array Otoml.get_string v with
+      | exception Otoml.Type_error _ -> failwith "Expected an array of strings"
+      | tags ->
         tags |> List.iter begin fun tag ->
-          let jingoo = jingoo_of_page url page in
-          add_taxonomy t taxonomy tag jingoo
+          add_taxonomy t taxonomy tag (jingoo_of_page url page)
         end
     end
 
