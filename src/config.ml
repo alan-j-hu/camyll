@@ -59,7 +59,7 @@ let of_toml toml =
 let with_config f =
   let config =
     match Otoml.Parser.from_file_result "config.toml" with
-    | Error(e) -> failwith e
+    | Error e -> failwith e
     | Ok toml ->
       match of_toml toml with
       | Some config -> config
