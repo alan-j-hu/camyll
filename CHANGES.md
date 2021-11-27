@@ -2,6 +2,7 @@
 
 - Switch from To.ml to OTOML library (#1, Daniil Baturin).
 - Close a leaked file handle.
+- Use `slug` library instead of handrolled function for generating slugs.
 
 ## 0.3.0 (July 28, 2020)
 

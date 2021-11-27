@@ -2,4 +2,4 @@
  (name camyll)
  (libraries
   calendar httpaf httpaf-lwt-unix jingoo lambdasoup lwt omd otoml plist-xml re
-  textmate-language uri ISO8601))
+  slug textmate-language uri ISO8601))

@@ -34,17 +34,6 @@ type t = {
   agda_links : (string list, string list) Hashtbl.t;
 }
 
-let slugify str =
-  let buf = Buffer.create (String.length str) in
-  str |> String.iter begin function
-    | ' ' -> Buffer.add_char buf '-'
-    | '/' -> Buffer.add_string buf "--"
-    | 'A' .. 'Z' as ch -> Buffer.add_char buf (Char.chr (Char.code ch + 32))
-    | 'a' .. 'z' | '-' | '_' as ch -> Buffer.add_char buf ch
-    | _ -> ()
-  end;
-  Buffer.contents buf
-
 let rec jingoo_of_tomlvalue = function
   | Otoml.TomlBoolean b -> Jg_types.Tbool b
   | Otoml.TomlInteger i -> Jg_types.Tint i
@@ -63,11 +52,11 @@ let jingoo_of_page url page =
     ; ("frontmatter", jingoo_of_tomlvalue page.frontmatter) ]
 
 (* Add the Jingoo data to the taxonomy under the specified name. *)
-let add_taxonomy t taxonomy name data =
+let add_tag t taxonomy name data =
   match Hashtbl.find_opt t.taxonomies taxonomy with
   | None -> failwith ("Taxonomy " ^ taxonomy ^ " not defined")
   | Some taxonomy ->
-    let name = slugify name in
+    let name = Slug.slugify name in
     match Hashtbl.find_opt taxonomy.items name with
     | None -> Hashtbl.add taxonomy.items name [data]
     | Some items -> Hashtbl.replace taxonomy.items name (data :: items)
@@ -81,7 +70,7 @@ let add_taxonomies t url page =
       | exception Otoml.Type_error _ -> failwith "Expected an array of strings"
       | tags ->
         tags |> List.iter begin fun tag ->
-          add_taxonomy t taxonomy tag (jingoo_of_page url page)
+          add_tag t taxonomy tag (jingoo_of_page url page)
         end
     end
 
@@ -267,7 +256,7 @@ let render_from_file models url path =
                    (Date.from_unixfloat (Jg_types.unbox_float date))))
         ; "slugify"
         , Jg_types.func_arg1_no_kw (fun str ->
-              Jg_types.Tstr (slugify (Jg_types.unbox_string str)))
+              Jg_types.Tstr (Slug.slugify (Jg_types.unbox_string str)))
         ]
     }
   in
@@ -378,19 +367,18 @@ let rec compile_dir t root url_prefix { dir_page; children } =
 let build_taxonomy t name taxonomy =
   let dir = Filename.concat t.config.Config.dest_dir name in
   Filesystem.touch_dir dir;
-  taxonomy.items |> Hashtbl.iter begin fun tag_name pages ->
-    let slugified = slugify tag_name in
-    let output_path = Filename.concat dir slugified  ^ ".html" in
+  taxonomy.items |> Hashtbl.iter begin fun slugified_tag pages ->
+    let output_path = Filename.concat dir slugified_tag  ^ ".html" in
     let content =
       render_from_file
         [ "pages", Jg_types.Tlist pages
-        ; "name", Jg_types.Tstr tag_name ]
+        ; "name", Jg_types.Tstr slugified_tag ]
         output_path
         taxonomy.layout
     in
     let output = Soup.parse content in
     correct_agda_urls t output;
-    let url = "/" ^ name ^ "/" ^ slugified ^ ".html" in
+    let url = "/" ^ name ^ "/" ^ slugified_tag ^ ".html" in
     relativize_urls url output;
     output_path |> Filesystem.with_out begin fun out_chan ->
       output_string out_chan (Soup.pretty_print output)
