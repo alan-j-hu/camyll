@@ -1,4 +1,4 @@
-## 0.4.0 (Unreleased)
+## 0.4.0 (November 28, 2021)
 
 - Switch from To.ml to OTOML library (#1, Daniil Baturin).
 - Close a leaked file handle.
