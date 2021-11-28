@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        ocaml-version:
+        ocaml-compiler:
           - 4.12.x
           - 4.13.x
     steps:
