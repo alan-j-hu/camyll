@@ -8,12 +8,13 @@ jobs:
     strategy:
       matrix:
         ocaml-version:
-          - 4.12.0
+          - 4.12.x
+          - 4.13.x
     steps:
       - uses: actions/checkout@v2
-      - uses: avsm/setup-ocaml@v1
+      - uses: avsm/setup-ocaml@v2
         with:
-          ocaml-version: ${{ matrix.ocaml-version }}
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
       - name: Update path
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
