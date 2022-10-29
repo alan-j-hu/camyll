@@ -22,6 +22,7 @@ depends: [
   "angstrom" {>= "0.15" & < "0.16"}
   "calendar" {>= "2.01" & < "4"}
   "cmdliner" {>= "1.1" & < "2"}
+  "ezjsonm" {>= "1.3" & < "2"}
   "httpaf" {>= "0.7.1" & < "0.8"}
   "httpaf-lwt-unix" {>= "0.7.1" & < "0.8"}
   "jingoo" {>= "1.4" & < "2"}
@@ -35,6 +36,7 @@ depends: [
   "slug" {>= "1.0" & < "2"}
   "textmate-language" {>= "0.3.1" & < "0.4"}
   "uri" {>= "4.2" & < "5"}
+  "yaml" {>= "3.1" & < "4"}
   "odoc" {with-doc}
 ]
 build: [

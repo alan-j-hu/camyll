@@ -402,9 +402,26 @@ let build_with_config config =
           try
             let lang =
               path |> with_in_smart begin fun chan ->
-                Markup.channel chan
-                |> Plist_xml.parse_exn
-                |> TmLanguage.of_plist_exn
+                match Filename.extension name with
+                | ".plist" | ".tmLanguage" ->
+                  chan
+                  |> Markup.channel
+                  |> Plist_xml.parse_exn
+                  |> TmLanguage.of_plist_exn
+                | ".json" ->
+                  chan
+                  |> Ezjsonm.from_channel
+                  |> TmLanguage.of_ezjsonm_exn
+                | ".yaml" | ".YAML-tmLanguage" ->
+                  chan
+                  |> Filesystem.read_bytes
+                  |> Yaml.of_string_exn
+                  |> TmLanguage.of_ezjsonm_exn
+                | ext ->
+                  failwith
+                    ("Unsupported syntax extension " ^ ext
+                     ^ ": .plist / .tmLanguage, .json, "
+                     ^ "and .yaml / .YAML-tmLanguage are supported")
               end
             in
             TmLanguage.add_grammar langs lang
