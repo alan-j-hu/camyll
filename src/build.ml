@@ -428,6 +428,9 @@ let build_with_config config =
           with
           | Oniguruma.Error s -> failwith (path ^ ": Oniguruma: " ^ s)
           | Plist_xml.Parse_error s -> failwith (path ^ ": " ^ s)
+          | Ezjsonm.Parse_error(_, s) -> failwith (path ^ ": " ^ s)
+          | Invalid_argument s -> failwith (path ^ ": " ^ s)
+          | TmLanguage.Error s -> failwith (path ^ ": " ^ s)
       end
   end;
   let tm_theme =
