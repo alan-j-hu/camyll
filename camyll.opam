@@ -20,8 +20,8 @@ bug-reports: "https://github.com/alan-j-hu/camyll/issues"
 depends: [
   "dune" {>= "2.7"}
   "angstrom" {>= "0.15" & < "0.16"}
-  "calendar" {>= "2.01" & < "3"}
-  "cmdliner" {>= "1.0" & < "2"}
+  "calendar" {>= "2.01" & < "4"}
+  "cmdliner" {>= "1.1" & < "2"}
   "httpaf" {>= "0.7.1" & < "0.8"}
   "httpaf-lwt-unix" {>= "0.7.1" & < "0.8"}
   "jingoo" {>= "1.4" & < "2"}

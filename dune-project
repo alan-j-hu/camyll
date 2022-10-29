@@ -23,8 +23,8 @@ Features:
  (tags (blog web website))
  (depends
   (angstrom (and (>= 0.15) (< 0.16)))
-  (calendar (and (>= 2.01) (< 3)))
-  (cmdliner (and (>= 1.0) (< 2)))
+  (calendar (and (>= 2.01) (< 4)))
+  (cmdliner (and (>= 1.1) (< 2)))
   (httpaf (and (>= 0.7.1) (< 0.8)))
   (httpaf-lwt-unix (and (>= 0.7.1) (< 0.8)))
   (jingoo (and (>= 1.4) (< 2)))
