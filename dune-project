@@ -1,6 +1,5 @@
 (lang dune 2.7)
 (name camyll)
-(version 0.2.0)
 (generate_opam_files true)
 
 (license MIT)
@@ -37,6 +36,6 @@ Features:
   (plist-xml (< 0.4))
   (re (and (>= 1.9) (< 2)))
   (slug (and (>= 1.0) (< 2)))
-  (textmate-language (and (>= 0.3.1) (< 0.4)))
+  (textmate-language (and (>= 0.3.2) (< 0.4)))
   (uri (and (>= 4.2) (< 5)))
   (yaml (and (>= 3.1) (< 4)))))

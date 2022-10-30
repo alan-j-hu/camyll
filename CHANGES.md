@@ -1,3 +1,10 @@
+## 0.4.1 (October 29, 2022)
+
+- Upgrade `calendar`, `cmdliner`, and `textmate-language` dependencies and
+  replace usage of deprecated `cmdliner` API.
+- Catch stray exceptions.
+- Support JSON and YAML grammar files.
+
 ## 0.4.0 (November 28, 2021)
 
 - Switch from To.ml to OTOML library (#1, Daniil Baturin).
