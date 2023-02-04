@@ -1,3 +1,8 @@
+## 0.4.2 (February 4, 2023)
+
+- Remove dependency on `lambdasoup`, allowing Camyll to build on OCaml 5
+- Use `In_channel` and `Out_channel` modules, requiring OCaml 4.14 or higher
+
 ## 0.4.1 (October 29, 2022)
 
 - Upgrade `calendar`, `cmdliner`, and `textmate-language` dependencies and
