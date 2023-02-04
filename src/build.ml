@@ -116,13 +116,13 @@ let highlight t theme =
 let process_md t chan =
   match t.tm_theme with
   | Some theme ->
-    Omd.to_html
-      (highlight t theme (Omd.of_string (Filesystem.read_lines chan)))
-  | None -> Omd.to_html (Omd.of_string (Filesystem.read_lines chan))
+    Omd.to_html (highlight t theme (Omd.of_string (In_channel.input_all chan)))
+  | None -> Omd.to_html (Omd.of_string (In_channel.input_all chan))
 
 (* Intercepts [Failure _] exceptions to report the file name. *)
 let with_in_smart f path =
-  try Filesystem.with_in f path with Failure e -> failwith (path ^ ": " ^ e)
+  try In_channel.with_open_text path f
+  with Failure e -> failwith (path ^ ": " ^ e)
 
 let get_agda_module_name line =
   let open Angstrom in
@@ -155,7 +155,7 @@ let dispatch t dir name =
     read_path
     |> with_in_smart (fun chan ->
            let frontmatter = parse_frontmatter chan in
-           (Index, Page { frontmatter; content = Filesystem.read_lines chan }))
+           (Index, Page { frontmatter; content = In_channel.input_all chan }))
   | [ "index"; "md" ] ->
     read_path
     |> with_in_smart (fun chan ->
@@ -211,9 +211,8 @@ let dispatch t dir name =
            let frontmatter = parse_frontmatter chan in
            (Name name, Page { frontmatter; content = process_md t chan }))
   | _ ->
-    read_path
-    |> Filesystem.with_in_bin (fun chan ->
-           (Name name, Bin (Filesystem.read_bytes chan)))
+    In_channel.with_open_bin read_path (fun chan ->
+        (Name name, Bin (In_channel.input_all chan)))
 
 let map_attr p f =
   let rec loop p f acc = function
@@ -333,7 +332,8 @@ let compile_page t siblings path url page =
   let content = render_page siblings url page in
   add_taxonomies t url page;
   let output = pipeline t url content in
-  path |> Filesystem.with_out (fun out_chan -> output_string out_chan output)
+  Out_channel.with_open_text path (fun out_chan ->
+      output_string out_chan output)
 
 let rec load_dir t dir =
   let read_dir = source_dir dir in
@@ -386,7 +386,7 @@ let rec compile_dir t root url_prefix { dir_page; children } =
          match item with
          | Bin data ->
            let dest = Filename.concat root name in
-           Filesystem.with_out_bin (Fun.flip output_string data) dest
+           Out_channel.with_open_bin dest (Fun.flip output_string data)
          | Dir subdir ->
            compile_dir t
              (Filename.concat root name)
@@ -416,8 +416,8 @@ let build_taxonomy t name taxonomy =
          in
          let url = "/" ^ name ^ "/" ^ slugified_tag ^ ".html" in
          let output = pipeline t url content in
-         output_path
-         |> Filesystem.with_out (fun out_chan -> output_string out_chan output))
+         Out_channel.with_open_text output_path (fun out_chan ->
+             output_string out_chan output))
 
 let build_taxonomies t = Hashtbl.iter (build_taxonomy t) t.taxonomies
 
@@ -444,7 +444,7 @@ let build_with_config config =
                           chan |> Ezjsonm.from_channel
                           |> TmLanguage.of_ezjsonm_exn
                         | ".yaml" | ".YAML-tmLanguage" ->
-                          chan |> Filesystem.read_bytes |> Yaml.of_string_exn
+                          chan |> In_channel.input_all |> Yaml.of_string_exn
                           |> TmLanguage.of_ezjsonm_exn
                         | ext ->
                           failwith

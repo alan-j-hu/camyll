@@ -26,7 +26,7 @@ depends: [
   "httpaf-lwt-unix" {>= "0.7.1" & < "0.8"}
   "jingoo" {>= "1.4" & < "2"}
   "markup" {>= "0.8" & < "2"}
-  "ocaml" {>= "4.12"}
+  "ocaml" {>= "4.14"}
   "omd" {= "2.0.0~alpha2"}
   "otoml" {>= "0.9.3"}
   "plist-xml" {< "0.4"}

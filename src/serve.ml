@@ -9,8 +9,8 @@ let serve_file config path =
   try
     if Sys.is_directory path then
       let path = Filename.concat path "index.html" in
-      Some (Filesystem.read_bin path)
-    else Some (Filesystem.read_bin path)
+      Some (In_channel.with_open_bin path In_channel.input_all)
+    else Some (In_channel.with_open_bin path In_channel.input_all)
   with Sys_error _ -> None
 
 let request_handler config _ reqd =
