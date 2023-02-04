@@ -38,7 +38,7 @@
           </ul>
         </nav>
         <main>
-          <h1>Pages</h1>
+          <h1 id="pages">Pages</h1>
 <p><em>Pages</em> are files that have a one-to-one mapping with the webpages of the
 generated site. At the top of a page, there must be a pair of <code>+++</code>s. In
 between the <code>+++</code> is the page's <em>frontmatter</em>, which is written in
@@ -54,7 +54,7 @@ between the <code>+++</code> is the page's <em>frontmatter</em>, which is writte
 </span><span class="sourceLine"></span><span style="color: #c8e1ff;">generated site. At the top of a page, there must be a pair of `+++`s. In
 </span><span class="sourceLine"></span><span style="color: #c8e1ff;">between the `+++` is the page's *frontmatter*, which is written in
 </span><span class="sourceLine"></span><span style="color: #c8e1ff;">[TOML](https://toml.io/en/). For example:
-</span><span class="sourceLine"></span></pre><h2>Frontmatter</h2>
+</span><span class="sourceLine"></span></pre><h2 id="frontmatter">Frontmatter</h2>
 <p>The frontmatter attributes that Camyll uses are:</p>
 <pre style="color: #f6f8fa;background: #24292e;"><code></code><span style="color: #959da5;">#</span><span style="color: #959da5;"> The Jingoo template to use</span><span style="color: #959da5;">
 </span><span class="sourceLine"></span><span style="color: #79b8ff;">layout = </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
@@ -73,7 +73,7 @@ from the Jingoo template. An enhanced frontmatter could look like this:</p>
 template "post.jingoo", belongs to category "Programming", and has tags "OCaml"
 and "Functional programming". In addition, the page has a title of "Introduction
 to OCaml" and an associated date of January 5th, 2021.</p>
-<h2>File Extensions</h2>
+<h2 id="file-extensions">File Extensions</h2>
 <p>The file extension of a page determines how Camyll handles it. The supported
 file extensions are:</p>
 <ul>

@@ -38,7 +38,7 @@
           </ul>
         </nav>
         <main>
-          <h1>Templates</h1>
+          <h1 id="templates">Templates</h1>
 <p>Camyll uses the <a href="http://tategakibunko.github.io/jingoo/templates/templates.en.html">Jingoo</a> templating
 engine. Camyll has two types of templates:</p>
 <ul>
@@ -47,7 +47,7 @@ engine. Camyll has two types of templates:</p>
 <li>Includes, which are partial templates that are included in other templates.
 </li>
 </ul>
-<h2>Built-ins</h2>
+<h2 id="built-ins">Built-ins</h2>
 <p>In addition to the functions provided by Jingoo, Camyll offers two additional
 built-in functions:</p>
 <p><code>format_date(format : string, date : float) : string</code></p>
@@ -57,7 +57,7 @@ which itself closely follows the Unix <code>date</code> command.</p>
 <p><code>slugify(str : string) : string</code></p>
 <p>"Slugifies" a string for use in a URL, consistent with Camyll's internal slugify
 operation. This function is useful for getting the URL of a tag page.</p>
-<h2>Pages</h2>
+<h2 id="pages">Pages</h2>
 <p>Individual pages have the following names in scope:</p>
 <ul>
 <li><code>content</code> - The content of the page, expressed in HTML.

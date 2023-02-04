@@ -38,7 +38,7 @@
           </ul>
         </nav>
         <main>
-          <h1>Configuration</h1>
+          <h1 id="configuration">Configuration</h1>
 <p>Camyll uses <a href="https://toml.io/en/">TOML</a> for configuration. A configuration file
 has the following format:</p>
 <pre style="color: #f6f8fa;background: #24292e;"><code></code><span style="color: #c8e1ff;">dest_dir</span><span style="color: #79b8ff;"> </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;"> </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
@@ -48,14 +48,14 @@ has the following format:</p>
 </span><span class="sourceLine"></span><span style="color: #79b8ff;">exclude = [] </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string list</span><span style="color: #959da5;">
 </span><span class="sourceLine"></span><span style="color: #79b8ff;">
 </span><span class="sourceLine"></span><span style="color: #79b8ff;">taxonomies = {} </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : { name : string; layout : string } list</span><span style="color: #959da5;">
-</span><span class="sourceLine"></span></pre><h2>dest_dir</h2>
+</span><span class="sourceLine"></span></pre><h2 id="dest_dir">dest_dir</h2>
 <p><code>dest_dir</code> is the name of the directory that contains the rendered site.</p>
-<h2>agda_dir</h2>
+<h2 id="agda_dir">agda_dir</h2>
 <p><code>agda_dir</code> is the name of the directory (inside the destination directory) that
 contains the generated Literate Agda documentation for libraries.</p>
-<h2>exclude</h2>
+<h2 id="exclude">exclude</h2>
 <p><code>exclude</code> is a list of globs of files to ignore.</p>
-<h2>taxonomies</h2>
+<h2 id="taxonomies">taxonomies</h2>
 <p><code>taxonomies</code> is the list of <a href="taxonomies.html">taxonomies</a>. Each taxonomy
 contains the key <code>name</code>, which is its name, used in the URL, and the key
 <code>layout</code>, which is the name of the layout template to use to generate the page
