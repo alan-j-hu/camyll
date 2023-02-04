@@ -1,5 +1,3 @@
-type exists_node = Node : 'a Soup.node -> exists_node
-
 type scope = string list
 
 type scope_stack = scope list
@@ -186,7 +184,7 @@ let style_of_token (token : token) =
   in
   color ^ background ^ style ^ weight ^ decoration
 
-let create_node theme scopes i j line =
+let create_signals theme scopes i j line : Markup.signal list =
   assert (j > i);
   let inner_text = String.sub line i (j - i) in
   let scopes = List.map (String.split_on_char '.') scopes in
@@ -214,34 +212,28 @@ let create_node theme scopes i j line =
   in
   match token with
   | Some token ->
-    Node
-      (Soup.create_element
-         "span"
-         ~attributes:["style", style_of_token token]
-         ~inner_text)
-  | None -> Node (Soup.create_text inner_text)
+    [ `Start_element(("", "span"), [("", "style"), style_of_token token])
+    ; `Text [inner_text]
+    ; `End_element ]
+  | None -> [`Text [inner_text]]
 
-let rec highlight_tokens theme i acc line = function
-  | [] -> List.rev acc
+let rec highlight_tokens theme i rev line = function
+  | [] -> rev
   | tok :: toks ->
     let j = TmLanguage.ending tok in
-    let span = create_node theme (TmLanguage.scopes tok) i j line in
-    highlight_tokens theme j (span :: acc) line toks
+    let signals = create_signals theme (TmLanguage.scopes tok) i j line in
+    highlight_tokens theme j (List.rev_append signals rev) line toks
 
-let highlight_line langs grammar theme stack line =
-  let tokens, stack = TmLanguage.tokenize_exn langs grammar stack line in
-  let nodes = highlight_tokens theme 0 [] line tokens in
-  let span = Soup.create_element "span" ~class_:"sourceLine" in
-  List.iter (fun (Node node) -> Soup.append_child span node) nodes;
-  span, stack
-
-(* Maps over the list while keeping track of some state.
-   Discards the state at the end because I don't need it. *)
-let rec map_fold f acc = function
-  | [] -> []
-  | x :: xs ->
-    let y, acc = f acc x in
-    y :: map_fold f acc xs
+let rec highlight_lines langs grammar theme stack rev lines =
+  match lines with
+  | [] -> rev
+  | line :: lines ->
+    let tokens, stack = TmLanguage.tokenize_exn langs grammar stack line in
+    let rev = highlight_tokens theme 0 (`End_element :: rev) line tokens in
+    let rev =
+      `Start_element(("", "span"), [("", "class"), "sourceLine"]) :: rev
+    in
+    highlight_lines langs grammar theme stack rev lines
 
 (* Splits a string into lines, keeping the newline at the end. Assumes that
    the string ends with a newline. *)
@@ -254,7 +246,7 @@ let lines s =
   loop [] 0
 
 (* Applies a theme to a list of spans. *)
-let theme_spans theme spans =
+let theme_spans theme =
   let color =
     match theme.foreground with
     | None -> ""
@@ -266,26 +258,22 @@ let theme_spans theme spans =
     | Some background -> "background: " ^ background ^ ";"
   in
   let style = color ^ background in
-  let code = Soup.create_element "code" in
-  List.iter (Soup.append_child code) spans;
-  let pre = Soup.create_element "pre" ~attributes:["style", style] in
-  Soup.append_child pre code;
-  pre
+  [ `Start_element(("", "code"), [])
+  ; `Start_element(("", "pre"), [("", "style"), style]) ]
 
 (* Highlights a block of code. *)
 let highlight_block langs grammar theme code =
   let lines = lines code in
   let spans =
     try
-      map_fold (highlight_line langs grammar theme) TmLanguage.empty lines
+      highlight_lines langs grammar theme TmLanguage.empty
+        (theme_spans theme) lines
     with
     | Oniguruma.Error s -> failwith s
     | TmLanguage.Error s -> failwith s
   in
-  theme_spans theme spans
+  List.rev (`End_element :: `End_element :: spans)
 
 (* Themes a block of code without tokenizing anything. *)
 let theme_block theme code =
-  let span = Soup.create_element "span" in
-  Soup.append_child span (Soup.create_text code);
-  theme_spans theme [span]
+  List.rev (`End_element :: `End_element :: `Text [code] :: theme_spans theme)

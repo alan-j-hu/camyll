@@ -104,18 +104,28 @@ let find_grammar t lang =
 
 (* Highlight the code blocks. *)
 let highlight t theme =
+  let theme_helper code =
+    Highlight.theme_block theme code
+    |> Markup.of_list
+    |> Markup.write_html
+    |> Markup.to_string
+  in
+  let highlight_helper grammar code =
+    Highlight.highlight_block t.langs grammar theme code
+    |> Markup.of_list
+    |> Markup.write_html
+    |> Markup.to_string
+  in
   List.map begin function
     | Omd.Code_block(attr, "", code) ->
-      Omd.Html_block(attr, Soup.pretty_print (Highlight.theme_block theme code))
+      Omd.Html_block(attr, theme_helper code)
     | Omd.Code_block(attr, lang, code) ->
       begin match find_grammar t lang with
         | None ->
           prerr_endline ("Warning: unknown language " ^ lang);
-          let elt = Highlight.theme_block theme code in
-          Omd.Html_block(attr, Soup.pretty_print elt)
+          Omd.Html_block(attr, theme_helper code)
         | Some grammar ->
-          let elt = Highlight.highlight_block t.langs grammar theme code in
-          Omd.Html_block(attr, Soup.pretty_print elt)
+          Omd.Html_block(attr, highlight_helper grammar code)
       end
     | x -> x
   end
@@ -215,8 +225,61 @@ let dispatch t dir name =
       (Name name, Bin (Filesystem.read_bytes chan))
     end
 
-let correct_agda_urls t node =
-  let open Soup.Infix in
+let map_attr p f =
+  let rec loop p f acc = function
+    | [] -> List.rev acc
+    | ((ns, key), link) :: attrs when p key ->
+      loop p f (((ns, key), f link) :: acc) attrs
+    | attr :: attrs -> loop p f (attr :: acc) attrs
+  in
+  loop p f []
+
+let correct_agda_urls t signals =
+  let has_agda_class =
+    List.exists (function
+        | ((_, "class"), "Agda") -> true
+        | _ -> false)
+  in
+  let map_href = map_attr ((=) "href") in
+  Markup.transform (fun in_agda signal ->
+      match signal with
+      | `Start_element((_, "pre"), attrs) when has_agda_class attrs ->
+        ([signal], Some (Some 0))
+      | `Start_element((ns, "a"), attrs) ->
+        begin match in_agda with
+          | None -> ([signal], Some None)
+          | Some n ->
+            let attrs =
+              map_href (fun link ->
+                  let rec loop acc = function
+                    | [] -> failwith "Unreachable: Empty Agda link"
+                    | [ext] -> (acc, ext)
+                    | x :: xs -> loop (x :: acc) xs
+                  in
+                  let module_path, ext =
+                    loop [] (String.split_on_char '.' link)
+                  in
+                  match
+                    Hashtbl.find_opt t.agda_links (List.rev module_path)
+                  with
+                  | Some dir_path ->
+                    (* The link is to an internal module *)
+                    ("/" ^ String.concat "/" (List.rev dir_path) ^ "." ^ ext)
+                  | None ->
+                    (* The link is to an external module *)
+                    "/" ^ (Filename.concat t.config.Config.agda_dir link)
+                ) attrs
+            in
+            ([`Start_element((ns, "a"), attrs)], Some (Some (n + 1)))
+        end
+      | `End_element ->
+        ([signal], Some (match in_agda with
+          | Some 0 -> None
+          | Some n -> Some (n - 1)
+          | None -> None))
+      | signal -> ([signal], Some in_agda)
+    ) None signals
+  (*let open Soup.Infix in
   node $$ "pre[class=\"Agda\"] > a[href]" |> Soup.iter begin fun node ->
     match Soup.attribute "href" node with
     | None -> failwith "Unreachable: href"
@@ -238,7 +301,7 @@ let correct_agda_urls t node =
         (* The link is to an external module *)
         let link = "/" ^ (Filename.concat t.config.Config.agda_dir link) in
         Soup.set_attribute "href" link node
-  end
+  end*)
 
 let render_from_file models url path =
   let env =
@@ -278,27 +341,31 @@ let render_page pages url page =
     in
     render_from_file models url path
 
-let relativize_urls url node =
-  let open Soup.Infix in
-  let replace attr =
-    node $$ ("[" ^ attr ^ "]") |> Soup.iter begin fun node ->
-      match Soup.attribute attr node with
-      | None -> failwith ("Unreachable: attribute " ^ attr ^ " not found!")
-      | Some link ->
-        Soup.set_attribute attr (Url.relativize ~src:url ~dest:link) node
-    end
-  in
-  replace "href";
-  replace "src"
+let relativize_urls url =
+  Markup.map (function
+      | `Start_element(name, attrs) ->
+        `Start_element(name,
+                       map_attr (fun name -> name = "href" || name = "src")
+                         (fun link -> Url.relativize ~src:url ~dest:link)
+                         attrs)
+      | signal -> signal)
+
+let pipeline t url content =
+    content
+    |> Markup.string
+    |> Markup.parse_html
+    |> Markup.signals
+    |> correct_agda_urls t
+    |> relativize_urls url
+    |> Markup.write_html
+    |> Markup.to_string
 
 let compile_page t siblings path url page =
   let content = render_page siblings url page in
-  let output = Soup.parse content in
   add_taxonomies t url page;
-  correct_agda_urls t output;
-  relativize_urls url output;
+  let output = pipeline t url content in
   path |> Filesystem.with_out begin fun out_chan ->
-    output_string out_chan (Soup.pretty_print output)
+    output_string out_chan output
   end
 
 let rec load_dir t dir =
@@ -376,12 +443,10 @@ let build_taxonomy t name taxonomy =
         output_path
         taxonomy.layout
     in
-    let output = Soup.parse content in
-    correct_agda_urls t output;
     let url = "/" ^ name ^ "/" ^ slugified_tag ^ ".html" in
-    relativize_urls url output;
+    let output = pipeline t url content in
     output_path |> Filesystem.with_out begin fun out_chan ->
-      output_string out_chan (Soup.pretty_print output)
+      output_string out_chan output
     end
   end
 

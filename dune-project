@@ -28,7 +28,6 @@ Features:
   (httpaf (and (>= 0.7.1) (< 0.8)))
   (httpaf-lwt-unix (and (>= 0.7.1) (< 0.8)))
   (jingoo (and (>= 1.4) (< 2)))
-  (lambdasoup (and (>= 0.7) (< 0.8)))
   (markup (and (>= 0.8) (< 2)))
   (ocaml (>= 4.12))
   (omd (= 2.0.0~alpha2))

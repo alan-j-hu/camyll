@@ -1,5 +1,5 @@
 (library
  (name camyll)
  (libraries
-  calendar ezjsonm httpaf httpaf-lwt-unix ISO8601 jingoo lambdasoup lwt omd
+  calendar ezjsonm httpaf httpaf-lwt-unix ISO8601 jingoo lwt omd
   otoml plist-xml re slug textmate-language uri yaml))

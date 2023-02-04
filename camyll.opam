@@ -25,7 +25,6 @@ depends: [
   "httpaf" {>= "0.7.1" & < "0.8"}
   "httpaf-lwt-unix" {>= "0.7.1" & < "0.8"}
   "jingoo" {>= "1.4" & < "2"}
-  "lambdasoup" {>= "0.7" & < "0.8"}
   "markup" {>= "0.8" & < "2"}
   "ocaml" {>= "4.12"}
   "omd" {= "2.0.0~alpha2"}
