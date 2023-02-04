@@ -29,6 +29,7 @@ jobs:
           apkg init
           apkg install standard-library --version v1.1 --yes
           opam install . --with-test
+          dune fmt
           cd example
           camyll build
           cd ../web
