@@ -1,93 +1,65 @@
-<!DOCTYPE html>
-<html>
- <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>
-   Taxonomies
-  </title>
-  <link href="../favicon.ico?" rel="shortcut icon" type="image/x-icon">
-  <link href="../site.css" rel="stylesheet" type="text/css">
-  <link href="../docs.css" rel="stylesheet" type="text/css">
- </head>
- <body>
-  <header>
-   <nav class="nav">
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Taxonomies</title>
+<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico?">
+<link rel="stylesheet" type="text/css" href="../site.css">
+
+
+    <link rel="stylesheet" type="text/css" href="../docs.css">
+  </head>
+  <body>
+    <header>
+  <nav class="nav">
     <div class="logo">
-     <img src="../logo.svg">
+      <img src="../logo.svg">
       CAMYLL
     </div>
     <ul>
-     <li>
-      <a href="../">Home</a>
-     </li>
-     <li>
-      <a href="index.html">Docs</a>
-     </li>
-     <li>
-      <a href="https://github.com/alan-j-hu/camyll">GitHub</a>
-     </li>
-     <li>
-      <a href="https://opam.ocaml.org/packages/camyll/">Opam</a>
-     </li>
+      <li><a href="../">Home</a></li>
+      <li><a href="index.html">Docs</a></li>
+      <li><a href="https://github.com/alan-j-hu/camyll">GitHub</a></li>
+      <li><a href="https://opam.ocaml.org/packages/camyll/">Opam</a></li>
     </ul>
-   </nav>
-  </header>
-  <div class="main">
-   <div>
-    <nav class="sidebar">
-     <h3>
-      Documentation
-     </h3>
-     <ul>
-      <li>
-       <a href="commands.html">Commands</a>
-      </li>
-      <li>
-       <a href="configuration.html">Configuration</a>
-      </li>
-      <li>
-       <a href="pages.html">Pages</a>
-      </li>
-      <li>
-       <a href="highlighting.html">Syntax Highlighting</a>
-      </li>
-      <li>
-       <a href="taxonomies.html">Taxonomies</a>
-      </li>
-      <li>
-       <a href="templates.html">Templates</a>
-      </li>
-     </ul>
-    </nav>
-    <main>
-     <h1>
-      Taxonomies
-     </h1>
-     <p>
-      Camyll supports arbitrary, user-defined page classifications. A <em>taxonomy</em> is
+  </nav>
+</header>
+
+    <div class="main">
+      <div>
+        <nav class="sidebar">
+          <h3>Documentation</h3>
+          <ul>
+            <li><a href="commands.html">Commands</a></li>
+            <li><a href="configuration.html">Configuration</a></li>
+            <li><a href="pages.html">Pages</a></li>
+            <li><a href="highlighting.html">Syntax Highlighting</a></li>
+            <li><a href="taxonomies.html">Taxonomies</a></li>
+            <li><a href="templates.html">Templates</a></li>
+          </ul>
+        </nav>
+        <main>
+          <h1>Taxonomies</h1>
+<p>Camyll supports arbitrary, user-defined page classifications. A <em>taxonomy</em> is
 a classification, such as "categories" or "tags." A <em>taxonomy term</em> is a name
 for a set of pages that is associated with a particular taxonomy, such as
-a tag called "OCaml" or a category called "programming."
-     </p>
-     <p>
-      Taxonomies must be declared in the <a href="configuration.html">configuration file</a>.
+a tag called "OCaml" or a category called "programming."</p>
+<p>Taxonomies must be declared in the <a href="configuration.html">configuration file</a>.
 Camyll will generate a page for each taxonomy term at the address
 <code>/&lt;taxonomy-name&gt;/&lt;term-name&gt;</code> using the template specified in the configuration
-file.
-     </p>
-     <p>
-      A <a href="pages.html">page's frontmatter</a> lists the terms that the page belongs to.
-Each term belongs to the namespace of one taxonomy.
-     </p>
-    </main>
-   </div>
-  </div>
-  <footer>
-   © 2020-2021 Alan Hu. Camyll is available under the MIT license.<br>
+file.</p>
+<p>A <a href="pages.html">page's frontmatter</a> lists the terms that the page belongs to.
+Each term belongs to the namespace of one taxonomy.</p>
+
+        </main>
+      </div>
+    </div>
+    <footer>
+  © 2020-2021 Alan Hu. Camyll is available under the MIT license.<br>
   The syntax highlighting style is
   <a href="https://github.com/primer/github-textmate-theme">GitHub TextMate
   dark theme</a>.
-  </footer>
- </body>
-</html>
+</footer>
+
+  
+
+</body></html>

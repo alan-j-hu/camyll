@@ -1,117 +1,76 @@
-<!DOCTYPE html>
-<html>
- <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>
-   Configuration
-  </title>
-  <link href="../favicon.ico?" rel="shortcut icon" type="image/x-icon">
-  <link href="../site.css" rel="stylesheet" type="text/css">
-  <link href="../docs.css" rel="stylesheet" type="text/css">
- </head>
- <body>
-  <header>
-   <nav class="nav">
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Configuration</title>
+<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico?">
+<link rel="stylesheet" type="text/css" href="../site.css">
+
+
+    <link rel="stylesheet" type="text/css" href="../docs.css">
+  </head>
+  <body>
+    <header>
+  <nav class="nav">
     <div class="logo">
-     <img src="../logo.svg">
+      <img src="../logo.svg">
       CAMYLL
     </div>
     <ul>
-     <li>
-      <a href="../">Home</a>
-     </li>
-     <li>
-      <a href="index.html">Docs</a>
-     </li>
-     <li>
-      <a href="https://github.com/alan-j-hu/camyll">GitHub</a>
-     </li>
-     <li>
-      <a href="https://opam.ocaml.org/packages/camyll/">Opam</a>
-     </li>
+      <li><a href="../">Home</a></li>
+      <li><a href="index.html">Docs</a></li>
+      <li><a href="https://github.com/alan-j-hu/camyll">GitHub</a></li>
+      <li><a href="https://opam.ocaml.org/packages/camyll/">Opam</a></li>
     </ul>
-   </nav>
-  </header>
-  <div class="main">
-   <div>
-    <nav class="sidebar">
-     <h3>
-      Documentation
-     </h3>
-     <ul>
-      <li>
-       <a href="commands.html">Commands</a>
-      </li>
-      <li>
-       <a href="configuration.html">Configuration</a>
-      </li>
-      <li>
-       <a href="pages.html">Pages</a>
-      </li>
-      <li>
-       <a href="highlighting.html">Syntax Highlighting</a>
-      </li>
-      <li>
-       <a href="taxonomies.html">Taxonomies</a>
-      </li>
-      <li>
-       <a href="templates.html">Templates</a>
-      </li>
-     </ul>
-    </nav>
-    <main>
-     <h1>
-      Configuration
-     </h1>
-     <p>
-      Camyll uses <a href="https://toml.io/en/">TOML</a> for configuration. A configuration file
-has the following format:
-     </p>
-     <pre style="color: #f6f8fa;background: #24292e;"><code><span class="sourceLine"><span style="color: #c8e1ff;">dest_dir</span><span style="color: #79b8ff;"> </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;"> </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">agda_dir = "" </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">exclude = [] </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string list</span><span style="color: #959da5;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">
-</span></span><span class="sourceLine"><span style="color: #79b8ff;">taxonomies = {} </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : { name : string; layout : string } list</span><span style="color: #959da5;">
-</span></span></code></pre>
-     <h2>
-      dest_dir
-     </h2>
-     <p>
-      <code>dest_dir</code> is the name of the directory that contains the rendered site.
-     </p>
-     <h2>
-      agda_dir
-     </h2>
-     <p>
-      <code>agda_dir</code> is the name of the directory (inside the destination directory) that
-contains the generated Literate Agda documentation for libraries.
-     </p>
-     <h2>
-      exclude
-     </h2>
-     <p>
-      <code>exclude</code> is a list of globs of files to ignore.
-     </p>
-     <h2>
-      taxonomies
-     </h2>
-     <p>
-      <code>taxonomies</code> is the list of <a href="taxonomies.html">taxonomies</a>. Each taxonomy
+  </nav>
+</header>
+
+    <div class="main">
+      <div>
+        <nav class="sidebar">
+          <h3>Documentation</h3>
+          <ul>
+            <li><a href="commands.html">Commands</a></li>
+            <li><a href="configuration.html">Configuration</a></li>
+            <li><a href="pages.html">Pages</a></li>
+            <li><a href="highlighting.html">Syntax Highlighting</a></li>
+            <li><a href="taxonomies.html">Taxonomies</a></li>
+            <li><a href="templates.html">Templates</a></li>
+          </ul>
+        </nav>
+        <main>
+          <h1>Configuration</h1>
+<p>Camyll uses <a href="https://toml.io/en/">TOML</a> for configuration. A configuration file
+has the following format:</p>
+<pre style="color: #f6f8fa;background: #24292e;"><code></code><span style="color: #c8e1ff;">dest_dir</span><span style="color: #79b8ff;"> </span><span style="color: #959da5;">=</span><span style="color: #79b8ff;"> </span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;">"</span><span style="color: #79b8ff;"> </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
+</span><span class="sourceLine"></span><span style="color: #79b8ff;">
+</span><span class="sourceLine"></span><span style="color: #79b8ff;">agda_dir = "" </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string</span><span style="color: #959da5;">
+</span><span class="sourceLine"></span><span style="color: #79b8ff;">
+</span><span class="sourceLine"></span><span style="color: #79b8ff;">exclude = [] </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : string list</span><span style="color: #959da5;">
+</span><span class="sourceLine"></span><span style="color: #79b8ff;">
+</span><span class="sourceLine"></span><span style="color: #79b8ff;">taxonomies = {} </span><span style="color: #959da5;">#</span><span style="color: #959da5;"> : { name : string; layout : string } list</span><span style="color: #959da5;">
+</span><span class="sourceLine"></span></pre><h2>dest_dir</h2>
+<p><code>dest_dir</code> is the name of the directory that contains the rendered site.</p>
+<h2>agda_dir</h2>
+<p><code>agda_dir</code> is the name of the directory (inside the destination directory) that
+contains the generated Literate Agda documentation for libraries.</p>
+<h2>exclude</h2>
+<p><code>exclude</code> is a list of globs of files to ignore.</p>
+<h2>taxonomies</h2>
+<p><code>taxonomies</code> is the list of <a href="taxonomies.html">taxonomies</a>. Each taxonomy
 contains the key <code>name</code>, which is its name, used in the URL, and the key
 <code>layout</code>, which is the name of the layout template to use to generate the page
-of an individual taxonomy term.
-     </p>
-    </main>
-   </div>
-  </div>
-  <footer>
-   © 2020-2021 Alan Hu. Camyll is available under the MIT license.<br>
+of an individual taxonomy term.</p>
+
+        </main>
+      </div>
+    </div>
+    <footer>
+  © 2020-2021 Alan Hu. Camyll is available under the MIT license.<br>
   The syntax highlighting style is
   <a href="https://github.com/primer/github-textmate-theme">GitHub TextMate
   dark theme</a>.
-  </footer>
- </body>
-</html>
+</footer>
+
+  
+
+</body></html>

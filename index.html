@@ -1,77 +1,65 @@
-<!DOCTYPE html>
-<html>
- <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>
-   Camyll
-  </title>
-  <link href="favicon.ico?" rel="shortcut icon" type="image/x-icon">
-  <link href="site.css" rel="stylesheet" type="text/css">
-  <link href="index.css" rel="stylesheet" type="text/css">
- </head>
- <body>
-  <header>
-   <nav class="nav">
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Camyll</title>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico?">
+<link rel="stylesheet" type="text/css" href="site.css">
+
+
+    <link rel="stylesheet" type="text/css" href="index.css">
+  </head>
+  <body>
+    <header>
+  <nav class="nav">
     <div class="logo">
-     <img src="logo.svg">
+      <img src="logo.svg">
       CAMYLL
     </div>
     <ul>
-     <li>
-      <a href="./">Home</a>
-     </li>
-     <li>
-      <a href="docs/index.html">Docs</a>
-     </li>
-     <li>
-      <a href="https://github.com/alan-j-hu/camyll">GitHub</a>
-     </li>
-     <li>
-      <a href="https://opam.ocaml.org/packages/camyll/">Opam</a>
-     </li>
+      <li><a href="./">Home</a></li>
+      <li><a href="docs/index.html">Docs</a></li>
+      <li><a href="https://github.com/alan-j-hu/camyll">GitHub</a></li>
+      <li><a href="https://opam.ocaml.org/packages/camyll/">Opam</a></li>
     </ul>
-   </nav>
-  </header>
-  <div class="big-logo">
-   <img src="logo.svg">
-  </div>
-  <div id="container">
-   <div id="features">
+  </nav>
+</header>
+
+    
+<div class="big-logo">
+  <img src="logo.svg">
+</div>
+
+<div id="container">
+  <div id="features">
     <div class="feature">
-     <h2>
-      Markdown
-     </h2>
-     Camyll converts files ending in <code>.md</code> from Markdown to HTML.
+      <h2>Markdown</h2>
+      Camyll converts files ending in <code>.md</code> from Markdown to HTML.
     </div>
     <div class="feature">
-     <h2>
-      Literate Agda
-     </h2>
-     Camyll recognizes files ending in <code>.lagda.md</code> as Literate Agda
+      <h2>Literate Agda</h2>
+      Camyll recognizes files ending in <code>.lagda.md</code> as Literate Agda
       files and invokes the Agda compiler to preprocess the Agda code blocks.
     </div>
     <div class="feature">
-     <h2>
-      Syntax Highlighting
-     </h2>
-     Instead of supporting a fixed set of languages, Camyll lets the user
+      <h2>Syntax Highlighting</h2>
+      Instead of supporting a fixed set of languages, Camyll lets the user
       provide TextMate grammars in the site directory for any desired language.
       Camyll uses TextMate themes to assign colors to tokens.
     </div>
     <div class="feature">
-     <h2>
-      Tags and Taxonomies
-     </h2>
-     Camyll supports tags and user-defined taxonomies.
+      <h2>Tags and Taxonomies</h2>
+      Camyll supports tags and user-defined taxonomies.
     </div>
-   </div>
   </div>
-  <footer>
-   © 2020-2021 Alan Hu. Camyll is available under the MIT license.<br>
+</div>
+
+    <footer>
+  © 2020-2021 Alan Hu. Camyll is available under the MIT license.<br>
   The syntax highlighting style is
   <a href="https://github.com/primer/github-textmate-theme">GitHub TextMate
   dark theme</a>.
-  </footer>
- </body>
-</html>
+</footer>
+
+  
+
+</body></html>

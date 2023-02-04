@@ -1,87 +1,63 @@
-<!DOCTYPE html>
-<html>
- <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>
-   Syntax Highlighting
-  </title>
-  <link href="../favicon.ico?" rel="shortcut icon" type="image/x-icon">
-  <link href="../site.css" rel="stylesheet" type="text/css">
-  <link href="../docs.css" rel="stylesheet" type="text/css">
- </head>
- <body>
-  <header>
-   <nav class="nav">
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Syntax Highlighting</title>
+<link rel="shortcut icon" type="image/x-icon" href="../favicon.ico?">
+<link rel="stylesheet" type="text/css" href="../site.css">
+
+
+    <link rel="stylesheet" type="text/css" href="../docs.css">
+  </head>
+  <body>
+    <header>
+  <nav class="nav">
     <div class="logo">
-     <img src="../logo.svg">
+      <img src="../logo.svg">
       CAMYLL
     </div>
     <ul>
-     <li>
-      <a href="../">Home</a>
-     </li>
-     <li>
-      <a href="index.html">Docs</a>
-     </li>
-     <li>
-      <a href="https://github.com/alan-j-hu/camyll">GitHub</a>
-     </li>
-     <li>
-      <a href="https://opam.ocaml.org/packages/camyll/">Opam</a>
-     </li>
+      <li><a href="../">Home</a></li>
+      <li><a href="index.html">Docs</a></li>
+      <li><a href="https://github.com/alan-j-hu/camyll">GitHub</a></li>
+      <li><a href="https://opam.ocaml.org/packages/camyll/">Opam</a></li>
     </ul>
-   </nav>
-  </header>
-  <div class="main">
-   <div>
-    <nav class="sidebar">
-     <h3>
-      Documentation
-     </h3>
-     <ul>
-      <li>
-       <a href="commands.html">Commands</a>
-      </li>
-      <li>
-       <a href="configuration.html">Configuration</a>
-      </li>
-      <li>
-       <a href="pages.html">Pages</a>
-      </li>
-      <li>
-       <a href="highlighting.html">Syntax Highlighting</a>
-      </li>
-      <li>
-       <a href="taxonomies.html">Taxonomies</a>
-      </li>
-      <li>
-       <a href="templates.html">Templates</a>
-      </li>
-     </ul>
-    </nav>
-    <main>
-     <h1>
-      Syntax Highlighting
-     </h1>
-     <p>
-      Camyll supports syntax highlighting using TextMate themes and grammars. If a
+  </nav>
+</header>
+
+    <div class="main">
+      <div>
+        <nav class="sidebar">
+          <h3>Documentation</h3>
+          <ul>
+            <li><a href="commands.html">Commands</a></li>
+            <li><a href="configuration.html">Configuration</a></li>
+            <li><a href="pages.html">Pages</a></li>
+            <li><a href="highlighting.html">Syntax Highlighting</a></li>
+            <li><a href="taxonomies.html">Taxonomies</a></li>
+            <li><a href="templates.html">Templates</a></li>
+          </ul>
+        </nav>
+        <main>
+          <h1>Syntax Highlighting</h1>
+<p>Camyll supports syntax highlighting using TextMate themes and grammars. If a
 TextMate theme file called <code>theme.tmTheme</code> exists in the project directory,
 Camyll will use it to highlight Markdown fenced code blocks. Put the grammars
 for the languages you want to highlight in the directory specified in the
 <a href="configuration.html">configuration</a>, and Camyll will find them. When searching
 for a language, Camyll will first search case-insensitively by the <code>name</code>
 attribute of the grammar files, then search case-sensitively by the <code>fileTypes</code>
-attribute of the grammar files.
-     </p>
-    </main>
-   </div>
-  </div>
-  <footer>
-   © 2020-2021 Alan Hu. Camyll is available under the MIT license.<br>
+attribute of the grammar files.</p>
+
+        </main>
+      </div>
+    </div>
+    <footer>
+  © 2020-2021 Alan Hu. Camyll is available under the MIT license.<br>
   The syntax highlighting style is
   <a href="https://github.com/primer/github-textmate-theme">GitHub TextMate
   dark theme</a>.
-  </footer>
- </body>
-</html>
+</footer>
+
+  
+
+</body></html>
