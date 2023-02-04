@@ -1,8 +1,9 @@
 let relativize ~src ~dest =
   let chop_common_prefix url1 url2 =
-    let rec loop url1 url2 = match url1, url2 with
+    let rec loop url1 url2 =
+      match (url1, url2) with
       | x :: xs, y :: ys when x = y -> loop xs ys
-      | url1, url2 -> url1, url2
+      | url1, url2 -> (url1, url2)
     in
     loop url1 url2
   in
@@ -16,19 +17,14 @@ let relativize ~src ~dest =
     let dest_file, dest_dir =
       (* chop the filename off the end of the dest path *)
       match List.rev (String.split_on_char '/' dest) with
-      | x :: xs -> x, List.rev xs
+      | x :: xs -> (x, List.rev xs)
       | [] -> failwith "Unreachable"
     in
     let src_dir, dest_dir = chop_common_prefix src_dir dest_dir in
     let url =
-      [dest_file]
-      |> ((@) dest_dir)
+      [ dest_file ] |> ( @ ) dest_dir
       |> List.rev_append (List.init (List.length src_dir) (Fun.const ".."))
       |> String.concat "/"
     in
-    if url = "" then
-      "./"
-    else
-      url
-  else
-    dest
+    if url = "" then "./" else url
+  else dest
