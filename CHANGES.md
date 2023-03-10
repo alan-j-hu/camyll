@@ -1,3 +1,7 @@
+## 0.4.3 (March 10, 2023)
+
+- Upgrade `plist-xml` to version 0.4.
+
 ## 0.4.2 (February 4, 2023)
 
 - Remove dependency on `lambdasoup`, allowing Camyll to build on OCaml 5
