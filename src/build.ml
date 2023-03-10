@@ -438,7 +438,7 @@ let build_with_config config =
                  |> with_in_smart (fun chan ->
                         match Filename.extension name with
                         | ".plist" | ".tmLanguage" ->
-                          chan |> Markup.channel |> Plist_xml.parse_exn
+                          chan |> Plist_xml.of_channel
                           |> TmLanguage.of_plist_exn
                         | ".json" ->
                           chan |> Ezjsonm.from_channel
@@ -455,7 +455,8 @@ let build_with_config config =
                TmLanguage.add_grammar langs lang
              with
              | Oniguruma.Error s -> failwith (path ^ ": Oniguruma: " ^ s)
-             | Plist_xml.Parse_error s -> failwith (path ^ ": " ^ s)
+             | Plist_xml.Error (_, e) ->
+               failwith (path ^ ": " ^ Plist_xml.error_message e)
              | Ezjsonm.Parse_error (_, s) -> failwith (path ^ ": " ^ s)
              | Invalid_argument s -> failwith (path ^ ": " ^ s)
              | TmLanguage.Error s -> failwith (path ^ ": " ^ s)));
@@ -464,8 +465,7 @@ let build_with_config config =
       Some
         ("theme.tmTheme"
         |> with_in_smart (fun chan ->
-               chan |> Markup.channel |> Plist_xml.parse_exn
-               |> Highlight.theme_of_plist))
+               Plist_xml.of_channel chan |> Highlight.theme_of_plist))
     else None
   in
   let t =
