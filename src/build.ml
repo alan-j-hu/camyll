@@ -438,7 +438,7 @@ let build_with_config config =
                  |> with_in_smart (fun chan ->
                         match Filename.extension name with
                         | ".plist" | ".tmLanguage" ->
-                          chan |> Plist_xml.of_channel
+                          chan |> Plist_xml.from_channel
                           |> TmLanguage.of_plist_exn
                         | ".json" ->
                           chan |> Ezjsonm.from_channel
@@ -465,7 +465,7 @@ let build_with_config config =
       Some
         ("theme.tmTheme"
         |> with_in_smart (fun chan ->
-               Plist_xml.of_channel chan |> Highlight.theme_of_plist))
+               Plist_xml.from_channel chan |> Highlight.theme_of_plist))
     else None
   in
   let t =

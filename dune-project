@@ -32,7 +32,7 @@ Features:
   (ocaml (>= 4.14))
   (omd (>= 2.0.0~))
   (otoml (>= 0.9.3))
-  (plist-xml (>= 0.4))
+  (plist-xml (>= 0.5))
   (re (and (>= 1.9) (< 2)))
   (slug (and (>= 1.0) (< 2)))
   (textmate-language (and (>= 0.3.2) (< 0.4)))

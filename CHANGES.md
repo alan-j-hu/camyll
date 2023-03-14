@@ -1,6 +1,6 @@
-## 0.4.3 (March 10, 2023)
+## 0.4.3 (March 14, 2023)
 
-- Upgrade `plist-xml` to version 0.4.
+- Upgrade `plist-xml` to version 0.5.
 
 ## 0.4.2 (February 4, 2023)
 
