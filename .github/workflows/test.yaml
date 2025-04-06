@@ -4,15 +4,15 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         ocaml-compiler:
           - 4.14.x
           - 5.0.x
     steps:
-      - uses: actions/checkout@v2
-      - uses: ocaml/setup-ocaml@v2
+      - uses: actions/checkout@v4
+      - uses: ocaml/setup-ocaml@v3
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
       - name: Update path
