@@ -1,4 +1,4 @@
 (library
  (name camyll)
- (libraries calendar cmarkit ezjsonm httpaf httpaf-lwt-unix ISO8601 jingoo lwt
-   markup otoml plist-xml re slug textmate-language uri yaml))
+ (libraries calendar cmarkit ezjsonm httpaf httpaf-lwt-unix ISO8601 jingoo
+   lwt markup otoml plist-xml re slug textmate-language uri yaml))

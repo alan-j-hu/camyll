@@ -99,12 +99,12 @@ let highlight t theme _mapper block =
     |> Markup.of_list |> Markup.write_html |> Markup.to_string
   in
   match block with
-  | Cmarkit.Block.Code_block (code_block, meta) ->
+  | Cmarkit.Block.Code_block (code_block, meta) -> (
     let lang = Cmarkit.Block.Code_block.info_string code_block in
-    (match lang with
+    match lang with
     | None -> `Default
-    | Some (lang, _) ->
-      (match find_grammar t lang with
+    | Some (lang, _) -> (
+      match find_grammar t lang with
       | None ->
         prerr_endline ("Warning: unknown language " ^ lang);
         `Default
@@ -117,14 +117,14 @@ let highlight t theme _mapper block =
   | _ -> `Default
 
 let process_md t chan =
-  let transform = match t.tm_theme with
+  let transform =
+    match t.tm_theme with
     | Some theme ->
       let mapper = Cmarkit.Mapper.make ~block:(highlight t theme) () in
       Cmarkit.Mapper.map_doc mapper
     | None -> Fun.id
   in
-  chan
-  |> In_channel.input_all
+  chan |> In_channel.input_all
   |> Cmarkit.Doc.of_string ~strict:false
   |> transform
   |> Cmarkit_html.of_doc ~safe:false
