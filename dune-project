@@ -3,8 +3,8 @@
 (generate_opam_files true)
 
 (license MIT)
-(authors "Alan Hu <alanh@ccs.neu.edu>")
-(maintainers "Alan Hu <alanh@ccs.neu.edu>")
+(authors "Alan Hu <ahulambda@gmail.com>")
+(maintainers "Alan Hu <ahulambda@gmail.com>")
 (homepage "https://alan-j-hu.github.io/camyll")
 (source (github alan-j-hu/camyll))
 

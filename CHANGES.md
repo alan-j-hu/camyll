@@ -1,3 +1,7 @@
+## 0.4.4 (April 6, 2025)
+
+- Switch Markdown engine from OMD to Cmarkit.
+
 ## 0.4.3 (March 14, 2023)
 
 - Upgrade `plist-xml` to version 0.5.

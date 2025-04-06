@@ -10,8 +10,8 @@ Features:
 - Syntax highlighting of any language via user-provided TextMate grammars
 - Post tagging
 - Processing of literate Agda"""
-maintainer: ["Alan Hu <alanh@ccs.neu.edu>"]
-authors: ["Alan Hu <alanh@ccs.neu.edu>"]
+maintainer: ["Alan Hu <ahulambda@gmail.com>"]
+authors: ["Alan Hu <ahulambda@gmail.com>"]
 license: "MIT"
 tags: ["blog" "web" "website"]
 homepage: "https://alan-j-hu.github.io/camyll"
