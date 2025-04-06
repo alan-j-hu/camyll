@@ -252,8 +252,8 @@ let theme_spans theme =
   ]
 
 (* Highlights a block of code. *)
-let highlight_block langs grammar theme code =
-  let lines = lines code in
+let highlight_block langs grammar theme lines =
+  let lines = List.map (fun line -> line ^ "\n") lines in
   let spans =
     try
       highlight_lines langs grammar theme TmLanguage.empty (theme_spans theme)
@@ -263,7 +263,3 @@ let highlight_block langs grammar theme code =
     | TmLanguage.Error s -> failwith s
   in
   List.rev (`End_element :: `End_element :: spans)
-
-(* Themes a block of code without tokenizing anything. *)
-let theme_block theme code =
-  List.rev (`End_element :: `End_element :: `Text [ code ] :: theme_spans theme)

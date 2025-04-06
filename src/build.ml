@@ -93,31 +93,41 @@ let find_grammar t lang =
   | None -> TmLanguage.find_by_filetype t.langs lang
 
 (* Highlight the code blocks. *)
-let highlight t theme =
-  let theme_helper code =
-    Highlight.theme_block theme code
-    |> Markup.of_list |> Markup.write_html |> Markup.to_string
-  in
+let highlight t theme _mapper block =
   let highlight_helper grammar code =
     Highlight.highlight_block t.langs grammar theme code
     |> Markup.of_list |> Markup.write_html |> Markup.to_string
   in
-  List.map (function
-    | Omd.Code_block (attr, "", code) ->
-      Omd.Html_block (attr, theme_helper code)
-    | Omd.Code_block (attr, lang, code) -> (
-      match find_grammar t lang with
+  match block with
+  | Cmarkit.Block.Code_block (code_block, meta) ->
+    let lang = Cmarkit.Block.Code_block.info_string code_block in
+    (match lang with
+    | None -> `Default
+    | Some (lang, _) ->
+      (match find_grammar t lang with
       | None ->
         prerr_endline ("Warning: unknown language " ^ lang);
-        Omd.Html_block (attr, theme_helper code)
-      | Some grammar -> Omd.Html_block (attr, highlight_helper grammar code))
-    | x -> x)
+        `Default
+      | Some grammar ->
+        let code = Cmarkit.Block.Code_block.code code_block in
+        let lines = List.map (fun (fst, _) -> fst) code in
+        let raw_html = highlight_helper grammar lines in
+        let block_lines = Cmarkit.Block_line.list_of_string ~meta raw_html in
+        `Map (Some (Cmarkit.Block.Html_block (block_lines, meta)))))
+  | _ -> `Default
 
 let process_md t chan =
-  match t.tm_theme with
-  | Some theme ->
-    Omd.to_html (highlight t theme (Omd.of_string (In_channel.input_all chan)))
-  | None -> Omd.to_html (Omd.of_string (In_channel.input_all chan))
+  let transform = match t.tm_theme with
+    | Some theme ->
+      let mapper = Cmarkit.Mapper.make ~block:(highlight t theme) () in
+      Cmarkit.Mapper.map_doc mapper
+    | None -> Fun.id
+  in
+  chan
+  |> In_channel.input_all
+  |> Cmarkit.Doc.of_string ~strict:false
+  |> transform
+  |> Cmarkit_html.of_doc ~safe:false
 
 (* Intercepts [Failure _] exceptions to report the file name. *)
 let with_in_smart f path =
